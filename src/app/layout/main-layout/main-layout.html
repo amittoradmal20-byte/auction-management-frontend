@@ -1,0 +1,103 @@
+
+<div class="app-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-header">
+      <h4>AI Cricket</h4>
+      <span>Auction Platform</span>
+    </div>
+
+    <nav class="sidebar-menu">
+
+      <div class="menu-label">MAIN MENU</div>
+
+      <a class="menu-item"
+         routerLink="/dashboard"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }">
+
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="menu-item"
+         routerLink="/tournaments"
+         routerLinkActive="active">
+
+        <i class="bi bi-trophy"></i>
+        <span>Tournaments</span>
+      </a>
+
+      <a class="menu-item"
+         routerLink="/cricket-groups"
+         routerLinkActive="active">
+
+        <i class="bi bi-people"></i>
+        <span>Cricket Groups</span>
+      </a>
+
+      <a class="menu-item"
+         routerLink="/players"
+         routerLinkActive="active">
+
+        <i class="bi bi-person-badge"></i>
+        <span>Players</span>
+      </a>
+
+      <a class="menu-item"
+         routerLink="/teams"
+         routerLinkActive="active">
+
+        <i class="bi bi-shield"></i>
+        <span>Teams</span>
+      </a>
+
+      <a class="menu-item"
+         routerLink="/auctions"
+         routerLinkActive="active">
+
+        <i class="bi bi-hammer"></i>
+        <span>Auctions</span>
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>AI Cricket Auction Platform</span>
+      <small>Version 1.0.0</small>
+    </div>
+
+  </aside>
+
+  <!-- Main Section -->
+  <div class="main-section">
+
+    <!-- Top Navbar -->
+    <header class="top-navbar">
+
+      <div class="page-heading">
+        <h5>{{ pageTitle }}</h5>
+        <small>AI Cricket Auction Platform</small>
+      </div>
+
+      <div class="user-section">
+        <i class="bi bi-bell"></i>
+
+        <div class="user-profile">
+          <i class="bi bi-person-circle"></i>
+          <span>Admin</span>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- Page Content -->
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>
