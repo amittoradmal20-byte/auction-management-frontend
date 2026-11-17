@@ -1,0 +1,132 @@
+
+<div class="tournaments-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Tournament Details</h2>
+      <p class="text-muted mb-0">
+        View tournament information and configuration.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+    <a [routerLink]="['/tournaments', tournamentId, 'edit']"
+        class="btn btn-primary">
+        <i class="bi bi-pencil-square me-2"></i>
+        Edit Tournament
+    </a>
+
+    <button class="btn btn-outline-secondary"
+            routerLink="/tournaments">
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Tournaments
+    </button>
+
+    </div>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+
+    <div class="content-card">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <h4>Loading Tournament Details...</h4>
+        <p>Please wait while we fetch tournament information.</p>
+      </div>
+    </div>
+
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage) {
+
+    <div class="content-card">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-exclamation-circle"></i>
+        </div>
+
+        <h4>Unable to Load Tournament</h4>
+        <p>{{ errorMessage }}</p>
+
+        <button class="btn btn-primary"
+              (click)="loadTournament()">
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          Retry
+        </button>
+      </div>
+    </div>
+
+  }
+
+  <!-- Tournament Details -->
+  @else if (tournament) {
+
+    <div class="content-card">
+
+      <!-- Tournament Title -->
+      <div class="d-flex justify-content-between align-items-start mb-4">
+
+        <div>
+          <h3>{{ tournament.name }}</h3>
+
+          <p class="text-muted mb-0">
+            {{ tournament.description || 'No description available' }}
+          </p>
+        </div>
+
+        <span class="badge bg-primary fs-6">
+          {{ tournament.status.replace('_', ' ') }}
+        </span>
+
+      </div>
+
+      <hr>
+
+      <!-- Tournament Information -->
+      <div class="row g-4">
+
+        <div class="col-md-6">
+          <label class="text-muted small">Tournament ID</label>
+          <h6 class="text-break">{{ tournament.id }}</h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Maximum Teams</label>
+          <h6>{{ tournament.maxTeams }}</h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Start Date</label>
+          <h6>{{ tournament.startDate }}</h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">End Date</label>
+          <h6>{{ tournament.endDate }}</h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Created At</label>
+          <h6>{{ tournament.createdAt }}</h6>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Last Updated</label>
+          <h6>{{ tournament.updatedAt }}</h6>
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>
