@@ -9,62 +9,24 @@
     </div>
   </div>
 
-  <!-- Statistics Cards -->
-  <div class="row g-4 mb-4">
-
-    <div class="col-xl-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon tournament-icon">
-          <i class="bi bi-trophy"></i>
-        </div>
-        <div>
-          <h6>Total Tournaments</h6>
-          <h3>0</h3>
-          <span>Manage cricket tournaments</span>
-        </div>
-      </div>
+  <!-- Loading Message -->
+  @if (isLoading) {
+    <div class="alert alert-info">
+      Loading dashboard statistics...
     </div>
+  }
 
-    <div class="col-xl-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon player-icon">
-          <i class="bi bi-people"></i>
-        </div>
-        <div>
-          <h6>Total Players</h6>
-          <h3>0</h3>
-          <span>Registered cricket players</span>
-        </div>
-      </div>
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+
+      <button class="btn btn-sm btn-outline-danger ms-3"
+              (click)="loadDashboardSummary()">
+        Retry
+      </button>
     </div>
-
-    <div class="col-xl-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon team-icon">
-          <i class="bi bi-shield"></i>
-        </div>
-        <div>
-          <h6>Total Teams</h6>
-          <h3>0</h3>
-          <span>Participating teams</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon auction-icon">
-          <i class="bi bi-hammer"></i>
-        </div>
-        <div>
-          <h6>Total Auctions</h6>
-          <h3>0</h3>
-          <span>Manage player auctions</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  }
 
   <!-- Welcome Section -->
   <div class="welcome-card">
@@ -79,17 +41,23 @@
         and conduct cricket player auctions from one place.
       </p>
 
+      
       <div class="welcome-actions">
-        <button class="btn btn-primary">
+
+        <button class="btn btn-primary"
+                routerLink="/tournaments">
           <i class="bi bi-plus-circle me-2"></i>
           Create Tournament
         </button>
 
-        <button class="btn btn-outline-primary">
+        <button class="btn btn-outline-primary"
+                routerLink="/auctions">
           <i class="bi bi-eye me-2"></i>
           View Auctions
         </button>
+
       </div>
+
     </div>
 
     <div class="welcome-icon">
@@ -98,6 +66,116 @@
 
   </div>
 
+  <!-- Statistics Cards -->
+  <div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon tournament-icon">
+          <i class="bi bi-trophy"></i>
+        </div>
+        <div>
+          <h6>Total Tournaments</h6>
+          <h3>{{ dashboardSummary?.totalTournaments ?? 0 }}</h3>
+          <span>Manage cricket tournaments</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon player-icon">
+          <i class="bi bi-people"></i>
+        </div>
+        <div>
+          <h6>Total Players</h6>
+          <h3>{{ dashboardSummary?.totalPlayers ?? 0 }}</h3>
+          <span>Registered cricket players</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon team-icon">
+          <i class="bi bi-shield"></i>
+        </div>
+        <div>
+          <h6>Total Teams</h6>
+          <h3>{{ dashboardSummary?.totalTeams ?? 0 }}</h3>
+          <span>Participating teams</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon auction-icon">
+          <i class="bi bi-hammer"></i>
+        </div>
+        <div>
+          <h6>Total Auctions</h6>
+          <h3>{{ dashboardSummary?.totalAuctions ?? 0 }}</h3>
+          <span>Manage player auctions</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- Additional Statistics Cards -->
+  <div class="row g-4 mb-4">
+
+    <!-- Cricket Groups -->
+    <div class="col-xl-4 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon tournament-icon">
+          <i class="bi bi-collection"></i>
+        </div>
+        <div>
+          <h6>Total Cricket Groups</h6>
+          <h3>{{ dashboardSummary?.totalCricketGroups ?? 0 }}</h3>
+          <span>Manage cricket organizations</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Progress Auctions -->
+    <div class="col-xl-4 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon auction-icon">
+          <i class="bi bi-play-circle"></i>
+        </div>
+        <div>
+          <h6>In-Progress Auctions</h6>
+          <h3>{{ dashboardSummary?.inProgressAuctions ?? 0 }}</h3>
+          <span>Currently running auctions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paused Auctions -->
+    <div class="col-xl-4 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon player-icon">
+          <i class="bi bi-pause-circle"></i>
+        </div>
+        <div>
+          <h6>Paused Auctions</h6>
+          <h3>{{ dashboardSummary?.pausedAuctions ?? 0 }}</h3>
+          <span>Temporarily paused auctions</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  
+
+  <!-- Quick Access -->
+ 
   <!-- Quick Access -->
   <div class="section-header">
     <h4>Quick Access</h4>
@@ -106,32 +184,48 @@
 
   <div class="row g-4">
 
+    <!-- Tournaments -->
     <div class="col-xl-3 col-md-6">
-      <div class="quick-card">
+      <div class="quick-card"
+           routerLink="/tournaments"
+           role="link"
+           tabindex="0">
         <i class="bi bi-trophy"></i>
         <h5>Tournaments</h5>
         <p>Create and manage cricket tournaments.</p>
       </div>
     </div>
 
+    <!-- Players -->
     <div class="col-xl-3 col-md-6">
-      <div class="quick-card">
+      <div class="quick-card"
+           routerLink="/players"
+           role="link"
+           tabindex="0">
         <i class="bi bi-person-badge"></i>
         <h5>Players</h5>
         <p>Manage player profiles and information.</p>
       </div>
     </div>
 
+    <!-- Teams -->
     <div class="col-xl-3 col-md-6">
-      <div class="quick-card">
+      <div class="quick-card"
+           routerLink="/teams"
+           role="link"
+           tabindex="0">
         <i class="bi bi-shield"></i>
         <h5>Teams</h5>
         <p>Manage teams and auction budgets.</p>
       </div>
     </div>
 
+    <!-- Auctions -->
     <div class="col-xl-3 col-md-6">
-      <div class="quick-card">
+      <div class="quick-card"
+           routerLink="/auctions"
+           role="link"
+           tabindex="0">
         <i class="bi bi-hammer"></i>
         <h5>Auctions</h5>
         <p>Configure and conduct live auctions.</p>
@@ -139,5 +233,6 @@
     </div>
 
   </div>
+
 
 </div>
