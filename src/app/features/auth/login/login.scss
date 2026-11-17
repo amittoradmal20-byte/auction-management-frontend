@@ -1,0 +1,165 @@
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+  background:
+    linear-gradient(135deg, rgba(10, 25, 47, 0.97), rgba(20, 54, 85, 0.94)),
+    url('/assets/images/cricket-stadium.jpg') center / cover no-repeat;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 430px;
+}
+
+.login-brand {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 28px;
+
+  .brand-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5b942, #e28b19);
+    border-radius: 18px;
+    color: #10243a;
+    font-size: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  h1 {
+    font-size: 27px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  p {
+    color: #c3d2e1;
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+}
+
+.login-card {
+  background: #ffffff;
+  padding: 36px;
+  border-radius: 16px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.25);
+}
+
+.login-heading {
+  text-align: center;
+  margin-bottom: 28px;
+
+  h2 {
+    color: #172b45;
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 7px;
+  }
+
+  p {
+    color: #7b8794;
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+}
+
+.form-label {
+  color: #34445a;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.input-group {
+  .input-group-text {
+    background: #f5f7fa;
+    border-color: #dce3eb;
+    color: #64748b;
+  }
+
+  .form-control {
+    min-height: 46px;
+    border-color: #dce3eb;
+    font-size: 14px;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
+    }
+  }
+}
+
+.password-toggle {
+  cursor: pointer;
+
+  &:hover {
+    background: #e9eef5;
+  }
+}
+
+.validation-message {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.login-button {
+  min-height: 47px;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #173fae;
+    border-color: #173fae;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 25px;
+  color: #c3d2e1;
+
+  p {
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+
+  span {
+    font-size: 11px;
+    color: #91a5bb;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 26px 20px;
+  }
+
+  .login-brand h1 {
+    font-size: 23px;
+  }
+}
