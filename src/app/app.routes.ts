@@ -2,6 +2,7 @@
 import { Routes } from '@angular/router';
 
 import { MainLayoutComponent } from './layout/main-layout/main-layout';
+import { TournamentDetails } from './features/tournaments/tournament-details/tournament-details';
 
 import { Login } from './features/auth/login/login';
 
@@ -12,6 +13,7 @@ import { Players } from './features/players/players';
 import { Teams } from './features/teams/teams';
 import { Auctions } from './features/auctions/auctions';
 import { authGuard } from './core/guards/auth-guard';
+import { TournamentCreate } from './features/tournaments/tournament-create/tournament-create';
 
 export const routes: Routes = [
 
@@ -37,6 +39,21 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent
+      },
+
+      {
+        path: 'tournaments/create',
+        component: TournamentCreate
+      },
+
+      {
+        path: 'tournaments/:id/edit',
+        component: TournamentCreate
+      },
+
+      {
+        path: 'tournaments/:id',
+        component: TournamentDetails
       },
 
       {

@@ -5,31 +5,136 @@
     title="Tournaments"
     description="Create, organize and manage your cricket tournaments."
     actionLabel="Create Tournament"
-    actionIcon="bi-plus-circle">
+    actionIcon="bi-plus-circle"
+    actionLink="/tournaments/create">
   </app-page-header>
 
   <!-- Tournament Content -->
   <div class="content-card">
 
-    <div class="empty-state">
+    <!-- Loading State -->
+    @if (isLoading) {
 
-      <div class="empty-icon">
-        <i class="bi bi-trophy"></i>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+
+        <h4>Loading Tournaments...</h4>
+        <p>Please wait while we fetch tournament records.</p>
       </div>
 
-      <h4>No Tournaments Found</h4>
+    }
 
-      <p>
-        You haven't created any tournaments yet.
-        Start by creating your first cricket tournament.
-      </p>
+    <!-- Error State -->
+    @else if (errorMessage) {
 
-      <button class="btn btn-primary">
-        <i class="bi bi-plus-circle me-2"></i>
-        Create Your First Tournament
-      </button>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-exclamation-circle"></i>
+        </div>
 
-    </div>
+        <h4>Unable to Load Tournaments</h4>
+        <p>{{ errorMessage }}</p>
+
+        <button class="btn btn-primary"
+                (click)="loadTournaments()">
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          Retry
+        </button>
+      </div>
+
+    }
+
+    <!-- Empty State -->
+    @else if (tournaments.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          <i class="bi bi-trophy"></i>
+        </div>
+
+        <h4>No Tournaments Found</h4>
+
+        <p>
+          You haven't created any tournaments yet.
+          Start by creating your first cricket tournament.
+        </p>
+
+        <button class="btn btn-primary">
+          <i class="bi bi-plus-circle me-2"></i>
+          Create Your First Tournament
+        </button>
+
+      </div>
+
+    }
+
+    <!-- Tournament List -->
+    @else {
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tournament Name</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Max Teams</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (tournament of tournaments; track tournament.id; let i = $index) {
+
+              <tr>
+
+                <td>{{ i + 1 }}</td>
+
+                <td>
+                  <strong>{{ tournament.name }}</strong>
+                  <div class="text-muted small">
+                    {{ tournament.description || 'No description available' }}
+                  </div>
+                </td>
+
+                <td>{{ tournament.startDate }}</td>
+
+                <td>{{ tournament.endDate }}</td>
+
+                <td>{{ tournament.maxTeams }}</td>
+
+                <td>
+                  <span class="badge bg-primary">
+                    {{ tournament.status.replace('_', ' ') }}
+                  </span>
+                </td>
+                <td>
+                  <a [routerLink]="['/tournaments', tournament.id]"
+                    class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye me-1"></i>
+                    View
+                  </a>
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
 
   </div>
 
