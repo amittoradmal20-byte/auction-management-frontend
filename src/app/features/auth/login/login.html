@@ -1,0 +1,157 @@
+
+<div class="login-page">
+
+  <div class="login-container">
+
+    <div class="login-brand">
+      <div class="brand-icon">
+        <i class="bi bi-trophy-fill"></i>
+      </div>
+
+      <h1>AI Cricket Auction</h1>
+
+      <p>Management Platform</p>
+    </div>
+
+    <div class="login-card">
+
+      <div class="login-heading">
+        <h2>Welcome Back!</h2>
+        <p>Sign in to continue to your account.</p>
+      </div>
+
+      <div
+        *ngIf="errorMessage"
+        class="alert alert-danger"
+        role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ errorMessage }}
+      </div>
+
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+        novalidate>
+
+        <!-- Username -->
+
+        <div class="mb-3">
+
+          <label for="username" class="form-label">
+            Username
+          </label>
+
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-person"></i>
+            </span>
+
+            <input
+              type="text"
+              id="username"
+              class="form-control"
+              formControlName="username"
+              placeholder="Enter your username"
+              autocomplete="username"
+              [class.is-invalid]="
+                loginForm.controls.username.touched &&
+                loginForm.controls.username.invalid
+              ">
+          </div>
+
+          <div
+            *ngIf="
+              loginForm.controls.username.touched &&
+              loginForm.controls.username.hasError('required')
+            "
+            class="text-danger validation-message">
+            Username is required.
+          </div>
+
+        </div>
+
+        <!-- Password -->
+
+        <div class="mb-4">
+
+          <label for="password" class="form-label">
+            Password
+          </label>
+
+          <div class="input-group">
+
+            <span class="input-group-text">
+              <i class="bi bi-lock"></i>
+            </span>
+
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              class="form-control"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              [class.is-invalid]="
+                loginForm.controls.password.touched &&
+                loginForm.controls.password.invalid
+              ">
+
+            <button
+              type="button"
+              class="input-group-text password-toggle"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+
+              <i
+                class="bi"
+                [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'">
+              </i>
+
+            </button>
+
+          </div>
+
+          <div
+            *ngIf="
+              loginForm.controls.password.touched &&
+              loginForm.controls.password.hasError('required')
+            "
+            class="text-danger validation-message">
+            Password is required.
+          </div>
+
+        </div>
+
+        <!-- Login Button -->
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 login-button"
+          [disabled]="isLoading">
+
+          <span
+            *ngIf="isLoading"
+            class="spinner-border spinner-border-sm me-2">
+          </span>
+
+          <i
+            *ngIf="!isLoading"
+            class="bi bi-box-arrow-in-right me-2">
+          </i>
+
+          {{ isLoading ? 'Signing in...' : 'Sign In' }}
+
+        </button>
+
+      </form>
+
+    </div>
+
+    <div class="login-footer">
+      <p>AI Cricket Auction Management Platform</p>
+      <span>© 2026 All Rights Reserved</span>
+    </div>
+
+  </div>
+
+</div>
