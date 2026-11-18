@@ -16,6 +16,9 @@ import { authGuard } from './core/guards/auth-guard';
 import { TournamentCreate } from './features/tournaments/tournament-create/tournament-create';
 import { CricketGroupDetails } from './features/cricket-groups/cricket-group-details/cricket-group-details';
 import { CricketGroupCreate } from './features/cricket-groups/cricket-group-create/cricket-group-create';
+import { PlayerCreate } from './features/players/player-create/player-create';
+import { PlayerDetails } from './features/players/player-details/player-details';
+import { PlayerEdit } from './features/players/player-edit/player-edit';
 
 export const routes: Routes = [
 
@@ -72,12 +75,24 @@ export const routes: Routes = [
         path: 'cricket-groups/:id',
         component: CricketGroupDetails
       },
-      
+
       {
         path: 'cricket-groups',
         component: CricketGroups
       },
 
+      {
+        path: 'players/create',
+        component: PlayerCreate
+      },
+      {
+        path: 'players/:id/edit',
+        component: PlayerEdit
+      },
+      {
+        path: 'players/:id',
+        component: PlayerDetails
+      },
       {
         path: 'players',
         component: Players

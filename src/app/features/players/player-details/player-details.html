@@ -1,0 +1,311 @@
+
+<div class="players-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Player Details</h2>
+      <p class="text-muted mb-0">
+        View complete cricket player information.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+      <!-- Back to Players -->
+      <a
+        routerLink="/players"
+        class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Players
+
+      </a>
+
+      <!-- Player Actions -->
+      @if (player) {
+
+        <!-- Edit Player -->
+        <a
+          [routerLink]="['/players', player.id, 'edit']"
+          class="btn btn-primary">
+
+          <i class="bi bi-pencil-square me-2"></i>
+          Edit Player
+
+        </a>
+
+        <!-- Activate / Deactivate Player -->
+        <button
+          type="button"
+          class="btn"
+          [class.btn-outline-danger]="player.status === 'ACTIVE'"
+          [class.btn-outline-success]="player.status !== 'ACTIVE'"
+          [disabled]="isUpdatingStatus"
+          (click)="togglePlayerStatus()">
+
+          @if (isUpdatingStatus) {
+
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status">
+              <span class="visually-hidden">Updating...</span>
+            </span>
+
+            Updating...
+
+          } @else if (player.status === 'ACTIVE') {
+
+            <i class="bi bi-person-x me-2"></i>
+            Deactivate
+
+          } @else {
+
+            <i class="bi bi-person-check me-2"></i>
+            Activate
+
+          }
+
+        </button>
+
+      }
+
+    </div>
+
+  </div>
+
+  <!-- Status Success Message -->
+  @if (statusSuccessMessage) {
+
+    <div class="alert alert-success" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      {{ statusSuccessMessage }}
+    </div>
+
+  }
+
+  <!-- Status Error Message -->
+  @if (statusErrorMessage) {
+
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-circle me-2"></i>
+      {{ statusErrorMessage }}
+    </div>
+
+  }
+
+  <!-- Loading State -->
+  @if (isLoading) {
+
+    <div class="content-card text-center py-5">
+
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading player...</span>
+      </div>
+
+      <p class="text-muted mt-3 mb-0">
+        Loading player details...
+      </p>
+
+    </div>
+
+  } @else if (errorMessage) {
+
+    <!-- Error State -->
+    <div class="content-card">
+
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="loadPlayer()">
+
+        <i class="bi bi-arrow-clockwise me-2"></i>
+        Retry
+
+      </button>
+
+    </div>
+
+  } @else if (player) {
+
+    <!-- Player Information -->
+    <div class="content-card">
+
+      <div class="row g-4">
+
+        <!-- Player Name -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Player Name
+          </label>
+
+          <h4 class="mb-0">
+            {{ player.displayName }}
+          </h4>
+
+        </div>
+
+        <!-- Player Status -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-2">
+            Status
+          </label>
+
+          <div>
+            <span
+              class="badge"
+              [class.bg-success]="player.status === 'ACTIVE'"
+              [class.bg-secondary]="player.status !== 'ACTIVE'">
+              {{ player.status }}
+            </span>
+          </div>
+
+        </div>
+
+        <!-- First Name -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            First Name
+          </label>
+
+          <p class="mb-0">
+            {{ player.firstName }}
+          </p>
+
+        </div>
+
+        <!-- Last Name -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Last Name
+          </label>
+
+          <p class="mb-0">
+            {{ player.lastName || '-' }}
+          </p>
+
+        </div>
+
+        <!-- Date of Birth -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Date of Birth
+          </label>
+
+          <p class="mb-0">
+            {{ player.dateOfBirth
+                ? (player.dateOfBirth | date:'dd MMM yyyy')
+                : '-' }}
+          </p>
+
+        </div>
+
+        <!-- Nationality -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Nationality
+          </label>
+
+          <p class="mb-0">
+            {{ player.nationality || '-' }}
+          </p>
+
+        </div>
+
+        <!-- Player Role -->
+        <div class="col-md-4">
+
+          <label class="text-muted small mb-1">
+            Player Role
+          </label>
+
+          <p class="mb-0">
+            {{ player.role }}
+          </p>
+
+        </div>
+
+        <!-- Batting Style -->
+        <div class="col-md-4">
+
+          <label class="text-muted small mb-1">
+            Batting Style
+          </label>
+
+          <p class="mb-0">
+            {{ player.battingStyle || '-' }}
+          </p>
+
+        </div>
+
+        <!-- Bowling Style -->
+        <div class="col-md-4">
+
+          <label class="text-muted small mb-1">
+            Bowling Style
+          </label>
+
+          <p class="mb-0">
+            {{ player.bowlingStyle || '-' }}
+          </p>
+
+        </div>
+
+        <!-- Created Date -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Created Date
+          </label>
+
+          <p class="mb-0">
+            {{ player.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+          </p>
+
+        </div>
+
+        <!-- Updated Date -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Last Updated Date
+          </label>
+
+          <p class="mb-0">
+            {{ player.updatedAt | date:'dd MMM yyyy, hh:mm a' }}
+          </p>
+
+        </div>
+
+      </div>
+
+      <hr class="my-4">
+
+      <!-- Player ID -->
+      <div>
+        <label class="text-muted small mb-1">
+          Player ID
+        </label>
+
+        <p class="mb-0 text-break">
+          {{ player.id }}
+        </p>
+      </div>
+
+    </div>
+
+  }
+
+</div>

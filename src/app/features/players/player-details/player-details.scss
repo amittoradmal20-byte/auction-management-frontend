@@ -1,0 +1,46 @@
+
+.players-container {
+  padding: 0;
+}
+
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.content-card h4 {
+  font-weight: 600;
+  color: #344054;
+}
+
+.content-card label {
+  display: block;
+  font-weight: 500;
+}
+
+.content-card p {
+  color: #344054;
+  font-size: 14px;
+}
+
+.badge {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.btn {
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .content-card {
+    padding: 20px;
+  }
+}
