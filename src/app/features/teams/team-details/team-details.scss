@@ -1,0 +1,104 @@
+
+/* =========================================
+   Team Details Page
+========================================= */
+
+.teams-container {
+  padding: 0;
+}
+
+/* =========================================
+   Content Card
+========================================= */
+
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================
+   Team Logo
+========================================= */
+
+.team-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  background: #ffffff;
+  padding: 8px;
+}
+
+/* =========================================
+   Team Logo Placeholder
+========================================= */
+
+.team-logo-placeholder {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  color: #64748b;
+  font-size: 42px;
+}
+
+/* =========================================
+   Team Information
+========================================= */
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.fw-semibold {
+  font-size: 15px;
+  color: #212529;
+}
+
+/* =========================================
+   Status Badge
+========================================= */
+
+.badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 6px;
+}
+
+/* =========================================
+   Responsive Design
+========================================= */
+
+@media (max-width: 768px) {
+
+  .content-card {
+    padding: 20px;
+  }
+
+  .team-logo,
+  .team-logo-placeholder {
+    width: 75px;
+    height: 75px;
+    min-width: 75px;
+  }
+
+  .team-logo-placeholder {
+    font-size: 32px;
+  }
+
+}

@@ -2,33 +2,48 @@
 import { Routes } from '@angular/router';
 
 import { MainLayoutComponent } from './layout/main-layout/main-layout';
-import { TournamentDetails } from './features/tournaments/tournament-details/tournament-details';
 
 import { Login } from './features/auth/login/login';
 
 import { DashboardComponent } from './features/dashboard/dashboard';
+
 import { Tournaments } from './features/tournaments/tournaments';
-import { CricketGroups } from './features/cricket-groups/cricket-groups';
-import { Players } from './features/players/players';
-import { Teams } from './features/teams/teams';
-import { Auctions } from './features/auctions/auctions';
-import { authGuard } from './core/guards/auth-guard';
 import { TournamentCreate } from './features/tournaments/tournament-create/tournament-create';
-import { CricketGroupDetails } from './features/cricket-groups/cricket-group-details/cricket-group-details';
+import { TournamentDetails } from './features/tournaments/tournament-details/tournament-details';
+
+import { CricketGroups } from './features/cricket-groups/cricket-groups';
 import { CricketGroupCreate } from './features/cricket-groups/cricket-group-create/cricket-group-create';
+import { CricketGroupDetails } from './features/cricket-groups/cricket-group-details/cricket-group-details';
+
+import { Players } from './features/players/players';
 import { PlayerCreate } from './features/players/player-create/player-create';
 import { PlayerDetails } from './features/players/player-details/player-details';
 import { PlayerEdit } from './features/players/player-edit/player-edit';
 
+import { Teams } from './features/teams/teams';
+import { TeamCreate } from './features/teams/team-create/team-create';
+import { TeamDetails } from './features/teams/team-details/team-details';
+import { TeamEdit } from './features/teams/team-edit/team-edit';
+
+import { Auctions } from './features/auctions/auctions';
+
+import { authGuard } from './core/guards/auth-guard';
+
 export const routes: Routes = [
 
-  // Public authentication route
+  // =====================================
+  // Public Authentication Route
+  // =====================================
+
   {
     path: 'login',
     component: Login
   },
 
-  // Main application layout
+  // =====================================
+  // Main Application Layout
+  // =====================================
+
   {
     path: '',
     component: MainLayoutComponent,
@@ -41,10 +56,18 @@ export const routes: Routes = [
         pathMatch: 'full'
       },
 
+      // =====================================
+      // Dashboard
+      // =====================================
+
       {
         path: 'dashboard',
         component: DashboardComponent
       },
+
+      // =====================================
+      // Tournaments
+      // =====================================
 
       {
         path: 'tournaments/create',
@@ -66,6 +89,10 @@ export const routes: Routes = [
         component: Tournaments
       },
 
+      // =====================================
+      // Cricket Groups
+      // =====================================
+
       {
         path: 'cricket-groups/create',
         component: CricketGroupCreate
@@ -81,27 +108,59 @@ export const routes: Routes = [
         component: CricketGroups
       },
 
+      // =====================================
+      // Players
+      // =====================================
+
       {
         path: 'players/create',
         component: PlayerCreate
       },
+
       {
         path: 'players/:id/edit',
         component: PlayerEdit
       },
+
       {
         path: 'players/:id',
         component: PlayerDetails
       },
+
       {
         path: 'players',
         component: Players
+      },
+
+      // =====================================
+      // Teams
+      // =====================================
+
+
+      {
+        path: 'teams/create',
+        component: TeamCreate
+      },
+
+      {
+        path: 'teams/:id/edit',
+        component: TeamEdit
+      },
+
+      {
+        path: 'teams/:id',
+        component: TeamDetails
       },
 
       {
         path: 'teams',
         component: Teams
       },
+
+
+      // =====================================
+      // Auctions
+      // =====================================
 
       {
         path: 'auctions',
@@ -110,6 +169,10 @@ export const routes: Routes = [
 
     ]
   },
+
+  // =====================================
+  // Fallback Route
+  // =====================================
 
   {
     path: '**',
