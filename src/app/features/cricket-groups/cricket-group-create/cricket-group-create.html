@@ -1,0 +1,143 @@
+
+<div class="cricket-groups-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Create Cricket Group</h2>
+      <p class="text-muted mb-0">
+        Add a new cricket group to the platform.
+      </p>
+    </div>
+
+    <a
+      routerLink="/cricket-groups"
+      class="btn btn-outline-secondary">
+
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Cricket Groups
+    </a>
+
+  </div>
+
+  <!-- Cricket Group Form -->
+  <div class="content-card">
+
+    <form
+      [formGroup]="cricketGroupForm"
+      (ngSubmit)="createCricketGroup()">
+
+      <!-- API Error Message -->
+      @if (errorMessage) {
+        <div class="alert alert-danger" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ errorMessage }}
+        </div>
+      }
+
+      <div class="row g-4">
+
+        <!-- Cricket Group Name -->
+        <div class="col-md-6">
+
+          <label for="groupName" class="form-label">
+            Cricket Group Name
+            <span class="text-danger">*</span>
+          </label>
+
+          <input
+            id="groupName"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            maxlength="150"
+            placeholder="Enter cricket group name"
+            [class.is-invalid]="name.invalid && name.touched"
+          />
+
+          @if (name.invalid && name.touched) {
+            <div class="invalid-feedback">
+
+              @if (name.hasError('required')) {
+                Cricket group name is required.
+              }
+
+              @if (name.hasError('maxlength')) {
+                Cricket group name must not exceed 150 characters.
+              }
+
+            </div>
+          }
+
+        </div>
+
+        <!-- Description -->
+        <div class="col-12">
+
+          <label for="groupDescription" class="form-label">
+            Description
+          </label>
+
+          <textarea
+            id="groupDescription"
+            class="form-control"
+            formControlName="description"
+            rows="4"
+            maxlength="500"
+            placeholder="Enter cricket group description"
+            [class.is-invalid]="description.invalid && description.touched">
+          </textarea>
+
+          @if (description.invalid && description.touched) {
+            <div class="invalid-feedback">
+
+              @if (description.hasError('maxlength')) {
+                Description must not exceed 500 characters.
+              }
+
+            </div>
+          }
+
+          <div class="form-text">
+            Maximum 500 characters.
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Form Actions -->
+      <div class="d-flex justify-content-end gap-3 mt-4">
+
+        <a
+          routerLink="/cricket-groups"
+          class="btn btn-outline-secondary">
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSubmitting">
+
+          @if (isSubmitting) {
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              aria-hidden="true">
+            </span>
+            Creating...
+          } @else {
+            <i class="bi bi-plus-circle me-2"></i>
+            Create Cricket Group
+          }
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

@@ -1,0 +1,50 @@
+
+.cricket-groups-container {
+  padding: 0;
+}
+
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #344054;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 10px 14px;
+  border: 1px solid #d0d5dd;
+
+  &:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+  }
+
+  &.is-invalid {
+    border-color: #dc3545;
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.btn {
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .content-card {
+    padding: 20px;
+  }
+}
