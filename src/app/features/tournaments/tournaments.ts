@@ -16,9 +16,10 @@ import { RouterLink } from '@angular/router';
 export class Tournaments implements OnInit {
 
   private tournamentService = inject(TournamentService);
-
   tournaments: Tournament[] = [];
-
+  selectedTournamentId = '';
+  showDeleteConfirmation = false;
+  isDeleting = false;
   isLoading = false;
   errorMessage = '';
 
@@ -47,5 +48,51 @@ export class Tournaments implements OnInit {
 
     });
   }
+
+confirmDelete(tournamentId: string): void {
+  this.selectedTournamentId = tournamentId;
+  this.showDeleteConfirmation = true;
+}
+
+deleteTournament(): void {
+
+  if (!this.selectedTournamentId || this.isDeleting) {
+    return;
+  }
+
+  this.isDeleting = true;
+  this.errorMessage = '';
+
+  this.tournamentService.deleteTournament(
+    this.selectedTournamentId
+  ).subscribe({
+
+    next: () => {
+      this.isDeleting = false;
+      this.showDeleteConfirmation = false;
+      this.selectedTournamentId = '';
+      this.loadTournaments();
+    },
+
+    error: (error) => {
+      console.error('Error deleting tournament:', error);
+
+      this.errorMessage =
+        error.error?.message ??
+        'Unable to delete tournament. Please try again.';
+
+      this.isDeleting = false;
+      this.showDeleteConfirmation = false;
+      this.selectedTournamentId = '';
+    }
+
+  });
+
+}
+
+cancelDelete(): void {
+  this.showDeleteConfirmation = false;
+  this.selectedTournamentId = '';
+}
 
 }
