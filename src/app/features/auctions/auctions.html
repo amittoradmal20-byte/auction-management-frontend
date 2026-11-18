@@ -1,35 +1,200 @@
 
 <div class="auctions-container">
 
+  <!-- Page Header -->
   <app-page-header
     title="Auctions"
-    description="Configure auctions, manage player bidding and track auction results."
+    description="Manage cricket player auctions and bidding events."
     actionLabel="Create Auction"
-    actionIcon="bi-hammer">
+    actionIcon="bi-plus-circle"
+    actionLink="/auctions/create">
   </app-page-header>
 
-  <div class="content-card">
+  <!-- Loading State -->
+  @if (isLoading) {
 
-    <div class="empty-state">
+    <div class="text-center py-5">
 
-      <div class="empty-icon">
-        <i class="bi bi-hammer"></i>
+      <div
+        class="spinner-border text-primary"
+        role="status">
       </div>
 
-      <h4>No Auctions Found</h4>
-
-      <p>
-        No auctions are currently available.
-        Start by creating your first cricket player auction.
+      <p class="text-muted mt-3">
+        Loading auctions...
       </p>
 
-      <button class="btn btn-primary">
-        <i class="bi bi-plus-circle me-2"></i>
-        Create Your First Auction
+    </div>
+
+  }
+
+  <!-- Error State -->
+  @if (errorMessage) {
+
+    <div class="alert alert-danger" role="alert">
+
+      <i class="bi bi-exclamation-circle me-2"></i>
+      {{ errorMessage }}
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger ms-3"
+        (click)="loadAuctions()">
+        Retry
       </button>
 
     </div>
 
-  </div>
+  }
+
+  <!-- Auctions Table -->
+  @if (!isLoading && !errorMessage) {
+
+    <div class="content-card">
+
+      @if (auctions.length === 0) {
+
+        <!-- Empty State -->
+        <div class="text-center py-5">
+
+          <i class="bi bi-hammer fs-1 text-muted"></i>
+
+          <h5 class="mt-3">
+            No Auctions Found
+          </h5>
+
+          <p class="text-muted mb-0">
+            No auctions have been created yet.
+            Create your first auction to get started.
+          </p>
+
+        </div>
+
+      } @else {
+
+        <div class="table-responsive">
+
+          <table class="table table-hover align-middle">
+
+            <thead>
+              <tr>
+                <th>Auction Name</th>
+                <th>Tournament ID</th>
+                <th>Status</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Opening Bid</th>
+                <th>Bid Increment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (auction of auctions; track auction.id) {
+
+                <tr>
+
+                  <!-- Auction Name -->
+                  <td>
+                    <div class="fw-semibold">
+                      {{ auction.name }}
+                    </div>
+
+                    <small class="text-muted">
+                      {{ auction.description || 'No description' }}
+                    </small>
+                  </td>
+
+                  <!-- Tournament ID -->
+                  <td>
+                    <small class="text-muted">
+                      {{ auction.tournamentId }}
+                    </small>
+                  </td>
+
+                  <!-- Auction Status -->
+                  <td>
+
+                    <span
+                      class="badge"
+                      [class.bg-secondary]="auction.status === 'DRAFT'"
+                      [class.bg-info]="auction.status === 'SCHEDULED'"
+                      [class.bg-success]="auction.status === 'IN_PROGRESS'"
+                      [class.bg-warning]="auction.status === 'PAUSED'"
+                      [class.bg-primary]="auction.status === 'COMPLETED'"
+                      [class.bg-danger]="auction.status === 'CANCELLED'"
+                      [class.text-dark]="
+                        auction.status === 'SCHEDULED' ||
+                        auction.status === 'PAUSED'
+                      ">
+
+                      {{ auction.status.replaceAll('_', ' ') }}
+
+                    </span>
+
+                  </td>
+
+                  <!-- Start Time -->
+                  <td>
+                    @if (auction.startTime) {
+                      {{ auction.startTime }}
+                    } @else {
+                      <span class="text-muted">Not scheduled</span>
+                    }
+                  </td>
+
+                  <!-- End Time -->
+                  <td>
+                    @if (auction.endTime) {
+                      {{ auction.endTime }}
+                    } @else {
+                      <span class="text-muted">Not scheduled</span>
+                    }
+                  </td>
+
+                  <!-- Opening Bid -->
+                  <td>
+                    <span class="fw-semibold">
+                      ₹{{ auction.openingBid }}
+                    </span>
+                  </td>
+
+                  <!-- Bid Increment -->
+                  <td>
+                    <span class="fw-semibold">
+                      ₹{{ auction.bidIncrement }}
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  
+                  <td>
+                    <a
+                      [routerLink]="['/auctions', auction.id]"
+                      class="btn btn-sm btn-outline-primary">
+
+                      <i class="bi bi-eye me-1"></i>
+                      View Details
+
+                    </a>
+                  </td>
+
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </div>
+
+  }
 
 </div>

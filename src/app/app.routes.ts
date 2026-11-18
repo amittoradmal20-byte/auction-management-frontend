@@ -26,6 +26,11 @@ import { TeamDetails } from './features/teams/team-details/team-details';
 import { TeamEdit } from './features/teams/team-edit/team-edit';
 
 import { Auctions } from './features/auctions/auctions';
+import { AuctionCreate } from './features/auctions/auction-create/auction-create';
+import { AuctionDetails } from './features/auctions/auction-details/auction-details';
+import { AuctionEdit } from './features/auctions/auction-edit/auction-edit';
+
+
 
 import { authGuard } from './core/guards/auth-guard';
 
@@ -162,9 +167,22 @@ export const routes: Routes = [
       // Auctions
       // =====================================
 
+      
       {
         path: 'auctions',
         component: Auctions
+      },
+      {
+        path: 'auctions/create',
+        component: AuctionCreate
+      },
+      {
+        path: 'auctions/:id/edit',
+        component: AuctionEdit
+      },
+      {
+        path: 'auctions/:id',
+        component: AuctionDetails
       }
 
     ]

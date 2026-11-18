@@ -1,0 +1,201 @@
+
+/* =========================================
+   Auction Details Page
+========================================= */
+
+.auctions-container {
+  padding: 0;
+}
+
+/* =========================================
+   Page Header
+========================================= */
+
+.auctions-container h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 6px;
+}
+
+.auctions-container > .d-flex p {
+  font-size: 14px;
+}
+
+/* =========================================
+   Content Card
+========================================= */
+
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================
+   Auction Header
+========================================= */
+
+.auction-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 8px;
+}
+
+.content-card > .d-flex p {
+  font-size: 14px;
+  color: #667085;
+  line-height: 1.6;
+}
+
+/* =========================================
+   Auction Status Badge
+========================================= */
+
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+/* =========================================
+   Detail Items
+========================================= */
+
+.detail-item {
+  background-color: #f8fafc;
+  border: 1px solid #edf0f4;
+  border-radius: 10px;
+  padding: 18px;
+  height: 100%;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.detail-item:hover {
+  background-color: #f1f5f9;
+  border-color: #dbe2ea;
+}
+
+/* =========================================
+   Detail Labels
+========================================= */
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #667085;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* =========================================
+   Detail Values
+========================================= */
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   Bid Amounts
+========================================= */
+
+.amount-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #198754;
+}
+
+/* =========================================
+   Divider
+========================================= */
+
+.content-card hr {
+  border-color: #e9ecef;
+  opacity: 1;
+}
+
+/* =========================================
+   Buttons
+========================================= */
+
+.btn {
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 18px;
+}
+
+/* =========================================
+   Error Alert
+========================================= */
+
+.alert {
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 14px 18px;
+}
+
+/* =========================================
+   Responsive Design
+========================================= */
+
+@media (max-width: 768px) {
+
+  .auctions-container h2 {
+    font-size: 22px;
+  }
+
+  .content-card {
+    padding: 20px;
+  }
+
+  .auction-name {
+    font-size: 20px;
+  }
+
+  .detail-item {
+    padding: 15px;
+  }
+
+  .amount-value {
+    font-size: 18px;
+  }
+
+}
+
+@media (max-width: 576px) {
+
+  .auctions-container > .d-flex:first-child {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .content-card {
+    padding: 16px;
+  }
+
+  .detail-item {
+    padding: 14px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+
+}

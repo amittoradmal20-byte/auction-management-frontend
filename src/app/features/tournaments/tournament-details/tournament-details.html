@@ -13,17 +13,27 @@
 
     <div class="d-flex gap-2">
 
-    <a [routerLink]="['/tournaments', tournamentId, 'edit']"
-        class="btn btn-primary">
+      <!-- Edit Tournament -->
+      <a
+        [routerLink]="['/tournaments', tournamentId, 'edit']"
+        class="btn btn-primary"
+        [class.disabled]="isLoading || activeAction !== null"
+        [attr.aria-disabled]="isLoading || activeAction !== null">
+
         <i class="bi bi-pencil-square me-2"></i>
         Edit Tournament
-    </a>
 
-    <button class="btn btn-outline-secondary"
-            routerLink="/tournaments">
+      </a>
+
+      <!-- Back to Tournaments -->
+      <a
+        routerLink="/tournaments"
+        class="btn btn-outline-secondary">
+
         <i class="bi bi-arrow-left me-2"></i>
         Back to Tournaments
-    </button>
+
+      </a>
 
     </div>
 
@@ -33,99 +43,318 @@
   @if (isLoading) {
 
     <div class="content-card">
+
       <div class="empty-state">
+
         <div class="empty-icon">
           <i class="bi bi-hourglass-split"></i>
         </div>
+
         <h4>Loading Tournament Details...</h4>
-        <p>Please wait while we fetch tournament information.</p>
-      </div>
-    </div>
 
-  }
-
-  <!-- Error State -->
-  @else if (errorMessage) {
-
-    <div class="content-card">
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="bi bi-exclamation-circle"></i>
-        </div>
-
-        <h4>Unable to Load Tournament</h4>
-        <p>{{ errorMessage }}</p>
-
-        <button class="btn btn-primary"
-              (click)="loadTournament()">
-          <i class="bi bi-arrow-clockwise me-2"></i>
-          Retry
-        </button>
-      </div>
-    </div>
-
-  }
-
-  <!-- Tournament Details -->
-  @else if (tournament) {
-
-    <div class="content-card">
-
-      <!-- Tournament Title -->
-      <div class="d-flex justify-content-between align-items-start mb-4">
-
-        <div>
-          <h3>{{ tournament.name }}</h3>
-
-          <p class="text-muted mb-0">
-            {{ tournament.description || 'No description available' }}
-          </p>
-        </div>
-
-        <span class="badge bg-primary fs-6">
-          {{ tournament.status.replace('_', ' ') }}
-        </span>
-
-      </div>
-
-      <hr>
-
-      <!-- Tournament Information -->
-      <div class="row g-4">
-
-        <div class="col-md-6">
-          <label class="text-muted small">Tournament ID</label>
-          <h6 class="text-break">{{ tournament.id }}</h6>
-        </div>
-
-        <div class="col-md-6">
-          <label class="text-muted small">Maximum Teams</label>
-          <h6>{{ tournament.maxTeams }}</h6>
-        </div>
-
-        <div class="col-md-6">
-          <label class="text-muted small">Start Date</label>
-          <h6>{{ tournament.startDate }}</h6>
-        </div>
-
-        <div class="col-md-6">
-          <label class="text-muted small">End Date</label>
-          <h6>{{ tournament.endDate }}</h6>
-        </div>
-
-        <div class="col-md-6">
-          <label class="text-muted small">Created At</label>
-          <h6>{{ tournament.createdAt }}</h6>
-        </div>
-
-        <div class="col-md-6">
-          <label class="text-muted small">Last Updated</label>
-          <h6>{{ tournament.updatedAt }}</h6>
-        </div>
+        <p>
+          Please wait while we fetch tournament information.
+        </p>
 
       </div>
 
     </div>
+
+  } @else {
+
+    <!-- Error Message -->
+    @if (errorMessage) {
+
+      <div class="alert alert-danger" role="alert">
+
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ errorMessage }}
+
+        @if (!tournament) {
+
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger ms-3"
+            (click)="loadTournament()">
+
+            <i class="bi bi-arrow-clockwise me-1"></i>
+            Retry
+
+          </button>
+
+        }
+
+      </div>
+
+    }
+
+    <!-- Tournament Details -->
+    @if (tournament) {
+
+      <div class="content-card">
+
+        <!-- Tournament Title and Status -->
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+
+          <div>
+
+            <h3 class="mb-2">
+              {{ tournament.name }}
+            </h3>
+
+            <p class="text-muted mb-0">
+              {{ tournament.description || 'No description available' }}
+            </p>
+
+          </div>
+
+          <!-- Tournament Status -->
+          <span
+            class="badge fs-6"
+            [class.bg-secondary]="tournament.status === 'DRAFT'"
+            [class.bg-success]="tournament.status === 'REGISTRATION_OPEN'"
+            [class.bg-warning]="tournament.status === 'REGISTRATION_CLOSED'"
+            [class.bg-info]="tournament.status === 'AUCTION_PENDING'"
+            [class.bg-primary]="tournament.status === 'AUCTION_IN_PROGRESS'"
+            [class.bg-dark]="tournament.status === 'AUCTION_COMPLETED'"
+            [class.text-dark]="
+              tournament.status === 'REGISTRATION_CLOSED' ||
+              tournament.status === 'AUCTION_PENDING'
+            ">
+
+            {{ tournament.status.replaceAll('_', ' ') }}
+
+          </span>
+
+        </div>
+
+        <hr class="mb-4">
+
+        <!-- Tournament Registration Actions -->
+        <div class="mb-4">
+
+          <h5 class="mb-3">
+            <i class="bi bi-person-check me-2"></i>
+            Tournament Registration Management
+          </h5>
+
+          <div class="d-flex align-items-center flex-wrap gap-3">
+
+            <!-- Open Registration -->
+            @if (tournament.status === 'DRAFT') {
+
+              <button
+                type="button"
+                class="btn btn-success"
+                [disabled]="activeAction !== null"
+                (click)="openRegistration()">
+
+                @if (isOpeningRegistration) {
+
+                  <span
+                    class="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true">
+                  </span>
+
+                  Opening Registration...
+
+                } @else {
+
+                  <i class="bi bi-door-open me-2"></i>
+                  Open Registration
+
+                }
+
+              </button>
+
+            }
+
+            <!-- Close Registration -->
+            @if (tournament.status === 'REGISTRATION_OPEN') {
+
+              <button
+                type="button"
+                class="btn btn-warning"
+                [disabled]="activeAction !== null"
+                (click)="closeRegistration()">
+
+                @if (isClosingRegistration) {
+
+                  <span
+                    class="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true">
+                  </span>
+
+                  Closing Registration...
+
+                } @else {
+
+                  <i class="bi bi-door-closed me-2"></i>
+                  Close Registration
+
+                }
+
+              </button>
+
+            }
+
+            <!-- Prepare Auction -->
+            @if (tournament.status === 'REGISTRATION_CLOSED') {
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="activeAction !== null"
+                (click)="prepareAuction()">
+
+                @if (isPreparingAuction) {
+
+                  <span
+                    class="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true">
+                  </span>
+
+                  Preparing Auction...
+
+                } @else {
+
+                  <i class="bi bi-hammer me-2"></i>
+                  Prepare Auction
+
+                }
+
+              </button>
+
+            }
+
+            <!-- Auction Pending -->
+            @if (tournament.status === 'AUCTION_PENDING') {
+
+              <span class="text-primary fw-semibold">
+
+                <i class="bi bi-hourglass-split me-2"></i>
+                Tournament Ready for Auction
+
+              </span>
+
+            }
+
+            <!-- Auction In Progress -->
+            @if (tournament.status === 'AUCTION_IN_PROGRESS') {
+
+              <span class="text-success fw-semibold">
+
+                <i class="bi bi-play-circle-fill me-2"></i>
+                Auction In Progress
+
+              </span>
+
+            }
+
+            <!-- Auction Completed -->
+            @if (tournament.status === 'AUCTION_COMPLETED') {
+
+              <span class="text-success fw-semibold">
+
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Auction Completed
+
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+        <hr class="mb-4">
+
+        <!-- Tournament Information -->
+        <div class="row g-4">
+
+          <!-- Tournament ID -->
+          <div class="col-md-6">
+
+            <label class="text-muted small">
+              Tournament ID
+            </label>
+
+            <h6 class="text-break">
+              {{ tournament.id }}
+            </h6>
+
+          </div>
+
+          <!-- Maximum Teams -->
+          <div class="col-md-6">
+
+            <label class="text-muted small">
+              Maximum Teams
+            </label>
+
+            <h6>
+              {{ tournament.maxTeams }}
+            </h6>
+
+          </div>
+
+          <!-- Start Date -->
+          <div class="col-md-6">
+
+            <label class="text-muted small">
+              Start Date
+            </label>
+
+            <h6>
+              {{ tournament.startDate }}
+            </h6>
+
+          </div>
+
+          <!-- End Date -->
+          <div class="col-md-6">
+
+            <label class="text-muted small">
+              End Date
+            </label>
+
+            <h6>
+              {{ tournament.endDate }}
+            </h6>
+
+          </div>
+
+          <!-- Created At -->
+          <div class="col-md-6">
+
+            <label class="text-muted small">
+              Created At
+            </label>
+
+            <h6>
+              {{ tournament.createdAt }}
+            </h6>
+
+          </div>
+
+          <!-- Last Updated -->
+          <div class="col-md-6">
+
+            <label class="text-muted small">
+              Last Updated
+            </label>
+
+            <h6>
+              {{ tournament.updatedAt }}
+            </h6>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    }
 
   }
 

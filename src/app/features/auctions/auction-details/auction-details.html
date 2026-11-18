@@ -1,0 +1,464 @@
+
+<div class="auctions-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Auction Details</h2>
+      <p class="text-muted mb-0">
+        View auction information and configuration.
+      </p>
+    </div>
+
+    <a
+      routerLink="/auctions"
+      class="btn btn-outline-secondary">
+
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Auctions
+    </a>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+
+    <div class="content-card text-center py-5">
+
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+
+      <p class="text-muted mt-3 mb-0">
+        Loading auction details...
+      </p>
+
+    </div>
+
+  }
+
+  <!-- Error State -->
+  @if (errorMessage && !isLoading) {
+
+    <div class="alert alert-danger" role="alert">
+
+      <i class="bi bi-exclamation-circle me-2"></i>
+      {{ errorMessage }}
+
+      @if (!auction) {
+
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger ms-3"
+          (click)="loadAuctionDetails()">
+          Retry
+        </button>
+
+      }
+
+    </div>
+
+  }
+
+  <!-- Auction Details -->
+  @if (auction && !isLoading) {
+
+    <div class="content-card">
+
+      <!-- Auction Header -->
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+
+        <!-- Auction Name and Description -->
+        <div>
+
+          <h4 class="auction-name mb-2">
+            {{ auction.name }}
+          </h4>
+
+          <p class="text-muted mb-0">
+            {{ auction.description || 'No description available.' }}
+          </p>
+
+        </div>
+
+        <!-- Auction Status and Actions -->
+        <div class="d-flex align-items-center flex-wrap gap-3">
+
+          <!-- Auction Status -->
+          <span
+            class="badge"
+            [class.bg-secondary]="auction.status === 'DRAFT'"
+            [class.bg-info]="auction.status === 'SCHEDULED'"
+            [class.bg-success]="auction.status === 'IN_PROGRESS'"
+            [class.bg-warning]="auction.status === 'PAUSED'"
+            [class.bg-primary]="auction.status === 'COMPLETED'"
+            [class.bg-danger]="auction.status === 'CANCELLED'"
+            [class.text-dark]="auction.status === 'SCHEDULED' || auction.status === 'PAUSED'">
+
+            {{ auction.status.replaceAll('_', ' ') }}
+
+          </span>
+
+          <!-- Actions for DRAFT Auctions -->
+          @if (auction.status === 'DRAFT') {
+
+            <!-- Edit Auction -->
+            <a
+              [routerLink]="['/auctions', auction.id, 'edit']"
+              class="btn btn-outline-primary"
+              [class.disabled]="activeAction !== null"
+              [attr.aria-disabled]="activeAction !== null">
+
+              <i class="bi bi-pencil-square me-2"></i>
+              Edit Auction
+            </a>
+
+            <!-- Schedule Auction -->
+            <button
+              type="button"
+              class="btn btn-outline-success"
+              [disabled]="activeAction !== null"
+              (click)="scheduleAuction()">
+
+              @if (isScheduling) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Scheduling...
+
+              } @else {
+
+                <i class="bi bi-calendar-check me-2"></i>
+                Schedule Auction
+
+              }
+
+            </button>
+
+            <!-- Delete Auction -->
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              [disabled]="activeAction !== null"
+              (click)="deleteAuction()">
+
+              @if (isDeleting) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Deleting...
+
+              } @else {
+
+                <i class="bi bi-trash me-2"></i>
+                Delete Auction
+
+              }
+
+            </button>
+
+          }
+
+          <!-- Actions for SCHEDULED Auctions -->
+          @if (auction.status === 'SCHEDULED') {
+
+            <button
+              type="button"
+              class="btn btn-success"
+              [disabled]="activeAction !== null"
+              (click)="startAuction()">
+
+              @if (isStarting) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Starting...
+
+              } @else {
+
+                <i class="bi bi-play-circle me-2"></i>
+                Start Auction
+
+              }
+
+            </button>
+
+          }
+
+          <!-- Actions for IN_PROGRESS Auctions -->
+          @if (auction.status === 'IN_PROGRESS') {
+
+            <!-- Pause Auction -->
+            <button
+              type="button"
+              class="btn btn-warning"
+              [disabled]="activeAction !== null"
+              (click)="pauseAuction()">
+
+              @if (isPausing) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Pausing...
+
+              } @else {
+
+                <i class="bi bi-pause-circle me-2"></i>
+                Pause Auction
+
+              }
+
+            </button>
+
+            <!-- Complete Auction -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="activeAction !== null"
+              (click)="completeAuction()">
+
+              @if (isCompleting) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Completing...
+
+              } @else {
+
+                <i class="bi bi-check-circle me-2"></i>
+                Complete Auction
+
+              }
+
+            </button>
+
+          }
+
+          <!-- Actions for PAUSED Auctions -->
+          @if (auction.status === 'PAUSED') {
+
+            <button
+              type="button"
+              class="btn btn-success"
+              [disabled]="activeAction !== null"
+              (click)="resumeAuction()">
+
+              @if (isResuming) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Resuming...
+
+              } @else {
+
+                <i class="bi bi-play-circle me-2"></i>
+                Resume Auction
+
+              }
+
+            </button>
+
+          }
+
+          <!-- Cancel Auction -->
+          @if (
+            auction.status !== 'COMPLETED' &&
+            auction.status !== 'CANCELLED'
+          ) {
+
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              [disabled]="activeAction !== null"
+              (click)="cancelAuction()">
+
+              @if (isCancelling) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                Cancelling...
+
+              } @else {
+
+                <i class="bi bi-x-circle me-2"></i>
+                Cancel Auction
+
+              }
+
+            </button>
+
+          }
+
+          <!-- Completed Auction -->
+          @if (auction.status === 'COMPLETED') {
+
+            <span class="text-success fw-semibold">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              Auction Completed
+            </span>
+
+          }
+
+          <!-- Cancelled Auction -->
+          @if (auction.status === 'CANCELLED') {
+
+            <span class="text-danger fw-semibold">
+              <i class="bi bi-x-circle-fill me-2"></i>
+              Auction Cancelled
+            </span>
+
+          }
+
+        </div>
+
+      </div>
+
+      <hr class="mb-4">
+
+      <!-- Auction Information -->
+      <div class="row g-4">
+
+        <!-- Auction ID -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+            <div class="detail-label">Auction ID</div>
+            <div class="detail-value text-break">
+              {{ auction.id }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tournament ID -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+            <div class="detail-label">Tournament ID</div>
+            <div class="detail-value text-break">
+              {{ auction.tournamentId }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Start Date and Time -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+
+            <div class="detail-label">
+              Start Date &amp; Time
+            </div>
+
+            <div class="detail-value">
+
+              @if (auction.startTime) {
+                {{ auction.startTime }}
+              } @else {
+                <span class="text-muted">
+                  Not scheduled
+                </span>
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- End Date and Time -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+
+            <div class="detail-label">
+              End Date &amp; Time
+            </div>
+
+            <div class="detail-value">
+
+              @if (auction.endTime) {
+                {{ auction.endTime }}
+              } @else {
+                <span class="text-muted">
+                  Not scheduled
+                </span>
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Opening Bid -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+            <div class="detail-label">Opening Bid</div>
+            <div class="detail-value amount-value">
+              ₹{{ auction.openingBid }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bid Increment -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+            <div class="detail-label">Bid Increment</div>
+            <div class="detail-value amount-value">
+              ₹{{ auction.bidIncrement }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Created At -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+            <div class="detail-label">Created At</div>
+            <div class="detail-value">
+              {{ auction.createdAt }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Last Updated -->
+        <div class="col-md-6">
+
+          <div class="detail-item">
+            <div class="detail-label">Last Updated</div>
+            <div class="detail-value">
+              {{ auction.updatedAt }}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>
