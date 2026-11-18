@@ -1,34 +1,169 @@
 
 <div class="players-container">
 
+  <!-- Page Header -->
   <app-page-header
-    title="Players"
-    description="Manage player profiles, cricket skills and registration details."
-    actionLabel="Add Player"
-    actionIcon="bi-person-plus">
-  </app-page-header>
+  title="Players"
+  description="Manage cricket players registered on the platform."
+  actionLabel="Create Player"
+  actionIcon="bi-plus-circle"
+  actionLink="/players/create">
+</app-page-header>
 
+  <!-- Players List -->
   <div class="content-card">
 
-    <div class="empty-state">
+    <!-- Loading State -->
+    @if (isLoading) {
 
-      <div class="empty-icon">
-        <i class="bi bi-person-badge"></i>
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading players...</span>
+        </div>
+
+        <p class="text-muted mt-3">
+          Loading players...
+        </p>
       </div>
 
-      <h4>No Players Found</h4>
+    } @else if (errorMessage) {
 
-      <p>
-        No players are currently available.
-        Start by registering your first cricket player.
-      </p>
+      <!-- Error State -->
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ errorMessage }}
+      </div>
 
-      <button class="btn btn-primary">
-        <i class="bi bi-person-plus me-2"></i>
-        Add Your First Player
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="loadPlayers()">
+        <i class="bi bi-arrow-clockwise me-2"></i>
+        Retry
       </button>
 
-    </div>
+    } @else if (players.length === 0) {
+
+      <!-- Empty State -->
+      <div class="text-center py-5">
+
+        <i class="bi bi-person-badge fs-1 text-muted"></i>
+
+        <h5 class="mt-3">
+          No Players Found
+        </h5>
+
+        <p class="text-muted">
+          No cricket players have been registered yet.
+        </p>
+
+      </div>
+
+    } @else {
+
+      <!-- Players Table -->
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player Name</th>
+              <th>Nationality</th>
+              <th>Role</th>
+              <th>Batting Style</th>
+              <th>Bowling Style</th>
+              <th>Status</th>
+              <th>Created Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (player of players; track player.id; let i = $index) {
+
+              <tr>
+
+                <!-- Serial Number -->
+                <td>
+                  {{ i + 1 }}
+                </td>
+
+                <!-- Player Name -->
+                <td class="fw-semibold">
+                  {{ player.displayName }}
+                </td>
+
+                <!-- Nationality -->
+                <td>
+                  {{ player.nationality || '-' }}
+                </td>
+
+                <!-- Player Role -->
+                <td>
+                  {{ player.role }}
+                </td>
+
+                <!-- Batting Style -->
+                <td>
+                  {{ player.battingStyle || '-' }}
+                </td>
+
+                <!-- Bowling Style -->
+                <td>
+                  {{ player.bowlingStyle || '-' }}
+                </td>
+
+                <!-- Player Status -->
+                <td>
+
+                  @if (player.status === 'ACTIVE') {
+
+                    <span class="badge bg-success">
+                      Active
+                    </span>
+
+                  } @else {
+
+                    <span class="badge bg-secondary">
+                      {{ player.status }}
+                    </span>
+
+                  }
+
+                </td>
+
+                <!-- Created Date -->
+                <td>
+                  {{ player.createdAt | date:'dd MMM yyyy' }}
+                </td>
+
+                <!-- Actions -->
+                <td>
+                  <a
+                    [routerLink]="['/players', player.id]"
+                    class="btn btn-sm btn-outline-primary"
+                    title="View Player Details">
+
+                    <i class="bi bi-eye me-1"></i>
+                    View
+
+                  </a>
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
 
   </div>
 
