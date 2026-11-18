@@ -171,6 +171,169 @@
 
     </div>
 
+    <!-- ===================================== -->
+    <!-- Add Player Form -->
+    <!-- ===================================== -->
+
+    <div class="border rounded p-3 mb-4">
+
+      <h5 class="mb-3">
+        <i class="bi bi-person-plus me-2"></i>
+        Add Player to Cricket Group
+      </h5>
+
+      <!-- Add Player Success Message -->
+      @if (addPlayerSuccessMessage) {
+
+        <div class="alert alert-success" role="alert">
+          <i class="bi bi-check-circle me-2"></i>
+          {{ addPlayerSuccessMessage }}
+        </div>
+
+      }
+
+      <!-- Add Player Error Message -->
+      @if (addPlayerErrorMessage) {
+
+        <div class="alert alert-danger" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ addPlayerErrorMessage }}
+        </div>
+
+      }
+
+      <form
+        [formGroup]="addPlayerForm"
+        (ngSubmit)="addPlayerToGroup()">
+
+        <div class="row g-3 align-items-end">
+
+          <!-- Player Dropdown -->
+          <div class="col-md-9">
+
+            <label for="playerId" class="form-label">
+              Select Player <span class="text-danger">*</span>
+            </label>
+
+            <select
+              id="playerId"
+              class="form-select"
+              formControlName="playerId"
+              [class.is-invalid]="
+                addPlayerForm.controls.playerId.invalid &&
+                addPlayerForm.controls.playerId.touched
+              "
+              [disabled]="isAvailablePlayersLoading || isAddingPlayer">
+
+              <option value="">
+                @if (isAvailablePlayersLoading) {
+                  Loading available players...
+                } @else {
+                  Select a player
+                }
+              </option>
+
+              @for (player of playersNotInGroup; track player.id) {
+
+                <option [value]="player.id">
+                  {{ player.displayName }} - {{ player.role }}
+                </option>
+
+              }
+
+            </select>
+
+            @if (
+              addPlayerForm.controls.playerId.invalid &&
+              addPlayerForm.controls.playerId.touched
+            ) {
+
+              <div class="invalid-feedback">
+                Please select a player.
+              </div>
+
+            }
+
+          </div>
+
+          <!-- Add Player Button -->
+          <div class="col-md-3">
+
+            <button
+              type="submit"
+              class="btn btn-primary w-100"
+              [disabled]="
+                isAddingPlayer ||
+                isAvailablePlayersLoading ||
+                isPlayersLoading ||
+                playersNotInGroup.length === 0
+              ">
+
+              @if (isAddingPlayer) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status">
+                  <span class="visually-hidden">Adding...</span>
+                </span>
+
+                Adding Player...
+
+              } @else {
+
+                <i class="bi bi-person-plus me-2"></i>
+                Add Player
+
+              }
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </form>
+
+      <!-- No Available Players -->
+      @if (
+        !isAvailablePlayersLoading &&
+        !isPlayersLoading &&
+        !playersErrorMessage &&
+        playersNotInGroup.length === 0
+      ) {
+
+        <p class="text-muted small mt-3 mb-0">
+          No available active players to add to this cricket group.
+        </p>
+
+      }
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- Cricket Group Players List -->
+    <!-- ===================================== -->
+
+    <!-- Membership Success Message -->
+    @if (membershipSuccessMessage) {
+
+      <div class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        {{ membershipSuccessMessage }}
+      </div>
+
+    }
+
+    <!-- Membership Error Message -->
+    @if (membershipErrorMessage) {
+
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ membershipErrorMessage }}
+      </div>
+
+    }
+
     <!-- Loading State -->
     @if (isPlayersLoading) {
 
@@ -282,11 +445,41 @@
 
                 </td>
 
-                <!-- Actions -->
+                <!-- Membership Actions -->
                 <td>
-                  <span class="text-muted">
-                    Actions coming soon
-                  </span>
+
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-outline-danger]="player.active"
+                    [class.btn-outline-success]="!player.active"
+                    [disabled]="updatingMembershipPlayerId !== null"
+                    (click)="toggleMembershipStatus(player)">
+
+                    @if (updatingMembershipPlayerId === player.playerId) {
+
+                      <span
+                        class="spinner-border spinner-border-sm me-1"
+                        role="status">
+                        <span class="visually-hidden">Updating...</span>
+                      </span>
+
+                      Updating...
+
+                    } @else if (player.active) {
+
+                      <i class="bi bi-person-x me-1"></i>
+                      Deactivate
+
+                    } @else {
+
+                      <i class="bi bi-person-check me-1"></i>
+                      Reactivate
+
+                    }
+
+                  </button>
+
                 </td>
 
               </tr>
