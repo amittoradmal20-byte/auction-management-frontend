@@ -1,34 +1,137 @@
 
 <div class="cricket-groups-container">
 
+  <!-- Page Header -->
   <app-page-header
-    title="Cricket Groups"
-    description="Manage cricket organizations and their registered players."
-    actionLabel="Create Group"
-    actionIcon="bi-plus-circle">
-  </app-page-header>
+  title="Cricket Groups"
+  description="Manage cricket groups and their players."
+  actionLabel="Create Group"
+  actionIcon="bi-plus-circle"
+  actionLink="/cricket-groups/create">
+</app-page-header>
 
   <div class="content-card">
 
-    <div class="empty-state">
+    <!-- Loading State -->
+    @if (isLoading) {
 
-      <div class="empty-icon">
-        <i class="bi bi-people"></i>
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="text-muted mt-2">Loading cricket groups...</p>
       </div>
 
-      <h4>No Cricket Groups Found</h4>
+    }
 
-      <p>
-        You haven't created any cricket groups yet.
-        Start by creating your first cricket organization.
-      </p>
+    <!-- Error State -->
+    @else if (errorMessage) {
 
-      <button class="btn btn-primary">
-        <i class="bi bi-plus-circle me-2"></i>
-        Create Your First Group
-      </button>
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ errorMessage }}
 
-    </div>
+        <button class="btn btn-sm btn-outline-danger ms-3"
+                (click)="loadCricketGroups()">
+          <i class="bi bi-arrow-clockwise me-1"></i>
+          Retry
+        </button>
+      </div>
+
+    }
+
+    <!-- Empty State -->
+    @else if (cricketGroups.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          <i class="bi bi-people"></i>
+        </div>
+
+        <h4>No Cricket Groups Found</h4>
+
+        <p>
+          You haven't created any cricket groups yet.
+          Start by creating your first cricket organization.
+        </p>
+
+        <a
+          routerLink="/cricket-groups/create"
+          class="btn btn-primary">
+
+          <i class="bi bi-plus-circle me-2"></i>
+          Create Your First Group
+
+        </a>
+
+      </div>
+
+    }
+
+    <!-- Cricket Groups Table -->
+    @else {
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Group Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Created Date</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (group of cricketGroups; track group.id; let i = $index) {
+
+              <tr>
+
+                <td>{{ i + 1 }}</td>
+
+                <td>
+                  <strong>{{ group.name }}</strong>
+                </td>
+
+                <td>
+                  {{ group.description || '-' }}
+                </td>
+
+                <td>
+                  <span class="badge"
+                        [class.bg-success]="group.status === 'ACTIVE'"
+                        [class.bg-secondary]="group.status !== 'ACTIVE'">
+                    {{ group.status }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ group.createdAt | date:'dd MMM yyyy' }}
+                </td>
+
+                <td class="text-center">
+                 <a [routerLink]="['/cricket-groups', group.id]"
+                  class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye me-1"></i>
+                  View
+                </a>
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
 
   </div>
 

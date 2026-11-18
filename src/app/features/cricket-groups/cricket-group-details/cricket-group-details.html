@@ -1,0 +1,306 @@
+
+<div class="cricket-groups-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Cricket Group Details</h2>
+      <p class="text-muted mb-0">
+        View cricket organization information.
+      </p>
+    </div>
+
+    <a
+      routerLink="/cricket-groups"
+      class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Cricket Groups
+    </a>
+
+  </div>
+
+  <!-- ===================================== -->
+  <!-- Cricket Group Information -->
+  <!-- ===================================== -->
+
+  <div class="content-card">
+
+    <!-- Loading State -->
+    @if (isLoading) {
+
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <p class="text-muted mt-2">
+          Loading cricket group details...
+        </p>
+      </div>
+
+    } @else if (errorMessage) {
+
+      <!-- Error State -->
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ errorMessage }}
+
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger ms-3"
+          (click)="loadCricketGroup()">
+          <i class="bi bi-arrow-clockwise me-1"></i>
+          Retry
+        </button>
+      </div>
+
+    } @else if (cricketGroup) {
+
+      <!-- Cricket Group Details -->
+      <div class="row g-4">
+
+        <!-- Group Name -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Group Name
+          </label>
+
+          <h5 class="mb-0">
+            {{ cricketGroup.name }}
+          </h5>
+
+        </div>
+
+        <!-- Group Status -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-2">
+            Status
+          </label>
+
+          <div>
+            <span
+              class="badge"
+              [class.bg-success]="cricketGroup.status === 'ACTIVE'"
+              [class.bg-secondary]="cricketGroup.status !== 'ACTIVE'">
+              {{ cricketGroup.status }}
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Description -->
+        <div class="col-12">
+
+          <label class="text-muted small mb-1">
+            Description
+          </label>
+
+          <p class="mb-0">
+            {{ cricketGroup.description || 'No description available.' }}
+          </p>
+
+        </div>
+
+        <!-- Created Date -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Created Date
+          </label>
+
+          <p class="mb-0">
+            {{ cricketGroup.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+          </p>
+
+        </div>
+
+        <!-- Updated Date -->
+        <div class="col-md-6">
+
+          <label class="text-muted small mb-1">
+            Last Updated Date
+          </label>
+
+          <p class="mb-0">
+            {{ cricketGroup.updatedAt | date:'dd MMM yyyy, hh:mm a' }}
+          </p>
+
+        </div>
+
+      </div>
+
+      <hr class="my-4">
+
+      <!-- Group ID -->
+      <div>
+        <label class="text-muted small mb-1">
+          Group ID
+        </label>
+
+        <p class="mb-0 text-break">
+          {{ cricketGroup.id }}
+        </p>
+      </div>
+
+    }
+
+  </div>
+
+  <!-- ===================================== -->
+  <!-- Cricket Group Players Section -->
+  <!-- ===================================== -->
+
+  <div class="content-card mt-4">
+
+    <!-- Section Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+      <div>
+        <h4 class="mb-1">Cricket Group Players</h4>
+        <p class="text-muted mb-0">
+          Players associated with this cricket group.
+        </p>
+      </div>
+
+      <span class="badge bg-primary">
+        Total Players: {{ cricketGroupPlayers.length }}
+      </span>
+
+    </div>
+
+    <!-- Loading State -->
+    @if (isPlayersLoading) {
+
+      <div class="text-center py-5">
+
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading players...</span>
+        </div>
+
+        <p class="text-muted mt-3">
+          Loading cricket group players...
+        </p>
+
+      </div>
+
+    } @else if (playersErrorMessage) {
+
+      <!-- Error State -->
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ playersErrorMessage }}
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="loadCricketGroupPlayers()">
+        <i class="bi bi-arrow-clockwise me-2"></i>
+        Retry
+      </button>
+
+    } @else if (cricketGroupPlayers.length === 0) {
+
+      <!-- Empty State -->
+      <div class="text-center py-5">
+
+        <i class="bi bi-people fs-1 text-muted"></i>
+
+        <h5 class="mt-3">
+          No Players Found
+        </h5>
+
+        <p class="text-muted">
+          No players have been added to this cricket group yet.
+        </p>
+
+      </div>
+
+    } @else {
+
+      <!-- Players Table -->
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player Name</th>
+              <th>Player ID</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (
+              player of cricketGroupPlayers;
+              track player.id;
+              let i = $index
+            ) {
+
+              <tr>
+
+                <!-- Serial Number -->
+                <td>
+                  {{ i + 1 }}
+                </td>
+
+                <!-- Player Name -->
+                <td class="fw-semibold">
+                  {{ player.playerDisplayName }}
+                </td>
+
+                <!-- Player ID -->
+                <td>
+                  <small class="text-muted text-break">
+                    {{ player.playerId }}
+                  </small>
+                </td>
+
+                <!-- Membership Status -->
+                <td>
+
+                  @if (player.active) {
+
+                    <span class="badge bg-success">
+                      Active
+                    </span>
+
+                  } @else {
+
+                    <span class="badge bg-secondary">
+                      Inactive
+                    </span>
+
+                  }
+
+                </td>
+
+                <!-- Actions -->
+                <td>
+                  <span class="text-muted">
+                    Actions coming soon
+                  </span>
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>
