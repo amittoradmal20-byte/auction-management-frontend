@@ -1,0 +1,224 @@
+
+<div class="teams-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Create Team</h2>
+      <p class="text-muted mb-0">
+        Add a new cricket team to the platform.
+      </p>
+    </div>
+
+    <a
+      routerLink="/teams"
+      class="btn btn-outline-secondary">
+
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Teams
+
+    </a>
+
+  </div>
+
+  <!-- Create Team Form -->
+  <div class="content-card">
+
+    <form
+      [formGroup]="teamForm"
+      (ngSubmit)="createTeam()">
+
+      <!-- API Error Message -->
+      @if (errorMessage) {
+
+        <div class="alert alert-danger" role="alert">
+
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ errorMessage }}
+
+        </div>
+
+      }
+
+      <div class="row g-4">
+
+        <!-- ===================================== -->
+        <!-- Team Name -->
+        <!-- ===================================== -->
+
+        <div class="col-md-6">
+
+          <label for="name" class="form-label">
+            Team Name <span class="text-danger">*</span>
+          </label>
+
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            formControlName="name"
+            placeholder="Enter team name"
+            maxlength="100"
+            [class.is-invalid]="
+              teamForm.controls.name.invalid &&
+              teamForm.controls.name.touched
+            ">
+
+          @if (
+            teamForm.controls.name.hasError('required') &&
+            teamForm.controls.name.touched
+          ) {
+
+            <div class="invalid-feedback">
+              Team name is required.
+            </div>
+
+          } @else if (
+            teamForm.controls.name.hasError('maxlength') &&
+            teamForm.controls.name.touched
+          ) {
+
+            <div class="invalid-feedback">
+              Team name must not exceed 100 characters.
+            </div>
+
+          }
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- Short Name -->
+        <!-- ===================================== -->
+
+        <div class="col-md-6">
+
+          <label for="shortName" class="form-label">
+            Short Name <span class="text-danger">*</span>
+          </label>
+
+          <input
+            type="text"
+            id="shortName"
+            class="form-control"
+            formControlName="shortName"
+            placeholder="Example: MSW"
+            maxlength="20"
+            [class.is-invalid]="
+              teamForm.controls.shortName.invalid &&
+              teamForm.controls.shortName.touched
+            ">
+
+          @if (
+            teamForm.controls.shortName.hasError('required') &&
+            teamForm.controls.shortName.touched
+          ) {
+
+            <div class="invalid-feedback">
+              Short name is required.
+            </div>
+
+          } @else if (
+            teamForm.controls.shortName.hasError('maxlength') &&
+            teamForm.controls.shortName.touched
+          ) {
+
+            <div class="invalid-feedback">
+              Short name must not exceed 20 characters.
+            </div>
+
+          }
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- Team Logo URL -->
+        <!-- ===================================== -->
+
+        <div class="col-12">
+
+          <label for="logoUrl" class="form-label">
+            Team Logo URL
+          </label>
+
+          <input
+            type="text"
+            id="logoUrl"
+            class="form-control"
+            formControlName="logoUrl"
+            placeholder="https://example.com/team-logo.png"
+            maxlength="500"
+            [class.is-invalid]="
+              teamForm.controls.logoUrl.invalid &&
+              teamForm.controls.logoUrl.touched
+            ">
+
+          <div class="form-text">
+            Optional. Enter a publicly accessible URL for the team logo.
+          </div>
+
+          @if (
+            teamForm.controls.logoUrl.hasError('maxlength') &&
+            teamForm.controls.logoUrl.touched
+          ) {
+
+            <div class="invalid-feedback">
+              Logo URL must not exceed 500 characters.
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- Form Actions -->
+      <!-- ===================================== -->
+
+      <hr class="my-4">
+
+      <div class="d-flex justify-content-end gap-2">
+
+        <!-- Cancel -->
+        <a
+          routerLink="/teams"
+          class="btn btn-outline-secondary">
+
+          <i class="bi bi-x-circle me-2"></i>
+          Cancel
+
+        </a>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSubmitting">
+
+          @if (isSubmitting) {
+
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status">
+              <span class="visually-hidden">Saving...</span>
+            </span>
+
+            Creating Team...
+
+          } @else {
+
+            <i class="bi bi-check-circle me-2"></i>
+            Create Team
+
+          }
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

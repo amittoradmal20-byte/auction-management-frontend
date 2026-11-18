@@ -1,0 +1,122 @@
+
+/* =========================================
+   Edit Team Page
+========================================= */
+
+.teams-container {
+  padding: 0;
+}
+
+/* =========================================
+   Content Card
+========================================= */
+
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================
+   Form Labels
+========================================= */
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #344054;
+  margin-bottom: 8px;
+}
+
+/* =========================================
+   Form Controls
+========================================= */
+
+.form-control {
+  min-height: 44px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+  }
+
+  &.is-invalid {
+    border-color: #dc3545;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+    }
+  }
+}
+
+/* =========================================
+   Validation Messages
+========================================= */
+
+.invalid-feedback {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.form-text {
+  font-size: 12px;
+  color: #667085;
+  margin-top: 6px;
+}
+
+/* =========================================
+   Buttons
+========================================= */
+
+.btn {
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+
+  &:hover:not(:disabled) {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+  }
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* =========================================
+   Responsive Design
+========================================= */
+
+@media (max-width: 768px) {
+
+  .content-card {
+    padding: 20px;
+  }
+
+  .teams-container > .d-flex:first-child {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .content-card .d-flex.justify-content-end {
+    flex-wrap: wrap;
+  }
+
+}
