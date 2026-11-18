@@ -29,11 +29,12 @@ export class TournamentService {
   return this.http.post<Tournament>(this.apiUrl, request);
   }
 
-    updateTournament(
-    id: string,
-    request: TournamentUpdateRequest
-    ): Observable<Tournament> {
+  updateTournament(id: string, request: TournamentUpdateRequest): Observable<Tournament> {
     return this.http.put<Tournament>(`${this.apiUrl}/${id}`, request);
-    }
+  }
+
+  deleteTournament(id: string): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 
 }
