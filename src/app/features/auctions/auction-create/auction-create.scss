@@ -1,0 +1,164 @@
+
+/* =========================================
+   Create Auction Page
+========================================= */
+
+.auctions-container {
+  padding: 0;
+}
+
+/* =========================================
+   Page Header
+========================================= */
+
+.auctions-container h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 6px;
+}
+
+.auctions-container p {
+  font-size: 14px;
+}
+
+/* =========================================
+   Content Card
+========================================= */
+
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================
+   Form Labels
+========================================= */
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #344054;
+  margin-bottom: 8px;
+}
+
+/* =========================================
+   Form Controls
+========================================= */
+
+.form-control,
+.form-select {
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid #d0d5dd;
+  font-size: 14px;
+  padding: 10px 12px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+}
+
+.form-control::placeholder {
+  color: #98a2b3;
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* =========================================
+   Validation Messages
+========================================= */
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.form-text {
+  font-size: 12px;
+  color: #667085;
+  margin-top: 6px;
+}
+
+/* =========================================
+   Alert Messages
+========================================= */
+
+.alert {
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 12px 16px;
+}
+
+/* =========================================
+   Buttons
+========================================= */
+
+.btn {
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 18px;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* =========================================
+   Responsive Design
+========================================= */
+
+@media (max-width: 768px) {
+
+  .auctions-container h2 {
+    font-size: 22px;
+  }
+
+  .content-card {
+    padding: 18px;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 13px;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 9px 14px;
+  }
+
+}
+
+@media (max-width: 576px) {
+
+  .auctions-container > .d-flex:first-child {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .content-card {
+    padding: 16px;
+  }
+
+}

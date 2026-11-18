@@ -1,0 +1,370 @@
+
+<div class="auctions-container">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Edit Auction</h2>
+      <p class="text-muted mb-0">
+        Update auction information and bidding configuration.
+      </p>
+    </div>
+
+    <a
+      [routerLink]="['/auctions', auctionId]"
+      class="btn btn-outline-secondary">
+
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Auction Details
+
+    </a>
+
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+
+    <div class="content-card text-center py-5">
+
+      <div
+        class="spinner-border text-primary"
+        role="status">
+
+        <span class="visually-hidden">
+          Loading...
+        </span>
+
+      </div>
+
+      <p class="text-muted mt-3 mb-0">
+        Loading auction information...
+      </p>
+
+    </div>
+
+  }
+
+  <!-- Error Message -->
+  @if (errorMessage && !isLoading) {
+
+    <div class="alert alert-danger" role="alert">
+
+      <i class="bi bi-exclamation-circle me-2"></i>
+      {{ errorMessage }}
+
+    </div>
+
+  }
+
+  <!-- Success Message -->
+  @if (successMessage) {
+
+    <div class="alert alert-success" role="alert">
+
+      <i class="bi bi-check-circle me-2"></i>
+      {{ successMessage }}
+
+    </div>
+
+  }
+
+  <!-- Edit Auction Form -->
+  @if (auction && !isLoading && auction.status === 'DRAFT') {
+
+    <div class="content-card">
+
+      <form
+        [formGroup]="auctionForm"
+        (ngSubmit)="updateAuction()">
+
+        <!-- Auction Information -->
+        <div class="row g-4">
+
+          <!-- Tournament -->
+          <div class="col-md-6">
+
+            <label class="form-label">
+              Tournament ID
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              [value]="auction.tournamentId"
+              readonly>
+
+            <div class="form-text">
+              Tournament cannot be changed after auction creation.
+            </div>
+
+          </div>
+
+          <!-- Auction Name -->
+          <div class="col-md-6">
+
+            <label for="auctionName" class="form-label">
+              Auction Name
+              <span class="text-danger">*</span>
+            </label>
+
+            <input
+              id="auctionName"
+              type="text"
+              class="form-control"
+              formControlName="name"
+              maxlength="150"
+              placeholder="Enter auction name"
+              [class.is-invalid]="
+                auctionForm.controls.name.invalid &&
+                auctionForm.controls.name.touched
+              ">
+
+            @if (
+              auctionForm.controls.name.hasError('required') &&
+              auctionForm.controls.name.touched
+            ) {
+
+              <div class="invalid-feedback">
+                Auction name is required.
+              </div>
+
+            }
+
+            @if (
+              auctionForm.controls.name.hasError('maxlength') &&
+              auctionForm.controls.name.touched
+            ) {
+
+              <div class="invalid-feedback">
+                Auction name cannot exceed 150 characters.
+              </div>
+
+            }
+
+          </div>
+
+          <!-- Description -->
+          <div class="col-12">
+
+            <label for="description" class="form-label">
+              Description
+              <span class="text-muted">(Optional)</span>
+            </label>
+
+            <textarea
+              id="description"
+              class="form-control"
+              formControlName="description"
+              rows="3"
+              maxlength="500"
+              placeholder="Enter auction description"
+              [class.is-invalid]="
+                auctionForm.controls.description.invalid &&
+                auctionForm.controls.description.touched
+              ">
+            </textarea>
+
+            @if (
+              auctionForm.controls.description.hasError('maxlength') &&
+              auctionForm.controls.description.touched
+            ) {
+
+              <div class="invalid-feedback">
+                Description cannot exceed 500 characters.
+              </div>
+
+            }
+
+            <div class="form-text">
+              Maximum 500 characters.
+            </div>
+
+          </div>
+
+          <!-- Start Date and Time -->
+          <div class="col-md-6">
+
+            <label for="startTime" class="form-label">
+              Start Date &amp; Time
+              <span class="text-muted">(Optional)</span>
+            </label>
+
+            <input
+              id="startTime"
+              type="datetime-local"
+              class="form-control"
+              formControlName="startTime"
+              [class.is-invalid]="
+                auctionForm.hasError('invalidDateRange') &&
+                (
+                  auctionForm.controls.startTime.touched ||
+                  auctionForm.controls.endTime.touched
+                )
+              ">
+
+            <div class="form-text">
+              Must be in the present or future.
+            </div>
+
+          </div>
+
+          <!-- End Date and Time -->
+          <div class="col-md-6">
+
+            <label for="endTime" class="form-label">
+              End Date &amp; Time
+              <span class="text-muted">(Optional)</span>
+            </label>
+
+            <input
+              id="endTime"
+              type="datetime-local"
+              class="form-control"
+              formControlName="endTime"
+              [class.is-invalid]="
+                auctionForm.hasError('invalidDateRange') &&
+                (
+                  auctionForm.controls.endTime.touched ||
+                  auctionForm.controls.startTime.touched
+                )
+              ">
+
+            @if (
+              auctionForm.hasError('invalidDateRange') &&
+              (
+                auctionForm.controls.endTime.touched ||
+                auctionForm.controls.startTime.touched
+              )
+            ) {
+
+              <div class="invalid-feedback">
+                End time must be later than start time.
+              </div>
+
+            }
+
+            <div class="form-text">
+              Must be in the future.
+            </div>
+
+          </div>
+
+          <!-- Opening Bid -->
+          <div class="col-md-6">
+
+            <label for="openingBid" class="form-label">
+              Opening Bid (₹)
+              <span class="text-danger">*</span>
+            </label>
+
+            <input
+              id="openingBid"
+              type="number"
+              class="form-control"
+              formControlName="openingBid"
+              min="0.01"
+              step="0.01"
+              placeholder="Enter opening bid"
+              [class.is-invalid]="
+                auctionForm.controls.openingBid.invalid &&
+                auctionForm.controls.openingBid.touched
+              ">
+
+            @if (
+              auctionForm.controls.openingBid.invalid &&
+              auctionForm.controls.openingBid.touched
+            ) {
+
+              <div class="invalid-feedback">
+                Opening bid is required and must be greater than zero.
+              </div>
+
+            }
+
+          </div>
+
+          <!-- Bid Increment -->
+          <div class="col-md-6">
+
+            <label for="bidIncrement" class="form-label">
+              Bid Increment (₹)
+              <span class="text-danger">*</span>
+            </label>
+
+            <input
+              id="bidIncrement"
+              type="number"
+              class="form-control"
+              formControlName="bidIncrement"
+              min="0.01"
+              step="0.01"
+              placeholder="Enter bid increment"
+              [class.is-invalid]="
+                auctionForm.controls.bidIncrement.invalid &&
+                auctionForm.controls.bidIncrement.touched
+              ">
+
+            @if (
+              auctionForm.controls.bidIncrement.invalid &&
+              auctionForm.controls.bidIncrement.touched
+            ) {
+
+              <div class="invalid-feedback">
+                Bid increment is required and must be greater than zero.
+              </div>
+
+            }
+
+          </div>
+
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-end gap-3 mt-4">
+
+          <a
+            [routerLink]="['/auctions', auctionId]"
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-x-circle me-2"></i>
+            Cancel
+
+          </a>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="
+              isSubmitting ||
+              isLoading ||
+              auctionForm.invalid
+            ">
+
+            @if (isSubmitting) {
+
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true">
+              </span>
+
+              Updating Auction...
+
+            } @else {
+
+              <i class="bi bi-check-circle me-2"></i>
+              Update Auction
+
+            }
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  }
+
+</div>
