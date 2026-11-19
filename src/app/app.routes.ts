@@ -7,30 +7,53 @@ import { Login } from './features/auth/login/login';
 
 import { DashboardComponent } from './features/dashboard/dashboard';
 
+// =====================================
+// Tournaments
+// =====================================
+
 import { Tournaments } from './features/tournaments/tournaments';
 import { TournamentCreate } from './features/tournaments/tournament-create/tournament-create';
 import { TournamentDetails } from './features/tournaments/tournament-details/tournament-details';
+import { TournamentPlayers } from './features/tournaments/tournament-players/tournament-players';
+
+// =====================================
+// Cricket Groups
+// =====================================
 
 import { CricketGroups } from './features/cricket-groups/cricket-groups';
 import { CricketGroupCreate } from './features/cricket-groups/cricket-group-create/cricket-group-create';
 import { CricketGroupDetails } from './features/cricket-groups/cricket-group-details/cricket-group-details';
+
+// =====================================
+// Players
+// =====================================
 
 import { Players } from './features/players/players';
 import { PlayerCreate } from './features/players/player-create/player-create';
 import { PlayerDetails } from './features/players/player-details/player-details';
 import { PlayerEdit } from './features/players/player-edit/player-edit';
 
+// =====================================
+// Teams
+// =====================================
+
 import { Teams } from './features/teams/teams';
 import { TeamCreate } from './features/teams/team-create/team-create';
 import { TeamDetails } from './features/teams/team-details/team-details';
 import { TeamEdit } from './features/teams/team-edit/team-edit';
+
+// =====================================
+// Auctions
+// =====================================
 
 import { Auctions } from './features/auctions/auctions';
 import { AuctionCreate } from './features/auctions/auction-create/auction-create';
 import { AuctionDetails } from './features/auctions/auction-details/auction-details';
 import { AuctionEdit } from './features/auctions/auction-edit/auction-edit';
 
-
+// =====================================
+// Authentication Guard
+// =====================================
 
 import { authGuard } from './core/guards/auth-guard';
 
@@ -53,6 +76,7 @@ export const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     canActivate: [authGuard],
+
     children: [
 
       {
@@ -82,6 +106,11 @@ export const routes: Routes = [
       {
         path: 'tournaments/:id/edit',
         component: TournamentCreate
+      },
+
+      {
+        path: 'tournaments/:id/players',
+        component: TournamentPlayers
       },
 
       {
@@ -141,7 +170,6 @@ export const routes: Routes = [
       // Teams
       // =====================================
 
-
       {
         path: 'teams/create',
         component: TeamCreate
@@ -162,24 +190,25 @@ export const routes: Routes = [
         component: Teams
       },
 
-
       // =====================================
       // Auctions
       // =====================================
 
-      
       {
         path: 'auctions',
         component: Auctions
       },
+
       {
         path: 'auctions/create',
         component: AuctionCreate
       },
+
       {
         path: 'auctions/:id/edit',
         component: AuctionEdit
       },
+
       {
         path: 'auctions/:id',
         component: AuctionDetails

@@ -1,0 +1,162 @@
+
+// =====================================
+// Tournament Players Container
+// =====================================
+
+.tournaments-container {
+  width: 100%;
+  padding: 0;
+}
+
+// =====================================
+// Page Heading
+// =====================================
+
+h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--bs-heading-color);
+}
+
+h5 {
+  font-weight: 600;
+}
+
+// =====================================
+// Content Cards
+// =====================================
+
+.content-card {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+// =====================================
+// Statistics Cards
+// =====================================
+
+.content-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.content-card h6 {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+// =====================================
+// Player Selection
+// =====================================
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.form-select {
+  min-height: 42px;
+  border-radius: 8px;
+
+  &:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+  }
+}
+
+// =====================================
+// Buttons
+// =====================================
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 9px 16px;
+  transition: all 0.2s ease-in-out;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+}
+
+.btn-sm {
+  padding: 6px 12px;
+}
+
+// =====================================
+// Tournament Player Table
+// =====================================
+
+.table {
+  margin-bottom: 0;
+
+  thead {
+    th {
+      background: var(--bs-tertiary-bg);
+      color: var(--bs-secondary-color);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--bs-border-color);
+    }
+  }
+
+  tbody {
+    td {
+      padding: 14px 16px;
+      vertical-align: middle;
+      font-size: 0.9rem;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  }
+}
+
+// =====================================
+// Status Badges
+// =====================================
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 6px;
+}
+
+// =====================================
+// Alerts
+// =====================================
+
+.alert {
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+// =====================================
+// Responsive Layout
+// =====================================
+
+@media (max-width: 768px) {
+
+  .content-card {
+    padding: 16px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .table {
+    min-width: 550px;
+  }
+
+  .btn {
+    font-size: 0.875rem;
+  }
+}
