@@ -67,7 +67,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       '/cricket-groups': 'Cricket Groups',
       '/players': 'Players',
       '/teams': 'Teams',
-      '/auctions': 'Auctions'
+      '/auctions': 'Auctions',
+      '/match-schedules': 'Match Schedules'
     };
 
     this.pageTitle = pageTitles[route] ?? 'Dashboard';
