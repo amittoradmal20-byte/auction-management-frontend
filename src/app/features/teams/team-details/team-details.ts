@@ -1,32 +1,102 @@
 
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  inject
+} from '@angular/core';
+
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink
+} from '@angular/router';
+
+import { DatePipe } from '@angular/common';
+
+import { finalize } from 'rxjs';
 
 import { TeamService } from '../../../core/services/team';
+
 import { Team } from '../../../core/models/team/team.model';
+
+import { SecureImage } from '../../../shared/components/secure-image/secure-image';
 
 @Component({
   selector: 'app-team-details',
   standalone: true,
-  imports: [RouterLink],
+  imports: [
+    RouterLink,
+    DatePipe,
+    SecureImage
+  ],
   templateUrl: './team-details.html',
   styleUrl: './team-details.scss'
 })
 export class TeamDetails implements OnInit {
 
-  private teamService = inject(TeamService);
-  private activatedRoute = inject(ActivatedRoute);
-  private router = inject(Router);
+  // =====================================
+  // Dependencies
+  // =====================================
+
+  private readonly teamService = inject(TeamService);
+
+  private readonly activatedRoute = inject(ActivatedRoute);
+
+  private readonly router = inject(Router);
+
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  // =====================================
+  // Component State
+  // =====================================
+
+  teamId = '';
 
   team: Team | null = null;
 
   isLoading = false;
+
   isDeleting = false;
 
   errorMessage = '';
 
+  // =====================================
+  // Component Initialization
+  // =====================================
+
   ngOnInit(): void {
+
+    this.teamId =
+      this.activatedRoute.snapshot.paramMap.get('id') ?? '';
+
+    if (!this.teamId) {
+
+      this.errorMessage = 'Invalid team ID.';
+
+      return;
+
+    }
+
     this.loadTeamDetails();
+
+  }
+
+  // =====================================
+  // Computed Component State
+  // =====================================
+
+  get isBusy(): boolean {
+
+    return this.isLoading ||
+           this.isDeleting;
+
+  }
+
+  get hasLogo(): boolean {
+
+    return !!this.team?.logoUrl;
+
   }
 
   // =====================================
@@ -35,38 +105,56 @@ export class TeamDetails implements OnInit {
 
   loadTeamDetails(): void {
 
-    const teamId = this.activatedRoute.snapshot.paramMap.get('id');
+    if (
+      !this.teamId ||
+      this.isBusy
+    ) {
 
-    if (!teamId) {
-      this.errorMessage = 'Invalid team ID.';
       return;
+
     }
 
     this.isLoading = true;
+
     this.errorMessage = '';
 
-    this.teamService.getTeamById(teamId).subscribe({
+    this.team = null;
 
-      next: (response: Team) => {
+    this.teamService.getTeamById(this.teamId)
+      .pipe(
 
-        this.team = response;
-        this.isLoading = false;
+        finalize(() => {
 
-      },
+          this.isLoading = false;
 
-      error: (error) => {
+          this.cdr.markForCheck();
 
-        console.error('Error loading team details:', error);
+        })
 
-        this.errorMessage =
-          error.error?.message ||
-          'Unable to load team details. Please try again.';
+      )
+      .subscribe({
 
-        this.isLoading = false;
+        next: (response: Team) => {
 
-      }
+          this.team = response;
 
-    });
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading team details:',
+            error
+          );
+
+          this.errorMessage =
+            error.error?.message ??
+            'Unable to load team details. Please try again.';
+
+        }
+
+      });
+
   }
 
   // =====================================
@@ -75,50 +163,76 @@ export class TeamDetails implements OnInit {
 
   deleteTeam(): void {
 
-    if (!this.team || this.isDeleting) {
+    if (
+      !this.team ||
+      this.isBusy
+    ) {
+
       return;
+
     }
 
     const teamId = this.team.id;
+
     const teamName = this.team.name;
 
     // Confirm before deleting
+
     const confirmed = window.confirm(
+
       `Are you sure you want to delete the team "${teamName}"?\n\n` +
+
       'This action cannot be undone.'
+
     );
 
     if (!confirmed) {
+
       return;
+
     }
 
     this.isDeleting = true;
+
     this.errorMessage = '';
 
-    this.teamService.deleteTeam(teamId).subscribe({
+    this.teamService.deleteTeam(teamId)
+      .pipe(
 
-      next: () => {
+        finalize(() => {
 
-        this.isDeleting = false;
+          this.isDeleting = false;
 
-        // Navigate to Teams List after deletion
-        this.router.navigate(['/teams']);
+          this.cdr.markForCheck();
 
-      },
+        })
 
-      error: (error) => {
+      )
+      .subscribe({
 
-        console.error('Error deleting team:', error);
+        next: () => {
 
-        this.errorMessage =
-          error.error?.message ||
-          'Unable to delete team. Please try again.';
+          // Navigate to Teams List after deletion
 
-        this.isDeleting = false;
+          this.router.navigate(['/teams']);
 
-      }
+        },
 
-    });
+        error: (error) => {
+
+          console.error(
+            'Error deleting team:',
+            error
+          );
+
+          this.errorMessage =
+            error.error?.message ??
+            'Unable to delete team. Please try again.';
+
+        }
+
+      });
+
   }
 
   // =====================================
@@ -126,7 +240,15 @@ export class TeamDetails implements OnInit {
   // =====================================
 
   goBack(): void {
+
+    if (this.isDeleting) {
+
+      return;
+
+    }
+
     this.router.navigate(['/teams']);
+
   }
 
 }

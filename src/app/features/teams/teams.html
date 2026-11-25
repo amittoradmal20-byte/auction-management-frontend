@@ -2,34 +2,39 @@
 <div class="teams-container">
 
   <!-- ===================================== -->
-  <!-- Page Header -->
+  <!-- Page Header                           -->
   <!-- ===================================== -->
 
-
-<app-page-header
-  title="Teams"
-  description="Manage cricket teams and their information."
-  actionLabel="Create Team"
-  actionIcon="bi-plus-circle"
-  actionLink="/teams/create">
-</app-page-header>
-
+  <app-page-header
+    title="Teams"
+    description="Manage cricket teams and their information."
+    actionLabel="Create Team"
+    actionIcon="bi-plus-circle"
+    actionLink="/teams/create">
+  </app-page-header>
 
   <!-- ===================================== -->
-  <!-- Teams Content -->
+  <!-- Teams Content                         -->
   <!-- ===================================== -->
 
   <div class="content-card">
 
-    <!-- Loading State -->
+    <!-- ===================================== -->
+    <!-- Loading State                         -->
+    <!-- ===================================== -->
+
     @if (isLoading) {
 
-      <div class="text-center py-5">
+      <div class="loading-state text-center py-5">
 
-        <div class="spinner-border text-primary" role="status">
+        <div
+          class="spinner-border text-primary"
+          role="status">
+
           <span class="visually-hidden">
             Loading teams...
           </span>
+
         </div>
 
         <p class="text-muted mt-3 mb-0">
@@ -40,17 +45,26 @@
 
     } @else if (errorMessage) {
 
-      <!-- Error State -->
-      <div class="text-center py-5">
+      <!-- ===================================== -->
+      <!-- Error State                           -->
+      <!-- ===================================== -->
 
-        <i class="bi bi-exclamation-circle text-danger fs-1"></i>
+      <div class="error-state text-center py-5">
+
+        <div class="error-icon">
+
+          <i class="bi bi-exclamation-circle"></i>
+
+        </div>
 
         <h5 class="mt-3">
           Unable to Load Teams
         </h5>
 
         <p class="text-muted">
+
           {{ errorMessage }}
+
         </p>
 
         <button
@@ -67,31 +81,52 @@
 
     } @else if (teams.length === 0) {
 
-      <!-- Empty State -->
+      <!-- ===================================== -->
+      <!-- Empty State                           -->
+      <!-- ===================================== -->
+
       <div class="empty-state">
 
         <div class="empty-icon">
+
           <i class="bi bi-shield"></i>
+
         </div>
 
         <h4>No Teams Found</h4>
 
         <p>
+
           No teams are currently available.
           Start by creating your first cricket team.
+
         </p>
+
+        <a
+          routerLink="/teams/create"
+          class="btn btn-primary">
+
+          <i class="bi bi-plus-circle me-2"></i>
+
+          Create Team
+
+        </a>
 
       </div>
 
     } @else {
 
       <!-- ===================================== -->
-      <!-- Teams Table -->
+      <!-- Teams Table Header                    -->
       <!-- ===================================== -->
 
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="table-header d-flex
+                  justify-content-between
+                  align-items-center
+                  flex-wrap gap-3 mb-4">
 
         <div>
+
           <h5 class="mb-1">
             All Teams
           </h5>
@@ -99,30 +134,58 @@
           <p class="text-muted mb-0">
             View and manage registered cricket teams.
           </p>
+
         </div>
 
-        <span class="badge bg-primary">
+        <span class="badge total-count-badge">
+
+          <i class="bi bi-people me-2"></i>
+
           Total Teams: {{ teams.length }}
+
         </span>
 
       </div>
 
+      <!-- ===================================== -->
+      <!-- Teams Table                           -->
+      <!-- ===================================== -->
+
       <div class="table-responsive">
 
-        <table class="table table-hover align-middle">
+        <table class="table teams-table table-hover align-middle mb-0">
+
+          <!-- Table Head -->
 
           <thead>
 
             <tr>
-              <th>#</th>
-              <th>Logo</th>
-              <th>Team Name</th>
-              <th>Short Name</th>
-              <th>Status</th>
-              <th>Actions</th>
+
+              <th scope="col" class="serial-column">
+                #
+              </th>
+
+              <th scope="col" class="team-name-column">
+                Team Name
+              </th>
+
+              <th scope="col" class="short-name-column">
+                Short Name
+              </th>
+
+              <th scope="col" class="status-column">
+                Status
+              </th>
+
+              <th scope="col" class="actions-column">
+                Actions
+              </th>
+
             </tr>
 
           </thead>
+
+          <!-- Table Body -->
 
           <tbody>
 
@@ -134,75 +197,117 @@
 
               <tr>
 
-                <!-- Serial Number -->
-                <td>
-                  {{ i + 1 }}
-                </td>
+                <!-- ===================================== -->
+                <!-- Serial Number                         -->
+                <!-- ===================================== -->
 
-                <!-- Team Logo -->
-                <td>
+                <td class="serial-column">
 
-                  @if (team.logoUrl) {
+                  <span class="serial-number">
 
-                    <img
-                      [src]="team.logoUrl"
-                      [alt]="team.name + ' logo'"
-                      width="48"
-                      height="48"
-                      class="rounded border"
-                      style="object-fit: contain;">
-
-                  } @else {
-
-                    <div
-                      class="d-flex align-items-center justify-content-center rounded border bg-light"
-                      style="width: 48px; height: 48px;">
-
-                      <i class="bi bi-shield text-secondary fs-4"></i>
-
-                    </div>
-
-                  }
-
-                </td>
-
-                <!-- Team Name -->
-                <td class="fw-semibold">
-                  {{ team.name }}
-                </td>
-
-                <!-- Short Name -->
-                <td>
-                  {{ team.shortName }}
-                </td>
-
-                <!-- Team Status -->
-                <td>
-
-                  <span
-                    class="badge"
-                    [class.bg-success]="team.status === 'ACTIVE'"
-                    [class.bg-secondary]="team.status !== 'ACTIVE'">
-
-                    {{ team.status }}
+                    {{ i + 1 }}
 
                   </span>
 
                 </td>
 
-                <!-- Actions -->
-                
-                  <td>
+                <!-- ===================================== -->
+                <!-- Team Logo and Name                    -->
+                <!-- ===================================== -->
+
+                <td class="team-name-column">
+
+                  <div class="team-info d-flex
+                              align-items-center gap-3">
+
+                    <!-- Secure Team Logo -->
+
+                    <div class="team-logo flex-shrink-0">
+
+                      <app-secure-image
+                        [imagePath]="team.logoUrl"
+                        [alt]="team.name + ' Logo'"
+                        [width]="50"
+                        [height]="50"
+                        placeholderIcon="bi-shield"
+                        placeholderText=""
+                        objectFit="contain">
+                      </app-secure-image>
+
+                    </div>
+
+                    <!-- Team Name -->
+
+                    <div class="team-text">
+
+                      <div class="team-name">
+
+                        {{ team.name }}
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+                <!-- ===================================== -->
+                <!-- Short Name                            -->
+                <!-- ===================================== -->
+
+                <td class="short-name-column">
+
+                  <span class="team-short-name">
+
+                    {{ team.shortName }}
+
+                  </span>
+
+                </td>
+
+                <!-- ===================================== -->
+                <!-- Team Status                           -->
+                <!-- ===================================== -->
+
+                <td class="status-column">
+
+                  <span
+                    class="badge status-badge"
+                    [class.status-active]="team.status === 'ACTIVE'"
+                    [class.status-inactive]="team.status !== 'ACTIVE'">
+
+                    <i class="bi bi-circle-fill me-1"></i>
+
+                    {{ team.status.split('_').join(' ') }}
+
+                  </span>
+
+                </td>
+
+                <!-- ===================================== -->
+                <!-- Actions                               -->
+                <!-- ===================================== -->
+
+                <td class="actions-column">
+
+                  <div class="table-actions">
+
                     <a
                       [routerLink]="['/teams', team.id]"
                       class="btn btn-sm btn-outline-primary"
-                      title="View Team Details">
+                      title="View Team Details"
+                      [attr.aria-label]="'View details for ' + team.name">
 
                       <i class="bi bi-eye me-1"></i>
+
                       View Details
 
                     </a>
-                  </td>
+
+                  </div>
+
+                </td>
 
               </tr>
 
@@ -211,6 +316,22 @@
           </tbody>
 
         </table>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- Table Footer                          -->
+      <!-- ===================================== -->
+
+      <div class="table-footer mt-4">
+
+        <p class="text-muted mb-0">
+
+          Showing {{ teams.length }} of {{ teams.length }}
+
+          {{ teams.length === 1 ? 'team' : 'teams' }}
+
+        </p>
 
       </div>
 

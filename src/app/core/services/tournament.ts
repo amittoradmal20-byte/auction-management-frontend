@@ -9,12 +9,16 @@ import { Tournament } from '../models/tournament/tournament.model';
 import { TournamentCreateRequest } from '../models/tournament/tournament-create-request.model';
 import { TournamentUpdateRequest } from '../models/tournament/tournament-update-request.model';
 
+import { ImageService } from './image';
+
 @Injectable({
   providedIn: 'root'
 })
 export class TournamentService {
 
   private http = inject(HttpClient);
+
+  private readonly imageService = inject(ImageService);
 
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/tournaments`;
 
@@ -23,7 +27,10 @@ export class TournamentService {
   // =====================================
 
   getAllTournaments(): Observable<Tournament[]> {
-    return this.http.get<Tournament[]>(this.apiUrl);
+
+    return this.http.get<Tournament[]>(
+      this.apiUrl
+    );
   }
 
   // =====================================
@@ -31,7 +38,10 @@ export class TournamentService {
   // =====================================
 
   getTournamentById(id: string): Observable<Tournament> {
-    return this.http.get<Tournament>(`${this.apiUrl}/${id}`);
+
+    return this.http.get<Tournament>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   // =====================================
@@ -68,7 +78,10 @@ export class TournamentService {
   // =====================================
 
   deleteTournament(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   // =====================================
@@ -107,6 +120,36 @@ export class TournamentService {
     return this.http.patch<Tournament>(
       `${this.apiUrl}/${id}/prepare-auction`,
       {}
+    );
+  }
+
+  // =====================================
+  // Upload or Replace Tournament Logo
+  // =====================================
+
+  uploadLogo(
+    tournamentId: string,
+    file: File
+  ): Observable<Tournament> {
+
+    return this.imageService.uploadLogo<Tournament>(
+      'tournaments',
+      tournamentId,
+      file
+    );
+  }
+
+  // =====================================
+  // Delete Tournament Logo
+  // =====================================
+
+  deleteLogo(
+    tournamentId: string
+  ): Observable<Tournament> {
+
+    return this.imageService.deleteLogo<Tournament>(
+      'tournaments',
+      tournamentId
     );
   }
 

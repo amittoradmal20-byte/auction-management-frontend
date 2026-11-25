@@ -35,7 +35,9 @@ import { Tournament } from '../../../core/models/tournament/tournament.model';
 import {
   DayOfWeek,
   SchedulingType,
-  LeagueFormat
+  LeagueFormat,
+  PlayoffFormat,
+  MatchStage
 } from '../../../core/models/match-schedule/match-schedule.model';
 
 import { MatchScheduleCreateRequest } from '../../../core/models/match-schedule/match-schedule-create-request.model';
@@ -204,6 +206,19 @@ saving = false;
   // 6. REACTIVE FORM
   // =====================================
 
+  readonly playoffFormats: ReadonlyArray<{
+    value: PlayoffFormat;
+    label: string;
+    qualifyingTeamCount: number;
+    playoffMatchCount: number;
+  }> = [
+    { value: 'NONE', label: 'No Playoffs', qualifyingTeamCount: 0, playoffMatchCount: 0 },
+    { value: 'TOP_2_FINAL', label: 'Top 2 — Direct Final', qualifyingTeamCount: 2, playoffMatchCount: 1 },
+    { value: 'TOP_3_PLAYOFF', label: 'Top 3 — Playoff', qualifyingTeamCount: 3, playoffMatchCount: 2 },
+    { value: 'TOP_4_SEMIFINAL', label: 'Top 4 — Semifinals', qualifyingTeamCount: 4, playoffMatchCount: 3 },
+    { value: 'TOP_4_PLAYOFF', label: 'Top 4 — IPL Style', qualifyingTeamCount: 4, playoffMatchCount: 4 }
+  ];
+
   scheduleForm = this.fb.group({
 
     tournamentId: [
@@ -238,10 +253,10 @@ saving = false;
       ]
     ],
 
-    playoffFormat: [
+    playoffFormat: this.fb.nonNullable.control<PlayoffFormat>(
       'NONE',
       Validators.required
-    ],
+    ),
 
     qualifyingTeamCount: [
       0,
@@ -369,6 +384,11 @@ saving = false;
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => this.onLeagueFormatChange());
 
+    this.f.playoffFormat.valueChanges.pipe(
+      startWith(this.f.playoffFormat.value),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.onPlayoffFormatChange());
+
   }
 
 
@@ -419,6 +439,89 @@ saving = false;
   get totalLeagueMatches(): number | null {
     const matches = this.matchesPerTeam;
     return matches === null ? null : this.activeTeamCount * matches / 2;
+  }
+
+  get playoffFormat(): PlayoffFormat {
+    return this.f.playoffFormat.value;
+  }
+
+  get selectedPlayoffFormat() {
+    return this.playoffFormats.find(option => option.value === this.playoffFormat);
+  }
+
+  get qualifyingTeamCount(): number {
+    return this.selectedPlayoffFormat?.qualifyingTeamCount ?? 0;
+  }
+
+  get totalPlayoffMatches(): number {
+    return this.selectedPlayoffFormat?.playoffMatchCount ?? 0;
+  }
+
+  get totalMatches(): number | null {
+    const league = this.totalLeagueMatches;
+    return league === null ? null : league + this.totalPlayoffMatches;
+  }
+
+  get playoffConfigurationError(): string {
+    if (!this.selectedPlayoffFormat) {
+      return 'Please select a valid playoff format.';
+    }
+    if (this.playoffFormat === 'NONE') return '';
+    if (!this.tournamentTeamsLoaded || this.loadingTournamentTeams) {
+      return this.tournamentTeamsError || 'Select a tournament and wait for its teams to load.';
+    }
+    if (this.activeTeamCount < this.qualifyingTeamCount) {
+      return `This playoff format requires at least ${this.qualifyingTeamCount} active teams.`;
+    }
+    return '';
+  }
+
+  onPlayoffFormatChange(): void {
+    this.errorMessage = '';
+    this.validationSuccessMessage = '';
+    this.f.qualifyingTeamCount.setValue(this.qualifyingTeamCount, { emitEvent: false });
+  }
+
+  get playoffPreview(): {
+    matchNumber: number;
+    matchStage: MatchStage;
+    stageLabel: string;
+    homeTeamSource: string;
+    awayTeamSource: string;
+  }[] {
+    const league = this.totalLeagueMatches;
+    if (league === null || this.playoffConfigurationError) return [];
+    const first = league + 1;
+    const fixture = (offset: number, matchStage: MatchStage, stageLabel: string,
+      homeTeamSource: string, awayTeamSource: string) => ({
+        matchNumber: first + offset, matchStage, stageLabel, homeTeamSource, awayTeamSource
+      });
+    const winner = (offset: number) => `Winner Match ${first + offset}`;
+    const loser = (offset: number) => `Loser Match ${first + offset}`;
+    switch (this.playoffFormat) {
+      case 'TOP_2_FINAL':
+        return [fixture(0, 'FINAL', 'Grand Final', 'Rank 1', 'Rank 2')];
+      case 'TOP_3_PLAYOFF':
+        return [
+          fixture(0, 'SEMIFINAL', 'Semifinal', 'Rank 2', 'Rank 3'),
+          fixture(1, 'FINAL', 'Grand Final', 'Rank 1', winner(0))
+        ];
+      case 'TOP_4_SEMIFINAL':
+        return [
+          fixture(0, 'SEMIFINAL_1', 'Semifinal 1', 'Rank 1', 'Rank 4'),
+          fixture(1, 'SEMIFINAL_2', 'Semifinal 2', 'Rank 2', 'Rank 3'),
+          fixture(2, 'FINAL', 'Grand Final', winner(0), winner(1))
+        ];
+      case 'TOP_4_PLAYOFF':
+        return [
+          fixture(0, 'QUALIFIER_1', 'Qualifier 1', 'Rank 1', 'Rank 2'),
+          fixture(1, 'ELIMINATOR', 'Eliminator', 'Rank 3', 'Rank 4'),
+          fixture(2, 'QUALIFIER_2', 'Qualifier 2', loser(0), winner(1)),
+          fixture(3, 'FINAL', 'Grand Final', winner(0), winner(2))
+        ];
+      default:
+        return [];
+    }
   }
 
   private syncOpponentSkip(): void {
@@ -948,10 +1051,9 @@ saving = false;
           ? form.opponentsToSkip!
           : 0,
 
-      playoffFormat: form.playoffFormat!,
+      playoffFormat: form.playoffFormat,
 
-      qualifyingTeamCount:
-        form.qualifyingTeamCount!,
+      qualifyingTeamCount: this.qualifyingTeamCount,
 
       startDate: form.startDate!,
 
@@ -1027,6 +1129,13 @@ createSchedule(): void {
       return;
     }
   }
+
+  if (this.playoffConfigurationError) {
+    this.errorMessage = this.playoffConfigurationError;
+    return;
+  }
+
+  this.onPlayoffFormatChange();
 
   if (this.scheduleForm.invalid) {
 

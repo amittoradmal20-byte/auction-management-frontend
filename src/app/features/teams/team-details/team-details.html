@@ -1,148 +1,235 @@
-<p>team-details works!</p>
 
 <div class="teams-container">
 
-  <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- ===================================== -->
+  <!-- Page Header                           -->
+  <!-- ===================================== -->
+
+  <div class="page-header d-flex justify-content-between
+              align-items-center flex-wrap gap-3 mb-4">
 
     <div>
+
       <h2>Team Details</h2>
+
       <p class="text-muted mb-0">
         View cricket team information.
       </p>
+
     </div>
 
-    
-        <div class="d-flex gap-2 flex-wrap">
+    <div class="header-actions d-flex gap-2 flex-wrap">
 
-        <!-- Back Button -->
-        <a
-            routerLink="/teams"
-            class="btn btn-outline-secondary">
+      <!-- Back Button -->
 
-            <i class="bi bi-arrow-left me-2"></i>
-            Back to Teams
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="goBack()"
+        [disabled]="isDeleting">
 
-        </a>
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Teams
 
-        @if (team) {
+      </button>
 
-            <!-- Edit Team Button -->
-            <a
+      @if (team && !isLoading) {
+
+        <!-- Edit Team Button -->
+
+        @if (!isDeleting) {
+
+          <a
             [routerLink]="['/teams', team.id, 'edit']"
-            class="btn btn-primary"
-            [class.disabled]="isDeleting"
-            [attr.aria-disabled]="isDeleting">
+            class="btn btn-primary">
 
             <i class="bi bi-pencil-square me-2"></i>
             Edit Team
 
-            </a>
-
-            <!-- Delete Team Button -->
-            <button
-            type="button"
-            class="btn btn-outline-danger"
-            (click)="deleteTeam()"
-            [disabled]="isDeleting">
-
-            @if (isDeleting) {
-
-                <span
-                class="spinner-border spinner-border-sm me-2"
-                aria-hidden="true">
-                </span>
-
-                Deleting...
-
-            } @else {
-
-                <i class="bi bi-trash me-2"></i>
-                Delete Team
-
-            }
-
-            </button>
+          </a>
 
         }
 
-        </div>
+        <!-- Delete Team Button -->
 
+        <button
+          type="button"
+          class="btn btn-outline-danger"
+          (click)="deleteTeam()"
+          [disabled]="isBusy">
+
+          @if (isDeleting) {
+
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              aria-hidden="true">
+            </span>
+
+            Deleting...
+
+          } @else {
+
+            <i class="bi bi-trash me-2"></i>
+            Delete Team
+
+          }
+
+        </button>
+
+      }
+
+    </div>
 
   </div>
 
-  <!-- Loading State -->
+  <!-- ===================================== -->
+  <!-- Loading State                         -->
+  <!-- ===================================== -->
+
   @if (isLoading) {
 
-    <div class="text-center py-5">
+    <div class="content-card text-center py-5">
 
       <div
         class="spinner-border text-primary"
         role="status">
+
+        <span class="visually-hidden">
+          Loading...
+        </span>
+
       </div>
 
-      <p class="text-muted mt-3">
+      <p class="text-muted mt-3 mb-0">
         Loading team details...
       </p>
 
     </div>
 
-  }
+  } @else if (!team) {
 
-  <!-- Error Message -->
-  @if (errorMessage) {
-
-    <div class="alert alert-danger" role="alert">
-
-      <i class="bi bi-exclamation-circle me-2"></i>
-      {{ errorMessage }}
-
-    </div>
-
-  }
-
-  <!-- Team Details -->
-  @if (!isLoading && team) {
+    <!-- ===================================== -->
+    <!-- Team Loading Error                    -->
+    <!-- ===================================== -->
 
     <div class="content-card">
 
-      <!-- Team Header -->
-      <div class="d-flex align-items-center gap-3 mb-4">
+      <div class="alert alert-danger" role="alert">
 
-        @if (team.logoUrl) {
+        <i class="bi bi-exclamation-circle me-2"></i>
 
-          <img
-            [src]="team.logoUrl"
-            [alt]="team.name + ' logo'"
-            class="team-logo"
-            (error)="$any($event.target).style.display = 'none'">
+        {{ errorMessage || 'Unable to load team details.' }}
 
-        } @else {
+      </div>
 
-          <div class="team-logo-placeholder">
+      <div class="d-flex justify-content-end gap-2 flex-wrap">
 
-            <i class="bi bi-shield-fill"></i>
+        <a
+          routerLink="/teams"
+          class="btn btn-outline-secondary">
 
-          </div>
+          <i class="bi bi-arrow-left me-2"></i>
+          Back to Teams
+
+        </a>
+
+        @if (teamId) {
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="loadTeamDetails()"
+            [disabled]="isBusy">
+
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Retry
+
+          </button>
 
         }
 
-        <div>
+      </div>
 
-          <h3 class="mb-1">
+    </div>
+
+  } @else {
+
+    <!-- ===================================== -->
+    <!-- API Error Message                     -->
+    <!-- ===================================== -->
+
+    @if (errorMessage) {
+
+      <div class="alert alert-danger" role="alert">
+
+        <i class="bi bi-exclamation-circle me-2"></i>
+
+        {{ errorMessage }}
+
+      </div>
+
+    }
+
+    <!-- ===================================== -->
+    <!-- Team Details Card                     -->
+    <!-- ===================================== -->
+
+    <div class="content-card">
+
+      <!-- ===================================== -->
+      <!-- Team Branding Header                  -->
+      <!-- ===================================== -->
+
+      <div class="team-header d-flex align-items-center
+                  flex-wrap gap-4 mb-4">
+
+        <!-- Secure Team Logo -->
+
+        <div class="team-logo-wrapper">
+
+          <app-secure-image
+            [imagePath]="team.logoUrl"
+            [alt]="team.name + ' Logo'"
+            [width]="150"
+            [height]="150"
+            placeholderIcon="bi-shield"
+            placeholderText="No logo"
+            objectFit="contain">
+          </app-secure-image>
+
+        </div>
+
+        <!-- Team Header Information -->
+
+        <div class="team-header-info">
+
+          <div class="team-header-label mb-2">
+
+            <i class="bi bi-shield-check me-1"></i>
+            CRICKET TEAM
+
+          </div>
+
+          <h3 class="team-name mb-2">
+
             {{ team.name }}
+
           </h3>
 
-          <p class="text-muted mb-2">
+          <p class="team-short-name text-muted mb-3">
+
             {{ team.shortName }}
+
           </p>
 
           <span
-            class="badge"
+            class="badge status-badge"
             [class.bg-success]="team.status === 'ACTIVE'"
             [class.bg-secondary]="team.status !== 'ACTIVE'">
 
-            {{ team.status }}
+            <i class="bi bi-circle-fill me-1"></i>
+
+            {{ team.status.split('_').join(' ') }}
 
           </span>
 
@@ -150,116 +237,229 @@
 
       </div>
 
-      <hr class="mb-4">
+      <hr class="section-divider my-4">
 
-      <!-- Team Information -->
-      <h5 class="mb-4">
-        <i class="bi bi-info-circle me-2"></i>
-        Team Information
-      </h5>
+      <!-- ===================================== -->
+      <!-- Team Information Section              -->
+      <!-- ===================================== -->
 
-      <div class="row g-4">
+      <div class="details-section">
 
-        <!-- Team Name -->
-        <div class="col-md-6">
+        <div class="section-header mb-4">
 
-          <label class="form-label text-muted">
-            Team Name
-          </label>
+          <div class="d-flex align-items-center gap-2">
 
-          <div class="fw-semibold">
-            {{ team.name }}
+            <i class="bi bi-info-circle section-icon"></i>
+
+            <h5 class="mb-0">
+              Team Information
+            </h5>
+
+          </div>
+
+          <p class="text-muted small mt-2 mb-0">
+            Basic information and branding details of the team.
+          </p>
+
+        </div>
+
+        <div class="row g-4">
+
+          <!-- Team Name -->
+
+          <div class="col-md-6">
+
+            <div class="detail-item">
+
+              <div class="detail-label">
+
+                <i class="bi bi-people me-2"></i>
+                Team Name
+
+              </div>
+
+              <div class="detail-value">
+
+                {{ team.name }}
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Short Name -->
+
+          <div class="col-md-6">
+
+            <div class="detail-item">
+
+              <div class="detail-label">
+
+                <i class="bi bi-tag me-2"></i>
+                Short Name
+
+              </div>
+
+              <div class="detail-value">
+
+                {{ team.shortName }}
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Team Status -->
+
+          <div class="col-md-6">
+
+            <div class="detail-item">
+
+              <div class="detail-label">
+
+                <i class="bi bi-activity me-2"></i>
+                Team Status
+
+              </div>
+
+              <div class="detail-value">
+
+                <span
+                  class="badge status-badge"
+                  [class.bg-success]="team.status === 'ACTIVE'"
+                  [class.bg-secondary]="team.status !== 'ACTIVE'">
+
+                  {{ team.status.split('_').join(' ') }}
+
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Team Logo Status -->
+
+          <div class="col-md-6">
+
+            <div class="detail-item">
+
+              <div class="detail-label">
+
+                <i class="bi bi-image me-2"></i>
+                Team Logo
+
+              </div>
+
+              <div class="detail-value">
+
+                @if (hasLogo) {
+
+                  <span class="logo-status text-success">
+
+                    <i class="bi bi-check-circle-fill me-2"></i>
+
+                    Logo Uploaded
+
+                  </span>
+
+                } @else {
+
+                  <span class="logo-status text-muted">
+
+                    <i class="bi bi-image me-2"></i>
+
+                    Not Uploaded
+
+                  </span>
+
+                }
+
+              </div>
+
+            </div>
+
           </div>
 
         </div>
 
-        <!-- Short Name -->
-        <div class="col-md-6">
+      </div>
 
-          <label class="form-label text-muted">
-            Short Name
-          </label>
+      <hr class="section-divider my-4">
 
-          <div class="fw-semibold">
-            {{ team.shortName }}
-          </div>
+      <!-- ===================================== -->
+      <!-- Record Information Section            -->
+      <!-- ===================================== -->
 
-        </div>
+      <div class="details-section">
 
-        <!-- Status -->
-        <div class="col-md-6">
+        <div class="section-header mb-4">
 
-          <label class="form-label text-muted">
-            Team Status
-          </label>
+          <div class="d-flex align-items-center gap-2">
 
-          <div>
+            <i class="bi bi-clock-history section-icon"></i>
 
-            <span
-              class="badge"
-              [class.bg-success]="team.status === 'ACTIVE'"
-              [class.bg-secondary]="team.status !== 'ACTIVE'">
-
-              {{ team.status }}
-
-            </span>
+            <h5 class="mb-0">
+              Record Information
+            </h5>
 
           </div>
 
+          <p class="text-muted small mt-2 mb-0">
+            Team record creation and modification information.
+          </p>
+
         </div>
 
-        <!-- Logo URL -->
-        <div class="col-md-6">
+        <div class="row g-4">
 
-          <label class="form-label text-muted">
-            Logo URL
-          </label>
+          <!-- Created At -->
 
-          <div class="fw-semibold text-break">
+          <div class="col-md-6">
 
-            @if (team.logoUrl) {
+            <div class="detail-item">
 
-              <a
-                [href]="team.logoUrl"
-                target="_blank"
-                rel="noopener noreferrer">
-                View Team Logo
-              </a>
+              <div class="detail-label">
 
-            } @else {
+                <i class="bi bi-calendar-plus me-2"></i>
+                Created At
 
-              <span class="text-muted">
-                Not provided
-              </span>
+              </div>
 
-            }
+              <div class="detail-value">
+
+                {{ (team.createdAt | date:'dd MMM yyyy, hh:mm a') || 'Not available' }}
+
+              </div>
+
+            </div>
 
           </div>
 
-        </div>
+          <!-- Updated At -->
 
-        <!-- Created At -->
-        <div class="col-md-6">
+          <div class="col-md-6">
 
-          <label class="form-label text-muted">
-            Created At
-          </label>
+            <div class="detail-item">
 
-          <div class="fw-semibold">
-            {{ team.createdAt }}
-          </div>
+              <div class="detail-label">
 
-        </div>
+                <i class="bi bi-calendar-check me-2"></i>
+                Last Updated
 
-        <!-- Updated At -->
-        <div class="col-md-6">
+              </div>
 
-          <label class="form-label text-muted">
-            Last Updated
-          </label>
+              <div class="detail-value">
 
-          <div class="fw-semibold">
-            {{ team.updatedAt }}
+                {{ (team.updatedAt | date:'dd MMM yyyy, hh:mm a') || 'Not available' }}
+
+              </div>
+
+            </div>
+
           </div>
 
         </div>

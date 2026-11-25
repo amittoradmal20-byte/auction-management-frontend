@@ -1,6 +1,8 @@
+
 import {
   DayOfWeek,
-  SchedulingType
+  SchedulingType,
+  PlayoffFormat
 } from './match-schedule.model';
 
 export interface MatchScheduleCreateRequest {
@@ -13,7 +15,7 @@ export interface MatchScheduleCreateRequest {
   schedulingType: SchedulingType;
   leagueFormat: string;
   opponentsToSkip: number;
-  playoffFormat: string;
+  playoffFormat: PlayoffFormat;
   qualifyingTeamCount: number;
 
   // Tournament dates

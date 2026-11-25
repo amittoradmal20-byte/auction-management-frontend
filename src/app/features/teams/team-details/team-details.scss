@@ -1,104 +1,644 @@
 
-/* =========================================
-   Team Details Page
-========================================= */
+// =====================================
+// Component Host
+// =====================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// =====================================
+// Team Details Container
+// =====================================
 
 .teams-container {
-  padding: 0;
+  width: 100%;
+  min-width: 0;
+  color: #1e293b;
 }
 
-/* =========================================
-   Content Card
-========================================= */
+// =====================================
+// Page Header
+// =====================================
+
+.page-header {
+
+  h2 {
+    color: #0f172a;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  p {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+// =====================================
+// Header Actions
+// =====================================
+
+.header-actions {
+  align-items: center;
+
+  .btn {
+    min-height: 40px;
+    white-space: nowrap;
+  }
+}
+
+// =====================================
+// Content Card
+// =====================================
 
 .content-card {
+  width: 100%;
+  min-width: 0;
+
   background: #ffffff;
-  border-radius: 12px;
-  padding: 28px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  padding: 32px;
+
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
-/* =========================================
-   Team Logo
-========================================= */
+// =====================================
+// Team Branding Header
+// =====================================
 
-.team-logo {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
+.team-header {
+  min-width: 0;
+
+  padding: 24px;
+
+  background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #eff6ff 100%
+  );
+
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  background: #ffffff;
-  padding: 8px;
 }
 
-/* =========================================
-   Team Logo Placeholder
-========================================= */
+// =====================================
+// Team Logo Wrapper
+// =====================================
 
-.team-logo-placeholder {
-  width: 100px;
-  height: 100px;
-  min-width: 100px;
-
+.team-logo-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #f1f5f9;
+  flex-shrink: 0;
+
+  width: 150px;
+  height: 150px;
+
+  app-secure-image {
+    display: block;
+    max-width: 100%;
+  }
+}
+
+// =====================================
+// Team Header Information
+// =====================================
+
+.team-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+// =====================================
+// Team Header Label
+// =====================================
+
+.team-header-label {
+  color: #2563eb;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  i {
+    font-size: 13px;
+  }
+}
+
+// =====================================
+// Team Name
+// =====================================
+
+.team-name {
+  color: #0f172a;
+
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  letter-spacing: -0.5px;
+
+  overflow-wrap: anywhere;
+}
+
+// =====================================
+// Team Short Name
+// =====================================
+
+.team-short-name {
+  color: #64748b !important;
+
+  font-size: 16px;
+  font-weight: 500;
+
+  letter-spacing: 0.5px;
+
+  overflow-wrap: anywhere;
+}
+
+// =====================================
+// Section Divider
+// =====================================
+
+.section-divider {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  opacity: 1;
+}
+
+// =====================================
+// Details Section
+// =====================================
+
+.details-section {
+  width: 100%;
+  min-width: 0;
+}
+
+// =====================================
+// Section Header
+// =====================================
+
+.section-header {
+
+  h5 {
+    color: #0f172a;
+
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  p {
+    color: #64748b;
+
+    font-size: 13px;
+    line-height: 1.7;
+  }
+}
+
+// =====================================
+// Section Icon
+// =====================================
+
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  border: 1px solid #dbeafe;
+  border-radius: 9px;
+
+  font-size: 18px;
+}
+
+// =====================================
+// Detail Item
+// =====================================
+
+.detail-item {
+  height: 100%;
+  min-width: 0;
+
+  padding: 18px 20px;
+
+  background: #f8fafc;
+
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+}
+
+// =====================================
+// Detail Label
+// =====================================
+
+.detail-label {
+  display: flex;
+  align-items: center;
 
   color: #64748b;
-  font-size: 42px;
-}
 
-/* =========================================
-   Team Information
-========================================= */
-
-.form-label {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-
-.fw-semibold {
-  font-size: 15px;
-  color: #212529;
-}
-
-/* =========================================
-   Status Badge
-========================================= */
-
-.badge {
   font-size: 12px;
   font-weight: 500;
-  padding: 7px 12px;
-  border-radius: 6px;
+  line-height: 1.5;
+
+  margin-bottom: 10px;
+
+  i {
+    color: #64748b;
+    font-size: 14px;
+  }
 }
 
-/* =========================================
-   Responsive Design
-========================================= */
+// =====================================
+// Detail Value
+// =====================================
 
-@media (max-width: 768px) {
+.detail-value {
+  color: #0f172a;
+
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
+}
+
+// =====================================
+// Status Badge
+// =====================================
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 6px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.3px;
+
+  &.bg-success {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #bbf7d0;
+  }
+
+  &.bg-secondary {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #cbd5e1;
+  }
+
+  .bi-circle-fill {
+    font-size: 7px;
+  }
+}
+
+// =====================================
+// Logo Status
+// =====================================
+
+.logo-status {
+  display: inline-flex;
+  align-items: center;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  &.text-success {
+    color: #15803d !important;
+  }
+
+  &.text-muted {
+    color: #64748b !important;
+  }
+
+  i {
+    font-size: 15px;
+  }
+}
+
+// =====================================
+// Loading State
+// =====================================
+
+.content-card.text-center {
+
+  .spinner-border {
+    width: 2.5rem;
+    height: 2.5rem;
+
+    color: #2563eb !important;
+  }
+
+  p {
+    color: #64748b;
+    font-size: 13px;
+  }
+}
+
+// =====================================
+// Alert Messages
+// =====================================
+
+.alert {
+  padding: 15px 18px;
+
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 9px;
+
+  font-size: 13px;
+  line-height: 1.7;
+
+  margin-bottom: 24px;
+}
+
+// =====================================
+// Error Alert
+// =====================================
+
+.alert-danger {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+// =====================================
+// Common Button Styling
+// =====================================
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 10px 18px;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  border-radius: 8px;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+// =====================================
+// Primary Button
+// =====================================
+
+.btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.15);
+  }
+
+  &:active:not(:disabled) {
+    background-color: #1e40af;
+    border-color: #1e40af;
+  }
+}
+
+// =====================================
+// Secondary Button
+// =====================================
+
+.btn-outline-secondary {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  color: #475569;
+
+  &:hover:not(:disabled) {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+    color: #334155;
+  }
+
+  &:active:not(:disabled) {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+    color: #1e293b;
+  }
+}
+
+// =====================================
+// Delete Button
+// =====================================
+
+.btn-outline-danger {
+  background-color: #ffffff;
+  border-color: #fca5a5;
+  color: #dc2626;
+
+  &:hover:not(:disabled) {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+    color: #b91c1c;
+  }
+
+  &:active:not(:disabled) {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+  }
+
+  &:disabled {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+  }
+}
+
+// =====================================
+// Tablet Responsive Design
+// =====================================
+
+@media (max-width: 991.98px) {
 
   .content-card {
+    padding: 24px;
+  }
+
+  .page-header {
+
+    h2 {
+      font-size: 24px;
+    }
+  }
+
+  .team-header {
     padding: 20px;
   }
 
-  .team-logo,
-  .team-logo-placeholder {
-    width: 75px;
-    height: 75px;
-    min-width: 75px;
+  .team-name {
+    font-size: 25px;
+  }
+}
+
+// =====================================
+// Mobile Responsive Design
+// =====================================
+
+@media (max-width: 575.98px) {
+
+  .page-header {
+
+    h2 {
+      font-size: 22px;
+    }
+
+    p {
+      font-size: 12px;
+    }
   }
 
-  .team-logo-placeholder {
-    font-size: 32px;
+  .header-actions {
+    width: 100%;
+
+    .btn {
+      flex: 1 1 100%;
+      min-height: 44px;
+    }
   }
 
+  .content-card {
+    padding: 18px 14px;
+    border-radius: 10px;
+  }
+
+  .team-header {
+    flex-direction: column;
+    align-items: center !important;
+
+    padding: 20px 12px;
+
+    text-align: center;
+  }
+
+  .team-header-info {
+    width: 100%;
+  }
+
+  .team-name {
+    font-size: 22px;
+  }
+
+  .team-short-name {
+    font-size: 14px;
+  }
+
+  .team-header-label {
+    font-size: 10px;
+  }
+
+  .section-header {
+
+    h5 {
+      font-size: 16px;
+    }
+
+    p {
+      font-size: 12px;
+    }
+  }
+
+  .section-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-basis: 34px;
+
+    font-size: 16px;
+  }
+
+  .detail-item {
+    padding: 14px 16px;
+  }
+
+  .detail-label {
+    font-size: 12px;
+  }
+
+  .detail-value {
+    font-size: 14px;
+  }
+
+  .alert {
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+}
+
+// =====================================
+// Accessibility - Reduced Motion
+// =====================================
+
+@media (prefers-reduced-motion: reduce) {
+
+  .btn,
+  .detail-item {
+    transition: none;
+  }
 }

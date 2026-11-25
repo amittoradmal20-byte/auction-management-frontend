@@ -1,3 +1,4 @@
+
 export type MatchScheduleStatus =
   | 'DRAFT'
   | 'PUBLISHED'
@@ -18,6 +19,31 @@ export type LeagueFormat =
   | 'DOUBLE_ROUND_ROBIN'
   | 'PARTIAL_ROUND_ROBIN';
 
+// ==========================================
+// PLAYOFF FORMAT
+// ==========================================
+
+export type PlayoffFormat =
+  | 'NONE'
+  | 'TOP_2_FINAL'
+  | 'TOP_3_PLAYOFF'
+  | 'TOP_4_SEMIFINAL'
+  | 'TOP_4_PLAYOFF';
+
+// ==========================================
+// MATCH STAGE
+// ==========================================
+
+export type MatchStage =
+  | 'LEAGUE'
+  | 'SEMIFINAL'
+  | 'SEMIFINAL_1'
+  | 'SEMIFINAL_2'
+  | 'QUALIFIER_1'
+  | 'ELIMINATOR'
+  | 'QUALIFIER_2'
+  | 'FINAL';
+
 export type DayOfWeek =
   | 'MONDAY'
   | 'TUESDAY'
@@ -26,6 +52,10 @@ export type DayOfWeek =
   | 'FRIDAY'
   | 'SATURDAY'
   | 'SUNDAY';
+
+// ==========================================
+// MATCH SCHEDULE RESPONSE
+// ==========================================
 
 export interface MatchScheduleResponse {
 
@@ -40,7 +70,7 @@ export interface MatchScheduleResponse {
   schedulingType: SchedulingType;
   leagueFormat: LeagueFormat | string;
   opponentsToSkip: number;
-  playoffFormat: string;
+  playoffFormat: PlayoffFormat;
   qualifyingTeamCount: number;
 
   // Tournament dates

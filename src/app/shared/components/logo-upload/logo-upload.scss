@@ -1,0 +1,588 @@
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// =====================================
+// Logo Upload Container
+// =====================================
+
+.logo-upload-container {
+  width: 100%;
+  padding: 20px;
+
+  background-color: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  box-sizing: border-box;
+}
+
+// =====================================
+// Component Header
+// =====================================
+
+.logo-upload-header {
+  margin-bottom: 20px;
+
+  .form-label {
+    font-size: 0.95rem;
+    color: #1e293b;
+  }
+
+  p {
+    font-size: 0.8rem;
+  }
+}
+
+// =====================================
+// Logo Upload Content
+// =====================================
+
+.logo-upload-content {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 24px;
+}
+
+// =====================================
+// Logo Preview Section
+// =====================================
+
+.logo-preview-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  flex-shrink: 0;
+
+  gap: 10px;
+}
+
+// =====================================
+// Logo Preview Container
+// =====================================
+
+.logo-preview-container {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background-color: #ffffff;
+
+  border-radius: 12px;
+
+  box-sizing: border-box;
+}
+
+// =====================================
+// Local Image Preview
+// =====================================
+
+.logo-preview-image {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 4px;
+
+  object-fit: contain;
+  object-position: center;
+
+  background-color: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  box-sizing: border-box;
+
+  user-select: none;
+}
+
+// =====================================
+// Logo Preview Caption
+// =====================================
+
+.logo-preview-caption {
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  color: #64748b;
+
+  text-align: center;
+}
+
+// =====================================
+// Image Validation State
+// =====================================
+
+.logo-validation-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  gap: 12px;
+
+  background-color: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  text-align: center;
+
+  .spinner-border {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+// =====================================
+// File Selection Section
+// =====================================
+
+.logo-selection-section {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  min-width: 0;
+
+  gap: 14px;
+}
+
+// =====================================
+// Default File Selection Area
+// =====================================
+
+.logo-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 130px;
+
+  gap: 8px;
+  padding: 20px;
+
+  background-color: #f8fafc;
+
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #eff6ff;
+    border-color: #0d6efd;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+// =====================================
+// Upload Area Icon
+// =====================================
+
+.upload-area-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 46px;
+  height: 46px;
+
+  background-color: #e0edff;
+  color: #0d6efd;
+
+  border-radius: 50%;
+
+  i {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+}
+
+// =====================================
+// Upload Area Title
+// =====================================
+
+.upload-area-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  color: #1e293b;
+}
+
+// =====================================
+// Upload Area Description
+// =====================================
+
+.upload-area-description {
+  font-size: 0.8rem;
+
+  color: #64748b;
+}
+
+// =====================================
+// Selected File Card
+// =====================================
+
+.selected-file-card {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+  padding: 14px;
+
+  background-color: #f0fdf4;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+}
+
+// =====================================
+// Selected File Icon
+// =====================================
+
+.selected-file-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  flex-shrink: 0;
+
+  background-color: #dcfce7;
+  color: #16a34a;
+
+  border-radius: 10px;
+
+  i {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+}
+
+// =====================================
+// Selected File Details
+// =====================================
+
+.selected-file-details {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  min-width: 0;
+
+  gap: 4px;
+}
+
+// =====================================
+// Selected File Name
+// =====================================
+
+.selected-file-name {
+  overflow: hidden;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  color: #1e293b;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// =====================================
+// Selected File Size
+// =====================================
+
+.selected-file-size {
+  font-size: 0.75rem;
+
+  color: #64748b;
+}
+
+// =====================================
+// Selected File Status
+// =====================================
+
+.selected-file-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  color: #15803d;
+}
+
+// =====================================
+// Existing Logo Card
+// =====================================
+
+.existing-logo-card {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+  padding: 14px;
+
+  background-color: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+// =====================================
+// Existing Logo Icon
+// =====================================
+
+.existing-logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  flex-shrink: 0;
+
+  background-color: #e0edff;
+  color: #0d6efd;
+
+  border-radius: 10px;
+
+  i {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+}
+
+// =====================================
+// Logo Action Buttons
+// =====================================
+
+.logo-action-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 12px;
+
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    border-radius: 6px;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// =====================================
+// Validation Error Message
+// =====================================
+
+.logo-validation-error {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+  padding: 12px;
+
+  background-color: #fef2f2;
+  color: #b91c1c;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  font-size: 0.8rem;
+  line-height: 1.5;
+
+  i {
+    flex-shrink: 0;
+
+    font-size: 1rem;
+  }
+
+  span {
+    overflow-wrap: anywhere;
+  }
+}
+
+// =====================================
+// File Requirements
+// =====================================
+
+.logo-file-requirements {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+// =====================================
+// Individual File Requirement
+// =====================================
+
+.file-requirement-item {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 8px;
+
+  font-size: 0.75rem;
+  line-height: 1.5;
+
+  color: #64748b;
+
+  i {
+    flex-shrink: 0;
+
+    color: #64748b;
+    font-size: 0.85rem;
+  }
+}
+
+// =====================================
+// Pending Upload Information
+// =====================================
+
+.logo-upload-note {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 8px;
+  padding: 10px 12px;
+
+  background-color: #eff6ff;
+  color: #1d4ed8;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+
+  font-size: 0.75rem;
+  line-height: 1.5;
+
+  i {
+    flex-shrink: 0;
+
+    font-size: 0.9rem;
+  }
+}
+
+// =====================================
+// Tablet and Mobile Responsive Styling
+// =====================================
+
+@media (max-width: 767.98px) {
+
+  .logo-upload-container {
+    padding: 16px;
+  }
+
+  .logo-upload-content {
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+  }
+
+  .logo-preview-section {
+    width: 100%;
+  }
+
+  .logo-selection-section {
+    width: 100%;
+  }
+
+  .logo-upload-area {
+    min-height: 120px;
+    padding: 16px;
+  }
+
+  .logo-action-buttons {
+    justify-content: flex-start;
+  }
+}
+
+// =====================================
+// Small Mobile Devices
+// =====================================
+
+@media (max-width: 575.98px) {
+
+  .logo-upload-container {
+    padding: 12px;
+  }
+
+  .logo-upload-header {
+    margin-bottom: 16px;
+  }
+
+  .logo-action-buttons {
+
+    .btn {
+      flex: 1 1 auto;
+    }
+  }
+
+  .selected-file-card,
+  .existing-logo-card {
+    padding: 12px;
+  }
+
+  .file-requirement-item {
+    font-size: 0.72rem;
+  }
+}
+
+// =====================================
+// Reduced Motion Accessibility
+// =====================================
+
+@media (prefers-reduced-motion: reduce) {
+
+  .logo-upload-area {
+    transition: none;
+  }
+}

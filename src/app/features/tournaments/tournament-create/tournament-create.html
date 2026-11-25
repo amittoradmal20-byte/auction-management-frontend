@@ -1,64 +1,209 @@
 
 <div class="tournaments-container">
 
-  <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- ===================================== -->
+  <!-- Page Header                           -->
+  <!-- ===================================== -->
+
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
 
     <div>
-      <h2>{{ isEditMode ? 'Edit Tournament' : 'Create Tournament' }}</h2>
+
+      <h2>
+        {{ isEditMode ? 'Edit Tournament' : 'Create Tournament' }}
+      </h2>
 
       <p class="text-muted mb-0">
+
         {{ isEditMode
             ? 'Update tournament information and configuration.'
             : 'Add a new cricket tournament to the platform.' }}
+
       </p>
+
     </div>
 
-    <a routerLink="/tournaments"
-       class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left me-2"></i>
-      Back to Tournaments
-    </a>
+    @if (!isBusy && !isFormLocked) {
+
+      <a routerLink="/tournaments"
+         class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Tournaments
+
+      </a>
+
+    }
 
   </div>
 
-  <!-- Tournament Form -->
+  <!-- ===================================== -->
+  <!-- Tournament Form                       -->
+  <!-- ===================================== -->
+
   <div class="content-card">
+
+    <!-- Loading Tournament Details -->
 
     @if (isLoadingTournament) {
 
       <div class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-        <p class="text-muted mt-2">Loading tournament details...</p>
+
+        <div class="spinner-border text-primary"
+             role="status">
+
+          <span class="visually-hidden">
+            Loading...
+          </span>
+
+        </div>
+
+        <p class="text-muted mt-2">
+          Loading tournament details...
+        </p>
+
       </div>
 
-    } @else {
+    }
 
-      <form [formGroup]="tournamentForm"
-            (ngSubmit)="isEditMode ? updateTournament() : createTournament()">
+    <!-- Tournament Loading Failed -->
 
-        @if (errorMessage) {
+    @else if (!isTournamentLoaded) {
 
-          <div class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-circle me-2"></i>
-            {{ errorMessage }}
+      <div class="alert alert-danger" role="alert">
+
+        <i class="bi bi-exclamation-circle me-2"></i>
+
+        {{ errorMessage || 'Unable to load tournament details.' }}
+
+      </div>
+
+      <button type="button"
+              class="btn btn-outline-primary"
+              (click)="loadTournamentDetails()">
+
+        <i class="bi bi-arrow-clockwise me-2"></i>
+        Retry
+
+      </button>
+
+    }
+
+    <!-- Tournament Form Content -->
+
+    @else {
+
+      <form
+        [formGroup]="tournamentForm"
+        (ngSubmit)="isEditMode ? updateTournament() : createTournament()">
+
+        <!-- ===================================== -->
+        <!-- Success Message                       -->
+        <!-- ===================================== -->
+
+        @if (successMessage) {
+
+          <div class="alert alert-success"
+               role="status">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            {{ successMessage }}
+
           </div>
 
         }
 
+        <!-- ===================================== -->
+        <!-- Error Message                         -->
+        <!-- ===================================== -->
+
+        @if (errorMessage) {
+
+          <div class="alert alert-danger"
+               role="alert">
+
+            <i class="bi bi-exclamation-circle me-2"></i>
+
+            {{ errorMessage }}
+
+          </div>
+
+        }
+
+        <!-- ===================================== -->
+        <!-- Partial Submission Information        -->
+        <!-- ===================================== -->
+
+        @if (isLogoUploadFailed && savedTournament) {
+
+          <div class="alert alert-warning">
+
+            <div class="d-flex align-items-start gap-3">
+
+              <i class="bi bi-info-circle fs-4"></i>
+
+              <div>
+
+                <h6 class="alert-heading mb-2">
+                  Tournament Saved — Logo Upload Pending
+                </h6>
+
+                <p class="mb-2">
+
+                  Tournament information has already
+                  been saved successfully.
+
+                </p>
+
+                <p class="mb-2">
+
+                  You can retry uploading the selected logo
+                  or choose another valid image.
+
+                </p>
+
+                <p class="mb-0 small">
+
+                  <i class="bi bi-lock me-1"></i>
+
+                  Tournament fields are locked to prevent
+                  duplicate creation or repeated updates.
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+        <!-- ===================================== -->
+        <!-- Tournament Information                -->
+        <!-- ===================================== -->
+
         <div class="row g-4">
 
           <!-- Tournament Name -->
+
           <div class="col-md-6">
 
-            <label class="form-label">
-              Tournament Name <span class="text-danger">*</span>
+            <label class="form-label"
+                   for="tournamentName">
+
+              Tournament Name
+              <span class="text-danger">*</span>
+
             </label>
 
-            <input type="text"
-                   class="form-control"
-                   formControlName="name"
-                   placeholder="Enter tournament name">
+            <input
+              id="tournamentName"
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Enter tournament name">
 
             @if (tournamentForm.get('name')?.touched &&
                  tournamentForm.get('name')?.invalid) {
@@ -66,15 +211,27 @@
               <div class="text-danger small mt-1">
 
                 @if (tournamentForm.get('name')?.hasError('required')) {
-                  <span>Tournament name is required.</span>
+
+                  <span>
+                    Tournament name is required.
+                  </span>
+
                 }
 
                 @if (tournamentForm.get('name')?.hasError('minlength')) {
-                  <span>Minimum 3 characters required.</span>
+
+                  <span>
+                    Minimum 3 characters required.
+                  </span>
+
                 }
 
                 @if (tournamentForm.get('name')?.hasError('maxlength')) {
-                  <span>Maximum 150 characters allowed.</span>
+
+                  <span>
+                    Maximum 150 characters allowed.
+                  </span>
+
                 }
 
               </div>
@@ -84,16 +241,23 @@
           </div>
 
           <!-- Maximum Teams -->
+
           <div class="col-md-6">
 
-            <label class="form-label">
-              Maximum Teams <span class="text-danger">*</span>
+            <label class="form-label"
+                   for="maxTeams">
+
+              Maximum Teams
+              <span class="text-danger">*</span>
+
             </label>
 
-            <input type="number"
-                   class="form-control"
-                   formControlName="maxTeams"
-                   min="2">
+            <input
+              id="maxTeams"
+              type="number"
+              class="form-control"
+              formControlName="maxTeams"
+              min="2">
 
             @if (tournamentForm.get('maxTeams')?.touched &&
                  tournamentForm.get('maxTeams')?.invalid) {
@@ -101,11 +265,19 @@
               <div class="text-danger small mt-1">
 
                 @if (tournamentForm.get('maxTeams')?.hasError('required')) {
-                  <span>Maximum teams is required.</span>
+
+                  <span>
+                    Maximum teams is required.
+                  </span>
+
                 }
 
                 @if (tournamentForm.get('maxTeams')?.hasError('min')) {
-                  <span>Maximum teams must be at least 2.</span>
+
+                  <span>
+                    Maximum teams must be at least 2.
+                  </span>
+
                 }
 
               </div>
@@ -115,23 +287,31 @@
           </div>
 
           <!-- Description -->
+
           <div class="col-12">
 
-            <label class="form-label">
+            <label class="form-label"
+                   for="tournamentDescription">
+
               Description
+
             </label>
 
-            <textarea class="form-control"
-                      rows="3"
-                      formControlName="description"
-                      placeholder="Enter tournament description">
+            <textarea
+              id="tournamentDescription"
+              class="form-control"
+              rows="3"
+              formControlName="description"
+              placeholder="Enter tournament description">
             </textarea>
 
             @if (tournamentForm.get('description')?.touched &&
                  tournamentForm.get('description')?.hasError('maxlength')) {
 
               <div class="text-danger small mt-1">
+
                 Maximum 500 characters allowed.
+
               </div>
 
             }
@@ -139,21 +319,30 @@
           </div>
 
           <!-- Start Date -->
+
           <div class="col-md-6">
 
-            <label class="form-label">
-              Start Date <span class="text-danger">*</span>
+            <label class="form-label"
+                   for="startDate">
+
+              Start Date
+              <span class="text-danger">*</span>
+
             </label>
 
-            <input type="date"
-                   class="form-control"
-                   formControlName="startDate">
+            <input
+              id="startDate"
+              type="date"
+              class="form-control"
+              formControlName="startDate">
 
             @if (tournamentForm.get('startDate')?.touched &&
                  tournamentForm.get('startDate')?.hasError('required')) {
 
               <div class="text-danger small mt-1">
+
                 Start date is required.
+
               </div>
 
             }
@@ -161,21 +350,30 @@
           </div>
 
           <!-- End Date -->
+
           <div class="col-md-6">
 
-            <label class="form-label">
-              End Date <span class="text-danger">*</span>
+            <label class="form-label"
+                   for="endDate">
+
+              End Date
+              <span class="text-danger">*</span>
+
             </label>
 
-            <input type="date"
-                   class="form-control"
-                   formControlName="endDate">
+            <input
+              id="endDate"
+              type="date"
+              class="form-control"
+              formControlName="endDate">
 
             @if (tournamentForm.get('endDate')?.touched &&
                  tournamentForm.get('endDate')?.hasError('required')) {
 
               <div class="text-danger small mt-1">
+
                 End date is required.
+
               </div>
 
             }
@@ -184,7 +382,61 @@
                  tournamentForm.get('endDate')?.touched) {
 
               <div class="text-danger small mt-1">
+
                 End date cannot be earlier than start date.
+
+              </div>
+
+            }
+
+          </div>
+
+          <!-- ===================================== -->
+          <!-- Tournament Logo                       -->
+          <!-- ===================================== -->
+
+          <div class="col-12">
+
+            <app-logo-upload
+              label="Tournament Logo"
+              [existingImagePath]="existingLogoPath"
+              placeholderIcon="bi-trophy"
+              placeholderText="No logo"
+              [previewWidth]="150"
+              [previewHeight]="150"
+              [disabled]="isBusy"
+              (fileSelected)="onLogoSelected($event)"
+              (validationStateChange)="onLogoValidationChange($event)"
+              (removeExistingLogo)="removeExistingLogo()">
+            </app-logo-upload>
+
+            @if (isRemovingLogo) {
+
+              <div class="d-flex align-items-center gap-2 text-muted small mt-2"
+                   role="status">
+
+                <span class="spinner-border spinner-border-sm text-primary"
+                      aria-hidden="true">
+                </span>
+
+                Removing tournament logo...
+
+              </div>
+
+            }
+
+            @if (isEditMode &&
+                 existingLogoPath &&
+                 !selectedLogoFile &&
+                 !isFormLocked) {
+
+              <div class="form-text mt-2">
+
+                <i class="bi bi-info-circle me-1"></i>
+
+                Removing the existing logo takes effect
+                immediately after confirmation.
+
               </div>
 
             }
@@ -193,35 +445,143 @@
 
         </div>
 
+        <!-- ===================================== -->
+        <!-- Logo Upload Progress                  -->
+        <!-- ===================================== -->
+
+        @if (isUploadingLogo) {
+
+          <div class="alert alert-info mt-4 mb-0"
+               role="status">
+
+            <div class="d-flex align-items-center gap-3">
+
+              <span class="spinner-border spinner-border-sm text-primary"
+                    aria-hidden="true">
+              </span>
+
+              <div>
+
+                <div class="fw-semibold">
+                  Uploading Tournament Logo
+                </div>
+
+                <div class="small">
+
+                  Please wait while the selected logo
+                  is being uploaded.
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
         <hr class="my-4">
 
-        <!-- Form Actions -->
-        <div class="d-flex justify-content-end gap-2">
+        <!-- ===================================== -->
+        <!-- Partial Submission Actions            -->
+        <!-- ===================================== -->
 
-          <a routerLink="/tournaments"
-             class="btn btn-light">
-            Cancel
-          </a>
+        @if (isLogoUploadFailed && savedTournament) {
 
-          <button type="submit"
-                  class="btn btn-primary"
-                  [disabled]="tournamentForm.invalid || isSubmitting || isLoadingTournament">
+          <div class="d-flex justify-content-end flex-wrap gap-2">
 
-            @if (isSubmitting) {
+            <!-- Continue Without New Logo -->
 
-              <span class="spinner-border spinner-border-sm me-2"></span>
-              {{ isEditMode ? 'Updating...' : 'Creating...' }}
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              [disabled]="isBusy"
+              (click)="continueWithoutLogo()">
 
-            } @else {
+              <i class="bi bi-arrow-right-circle me-2"></i>
 
-              <i class="bi bi-check-circle me-2"></i>
-              {{ isEditMode ? 'Update Tournament' : 'Create Tournament' }}
+              Continue Without New Logo
+
+            </button>
+
+            <!-- Retry Logo Upload -->
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!canRetryLogoUpload"
+              (click)="retryLogoUpload()">
+
+              @if (isUploadingLogo) {
+
+                <span class="spinner-border spinner-border-sm me-2"
+                      aria-hidden="true">
+                </span>
+
+                Uploading Logo...
+
+              } @else {
+
+                <i class="bi bi-arrow-clockwise me-2"></i>
+
+                Retry Logo Upload
+
+              }
+
+            </button>
+
+          </div>
+
+        }
+
+        <!-- ===================================== -->
+        <!-- Normal Create / Update Actions        -->
+        <!-- ===================================== -->
+
+        @else {
+
+          <div class="d-flex justify-content-end flex-wrap gap-2">
+
+            <!-- Cancel -->
+
+            @if (!isBusy && !isFormLocked) {
+
+              <a routerLink="/tournaments"
+                 class="btn btn-light">
+
+                Cancel
+
+              </a>
 
             }
 
-          </button>
+            <!-- Submit Tournament -->
 
-        </div>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!canSubmit">
+
+              @if (isSubmitting || isUploadingLogo) {
+
+                <span class="spinner-border spinner-border-sm me-2"
+                      aria-hidden="true">
+                </span>
+
+              } @else {
+
+                <i class="bi bi-check-circle me-2"></i>
+
+              }
+
+              {{ submitButtonLabel }}
+
+            </button>
+
+          </div>
+
+        }
 
       </form>
 

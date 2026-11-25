@@ -1,0 +1,381 @@
+
+<div class="logo-upload-container">
+
+  <!-- ===================================== -->
+  <!-- Component Label                       -->
+  <!-- ===================================== -->
+
+  <div class="logo-upload-header">
+
+    <label class="form-label fw-semibold mb-1">
+      {{ label }}
+      <span class="text-muted fw-normal">
+        (Optional)
+      </span>
+    </label>
+
+    <p class="text-muted small mb-0">
+      Select an image to personalize your logo.
+    </p>
+
+  </div>
+
+  <!-- ===================================== -->
+  <!-- Logo Upload Content                   -->
+  <!-- ===================================== -->
+
+  <div class="logo-upload-content">
+
+    <!-- Logo Preview Section -->
+    <div class="logo-preview-section">
+
+      <div
+        class="logo-preview-container"
+        [style.width.px]="previewWidth"
+        [style.height.px]="previewHeight">
+
+        <!-- Image Validation State -->
+        @if (isValidating) {
+
+          <div
+            class="logo-validation-state"
+            role="status">
+
+            <div
+              class="spinner-border text-primary"
+              aria-hidden="true">
+            </div>
+
+            <span class="small text-muted">
+              Validating image...
+            </span>
+
+          </div>
+
+        }
+
+        <!-- Selected Local Image Preview -->
+        @else if (previewUrl) {
+
+          <img
+            class="logo-preview-image"
+            [src]="previewUrl"
+            [alt]="label + ' Preview'"
+            (error)="onPreviewError()"
+            draggable="false"
+          />
+
+        }
+
+        <!-- Existing Uploaded Logo or Placeholder -->
+        @else {
+
+          <app-secure-image
+            [imagePath]="existingImagePath"
+            [alt]="label"
+            [width]="previewWidth"
+            [height]="previewHeight"
+            [placeholderIcon]="placeholderIcon"
+            [placeholderText]="placeholderText"
+            objectFit="contain">
+          </app-secure-image>
+
+        }
+
+      </div>
+
+      <span class="logo-preview-caption">
+        Logo Preview
+      </span>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- File Selection Section                -->
+    <!-- ===================================== -->
+
+    <div class="logo-selection-section">
+
+      <!-- Hidden File Input -->
+      <input
+        #logoFileInput
+        type="file"
+        class="d-none"
+        [accept]="acceptedFileTypes"
+        [disabled]="disabled || isValidating"
+        (change)="onFileSelected($event)"
+      />
+
+      <!-- Selected File Information -->
+      @if (hasSelectedFile) {
+
+        <div class="selected-file-card">
+
+          <div class="selected-file-icon">
+
+            <i class="bi bi-file-earmark-image"></i>
+
+          </div>
+
+          <div class="selected-file-details">
+
+            <div
+              class="selected-file-name"
+              [title]="selectedFileName">
+
+              {{ selectedFileName }}
+
+            </div>
+
+            <div class="selected-file-size">
+
+              {{ selectedFileSize }}
+
+            </div>
+
+            <div class="selected-file-status">
+
+              <i class="bi bi-check-circle-fill me-1"></i>
+              Valid image selected
+
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+      <!-- Existing Logo Information -->
+      @else if (hasExistingLogo && !isValidating) {
+
+        <div class="existing-logo-card">
+
+          <div class="existing-logo-icon">
+
+            <i class="bi bi-image"></i>
+
+          </div>
+
+          <div>
+
+            <div class="fw-semibold">
+              Existing Logo
+            </div>
+
+            <div class="small text-muted">
+              A logo is already uploaded.
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+      <!-- Default File Selection Area -->
+      @else {
+
+        <button
+          type="button"
+          class="logo-upload-area"
+          [disabled]="disabled || isValidating"
+          (click)="logoFileInput.click()">
+
+          <div class="upload-area-icon">
+
+            <i class="bi bi-cloud-arrow-up"></i>
+
+          </div>
+
+          <div class="upload-area-title">
+
+            @if (isValidating) {
+
+              Validating Image...
+
+            } @else {
+
+              Choose Logo
+
+            }
+
+          </div>
+
+          <div class="upload-area-description">
+
+            Select an image from your device
+
+          </div>
+
+        </button>
+
+      }
+
+      <!-- ===================================== -->
+      <!-- Logo Action Buttons                   -->
+      <!-- ===================================== -->
+
+      @if (hasSelectedFile || hasExistingLogo || hasError) {
+
+        <div class="logo-action-buttons">
+
+          <!-- Change or Choose Logo -->
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            [disabled]="disabled || isValidating"
+            (click)="logoFileInput.click()">
+
+            <i class="bi bi-upload me-1"></i>
+
+            @if (hasSelectedFile || hasExistingLogo) {
+
+              Change Logo
+
+            } @else {
+
+              Choose Logo
+
+            }
+
+          </button>
+
+          <!-- Clear Selected File or Validation Error -->
+          @if (hasSelectedFile || hasError) {
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              [disabled]="disabled || isValidating"
+              (click)="clearSelectedFile()">
+
+              <i class="bi bi-x-circle me-1"></i>
+
+              @if (hasSelectedFile) {
+
+                Clear Selection
+
+              } @else {
+
+                Clear Error
+
+              }
+
+            </button>
+
+          }
+
+          <!-- Remove Existing Uploaded Logo -->
+          @else if (hasExistingLogo) {
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              [disabled]="disabled || isValidating"
+              (click)="requestRemoveExistingLogo()">
+
+              <i class="bi bi-trash me-1"></i>
+              Remove Logo
+
+            </button>
+
+          }
+
+        </div>
+
+      }
+
+      <!-- ===================================== -->
+      <!-- Validation Error Message              -->
+      <!-- ===================================== -->
+
+      @if (hasError) {
+
+        <div
+          class="logo-validation-error"
+          role="alert">
+
+          <i class="bi bi-exclamation-circle"></i>
+
+          <span>
+            {{ errorMessage }}
+          </span>
+
+        </div>
+
+      }
+
+      <!-- ===================================== -->
+      <!-- File Requirements                     -->
+      <!-- ===================================== -->
+
+      <div class="logo-file-requirements">
+
+        <div class="file-requirement-item">
+
+          <i class="bi bi-check2"></i>
+
+          <span>
+            Supported formats: PNG, JPG, JPEG
+          </span>
+
+        </div>
+
+        <div class="file-requirement-item">
+
+          <i class="bi bi-check2"></i>
+
+          <span>
+            Maximum file size: 2 MB
+          </span>
+
+        </div>
+
+        <div class="file-requirement-item">
+
+          <i class="bi bi-check2"></i>
+
+          <span>
+            Maximum dimensions:
+            {{ maxImageWidth }} × {{ maxImageHeight }} px
+          </span>
+
+        </div>
+
+        <div class="file-requirement-item">
+
+          <i class="bi bi-info-circle"></i>
+
+          <span>
+            Recommended dimensions: 512 × 512 px
+          </span>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- Pending Upload Information            -->
+      <!-- ===================================== -->
+
+      @if (hasSelectedFile) {
+
+        <div class="logo-upload-note">
+
+          <i class="bi bi-info-circle"></i>
+
+          <span>
+            The selected logo will be uploaded
+            when you submit the form.
+          </span>
+
+        </div>
+
+      }
+
+    </div>
+
+  </div>
+
+</div>

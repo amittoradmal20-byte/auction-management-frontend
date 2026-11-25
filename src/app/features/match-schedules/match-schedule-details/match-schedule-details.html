@@ -139,6 +139,14 @@
         </div>
 
         <div class="col-md-6">
+          <label class="text-muted small">Playoff Format</label>
+          <div class="fw-semibold">{{ playoffFormatLabel }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Qualifying Teams</label>
+          <div class="fw-semibold">{{ qualifyingTeamCount }}</div>
+        </div>
+        <div class="col-md-6">
           <label class="text-muted small">Start Date</label>
           <div class="fw-semibold">
             {{ item.startDate | date:'dd MMM yyyy' }}
@@ -174,33 +182,41 @@
         <div class="col-6 col-lg-3">
           <div class="border rounded p-3">
             <i class="bi bi-people stat-icon"></i><p class="text-muted mb-1">Total Teams</p>
-            <h3 class="mb-0">{{ item.totalTeams ?? 0 }}</h3>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalTeams ?? 0) : totalTeams }}</h3>
           </div>
         </div>
 
         <div class="col-6 col-lg-3">
           <div class="border rounded p-3">
             <i class="bi bi-calendar-check stat-icon"></i><p class="text-muted mb-1">League Matches</p>
-            <h3 class="mb-0">{{ item.totalLeagueMatches ?? 0 }}</h3>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalLeagueMatches ?? 0) : totalLeagueMatches }}</h3>
           </div>
         </div>
 
         <div class="col-6 col-lg-3">
           <div class="border rounded p-3">
             <i class="bi bi-trophy stat-icon"></i><p class="text-muted mb-1">Playoff Matches</p>
-            <h3 class="mb-0">{{ item.totalPlayoffMatches ?? 0 }}</h3>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalPlayoffMatches ?? 0) : totalPlayoffMatches }}</h3>
           </div>
         </div>
 
         <div class="col-6 col-lg-3">
           <div class="border rounded p-3">
             <i class="bi bi-layers stat-icon"></i><p class="text-muted mb-1">Total Matches</p>
-            <h3 class="mb-0">{{ item.totalMatches ?? 0 }}</h3>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalMatches ?? 0) : totalMatches }}</h3>
           </div>
         </div>
 
       </div>
     </div>
+
+    @if (hasMissingPlayoffFixtures) {
+      <div class="alert alert-warning" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ playoffConfigurationWarning }}
+        Existing fixtures are preserved. Regeneration is not available on this page yet.
+      </div>
+    }
 
     <!-- =====================================
          TEAM DRAWS
@@ -370,96 +386,112 @@
             <button type="button" class="btn btn-outline-primary" [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'"><i class="bi bi-grid me-1"></i>Cards</button>
           </div>
         </div>
-        @if (viewMode === 'table') {
-        <div class="table-responsive">
+        @for (section of [
+          { title: 'League Fixtures', matches: filteredLeagueFixtures, playoff: false },
+          { title: 'Playoff Fixtures', matches: filteredPlayoffFixtures, playoff: true }
+        ]; track section.title) {
+          @if (section.matches.length > 0) {
+            <section class="fixture-section mb-4" [class.playoff-section]="section.playoff">
+              <h6 class="fixture-section-title mb-3">
+                <i class="bi me-2" [ngClass]="section.playoff ? 'bi-trophy' : 'bi-calendar-check'"></i>
+                {{ section.title }} ({{ section.matches.length }})
+              </h6>
+              @if (viewMode === 'table') {
+              <div class="table-responsive">
 
-          <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle">
 
-            <thead>
-              <tr>
-                <th>Match</th>
-                <th>Stage</th>
-                <th>Home Team</th>
-                <th>Away Team</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Ground</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+                  <thead>
+                    <tr>
+                      <th>Match</th>
+                      <th>Stage</th>
+                      <th>Home Team</th>
+                      <th>Away Team</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Ground</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
 
-            <tbody>
+                  <tbody>
 
-              @for (fixture of filteredFixtures; track fixture.id) {
+                    @for (fixture of section.matches; track fixture.id) {
 
-                <tr>
+                      <tr [class.playoff-row]="isPlayoffMatch(fixture)" [class.final-row]="isFinalMatch(fixture)">
 
-                  <td class="fw-semibold">
-                    #{{ fixture.matchNumber }}
-                  </td>
+                        <td class="fw-semibold">
+                          #{{ fixture.matchNumber }}
+                        </td>
 
-                  <td>
-                    {{ fixture.matchStage || '-' }}
-                  </td>
+                        <td>
+                          <span class="stage-badge" [ngClass]="getMatchStageClass(fixture.matchStage)">{{ getMatchStageLabel(fixture.matchStage) }}</span>
+                        </td>
 
-                  <td>
-                    {{ fixture.homeTeamName || fixture.homeTeamSource || 'TBD' }}
-                  </td>
+                        <td [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">
+                          {{ getHomeTeamDisplayName(fixture) }}
+                        </td>
 
-                  <td>
-                    {{ fixture.awayTeamName || fixture.awayTeamSource || 'TBD' }}
-                  </td>
+                        <td [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">
+                          {{ getAwayTeamDisplayName(fixture) }}
+                        </td>
 
-                  <td>
-                    @if (fixture.matchDate) {
-                      {{ fixture.matchDate | date:'dd MMM yyyy' }}
-                    } @else {
-                      TBD
+                        <td>
+                          @if (fixture.matchDate) {
+                            {{ fixture.matchDate | date:'dd MMM yyyy' }}
+                          } @else {
+                            TBD
+                          }
+                        </td>
+
+                        <td>
+                          {{ formatTime(fixture.startTime) }}
+                          -
+                          {{ formatTime(fixture.endTime) }}
+                        </td>
+
+                        <td>
+                          {{ fixture.groundNumber ?? '-' }}
+                        </td>
+
+                        <td>
+                          <span class="badge bg-secondary">
+                            {{ fixture.status || 'N/A' }}
+                          </span>
+                        </td>
+
+                      </tr>
+
                     }
-                  </td>
 
-                  <td>
-                    {{ formatTime(fixture.startTime) }}
-                    -
-                    {{ formatTime(fixture.endTime) }}
-                  </td>
+                  </tbody>
 
-                  <td>
-                    {{ fixture.groundNumber ?? '-' }}
-                  </td>
+                </table>
 
-                  <td>
-                    <span class="badge bg-secondary">
-                      {{ fixture.status || 'N/A' }}
-                    </span>
-                  </td>
-
-                </tr>
-
-              }
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-        } @else {
-          <div class="row g-3 mb-3">
-            @for (fixture of filteredFixtures; track fixture.id) {
-              <div class="col-xl-4 col-md-6">
-                <article class="fixture-card">
-                  <div class="d-flex justify-content-between small fw-semibold"><span> MATCH #{{ fixture.matchNumber }}</span><span>{{ fixture.matchStage }} · R{{ fixture.roundNumber }}</span></div>
-                  <div class="fixture-teams">
-                    <div><i class="bi bi-shield-fill"></i><strong>{{ fixture.homeTeamName || fixture.homeTeamSource || 'TBD' }}</strong></div>
-                    <span class="vs">VS</span>
-                    <div><i class="bi bi-shield-fill"></i><strong>{{ fixture.awayTeamName || fixture.awayTeamSource || 'TBD' }}</strong></div>
-                  </div>
-                  <div class="fixture-meta"><span><i class="bi bi-calendar3"></i> {{ fixture.matchDate ? (fixture.matchDate | date:'dd MMM yyyy') : 'TBD' }}</span><span><i class="bi bi-clock"></i> {{ formatTime(fixture.startTime) }} – {{ formatTime(fixture.endTime) }}</span><span>Ground {{ fixture.groundNumber ?? '-' }}</span><span class="badge bg-secondary">{{ fixture.status || 'N/A' }}</span></div>
-                </article>
               </div>
-            }
-          </div>
+
+              } @else {
+                <div class="row g-3 mb-3">
+                  @for (fixture of section.matches; track fixture.id) {
+                    <div class="col-xl-4 col-md-6">
+                      <article class="fixture-card" [class.playoff-card]="isPlayoffMatch(fixture)" [class.final-card]="isFinalMatch(fixture)">
+                        <div class="d-flex justify-content-between small fw-semibold"><span> MATCH #{{ fixture.matchNumber }}</span><span><span class="stage-badge" [ngClass]="getMatchStageClass(fixture.matchStage)">{{ getMatchStageLabel(fixture.matchStage) }}</span></span></div>
+                        <div class="fixture-teams">
+                          <div><i class="bi bi-shield-fill"></i><strong [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">{{ getHomeTeamDisplayName(fixture) }}</strong></div>
+                          <span class="vs">VS</span>
+                          <div><i class="bi bi-shield-fill"></i><strong [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">{{ getAwayTeamDisplayName(fixture) }}</strong></div>
+                        </div>
+                        <div class="fixture-meta"><span><i class="bi bi-calendar3"></i> {{ fixture.matchDate ? (fixture.matchDate | date:'dd MMM yyyy') : 'TBD' }}</span><span><i class="bi bi-clock"></i> {{ formatTime(fixture.startTime) }} – {{ formatTime(fixture.endTime) }}</span><span>Ground {{ fixture.groundNumber ?? '-' }}</span><span class="badge bg-secondary">{{ fixture.status || 'N/A' }}</span></div>
+                      </article>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          }
+        }
+        @if (filteredFixtures.length === 0) {
+          <p class="text-muted">No fixtures for the selected date.</p>
         }
         <p class="text-muted small mb-0">
           Showing {{ filteredFixtures.length }} of {{ fixtures.length }} generated fixtures.

@@ -1,101 +1,135 @@
-
 <div class="match-schedules-container">
 
   <!-- =====================================
+
        PAGE HEADER
+
   ====================================== -->
 
   <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
+
       <h2>Create Match Schedule</h2>
 
       <p class="text-muted mb-0">
+
         Configure tournament fixtures, playing dates and fairness rules.
+
       </p>
+
     </div>
 
     <a
+
       routerLink="/match-schedules"
+
       class="btn btn-outline-secondary">
 
       <i class="bi bi-arrow-left me-2"></i>
+
       Back to Match Schedules
 
     </a>
 
   </div>
 
-
   <div class="content-card">
 
     <!-- Error Message -->
+
     @if (errorMessage) {
 
       <div class="alert alert-danger">
+
         <i class="bi bi-exclamation-circle me-2"></i>
+
         {{ errorMessage }}
+
       </div>
 
     }
 
     <!-- Scheduling Error -->
+
     @if (schedulingErrorMessage) {
 
       <div class="alert alert-danger">
+
         <i class="bi bi-exclamation-triangle me-2"></i>
+
         {{ schedulingErrorMessage }}
+
       </div>
 
     }
 
     <!-- Validation Success -->
+
     @if (validationSuccessMessage) {
 
       <div class="alert alert-success">
+
         <i class="bi bi-check-circle me-2"></i>
+
         {{ validationSuccessMessage }}
+
       </div>
 
     }
 
-
     <form
+
       [formGroup]="scheduleForm"
+
       (ngSubmit)="createSchedule()">
 
-
       <!-- =====================================
+
            TOURNAMENT INFORMATION
+
       ====================================== -->
 
       <h5 class="mb-3">
+
         <i class="bi bi-trophy me-2"></i>
+
         Tournament Information
+
       </h5>
 
       <div class="row g-4 mb-4">
 
         <!-- Tournament -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Tournament <span class="text-danger">*</span>
+
           </label>
 
           <select
+
             class="form-select"
+
             formControlName="tournamentId"
+
             [class.is-invalid]="f.tournamentId.touched && f.tournamentId.invalid">
 
             <option value="">
+
               -- Select Tournament --
+
             </option>
 
             @for (tournament of tournaments; track tournament.id) {
 
               <option [value]="tournament.id">
+
                 {{ tournament.name }}
+
               </option>
 
             }
@@ -103,44 +137,71 @@
           </select>
 
           @if (f.tournamentId.touched && f.tournamentId.invalid) {
+
             <div class="invalid-feedback">
+
               Please select a tournament.
+
             </div>
+
           }
 
           @if (loadingTournamentTeams) {
+
             <div class="small text-muted mt-2" role="status">
+
               <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+
               Loading tournament teams...
+
             </div>
+
           } @else if (tournamentTeamsError) {
+
             <div class="text-danger small mt-2" role="alert">
+
               {{ tournamentTeamsError }}
+
             </div>
+
           } @else if (tournamentTeamsLoaded) {
+
             <div class="small mt-2" [class.text-success]="activeTeamCount >= 2"
+
                  [class.text-warning]="activeTeamCount < 2">
+
               <i class="bi bi-people me-1"></i>
+
               {{ activeTeamCount }} active tournament teams
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Schedule Name -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Schedule Name <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="text"
+
             class="form-control"
+
             formControlName="name"
+
             maxlength="150"
+
             placeholder="Enter schedule name"
+
             [class.is-invalid]="f.name.touched && f.name.invalid">
 
           @if (f.name.touched && f.name.invalid) {
@@ -148,11 +209,17 @@
             <div class="invalid-feedback">
 
               @if (f.name.hasError('required')) {
+
                 Schedule Name is required.
+
               } @else if (f.name.hasError('maxlength')) {
+
                 Schedule Name cannot exceed 150 characters.
+
               } @else if (f.name.hasError('pattern')) {
+
                 Schedule Name cannot contain only spaces.
+
               }
 
             </div>
@@ -163,382 +230,619 @@
 
       </div>
 
-
       <!-- =====================================
+
            SCHEDULING CONFIGURATION
+
       ====================================== -->
 
       <h5 class="mb-3">
+
         <i class="bi bi-gear me-2"></i>
+
         Scheduling Configuration
+
       </h5>
 
       <div class="row g-4 mb-4">
 
         <!-- Scheduling Type -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Scheduling Type <span class="text-danger">*</span>
+
           </label>
 
           <select
+
             class="form-select"
+
             formControlName="schedulingType"
+
             (change)="onSchedulingTypeChange()">
 
             <option value="DAILY">Daily</option>
+
             <option value="WEEKLY">Weekly</option>
+
             <option value="WEEKEND">Weekend</option>
+
             <option value="TWO_DAY">Two Day</option>
+
             <option value="THREE_DAY">Three Day</option>
+
             <option value="CUSTOM">Custom</option>
 
           </select>
 
         </div>
 
-
         <!-- League Format -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             League Format <span class="text-danger">*</span>
+
           </label>
 
           <select
+
             class="form-select"
+
             formControlName="leagueFormat">
 
             <option value="SINGLE_ROUND_ROBIN">
+
               Single Round Robin
+
             </option>
 
             <option value="DOUBLE_ROUND_ROBIN">
+
               Double Round Robin
+
             </option>
 
             <option value="PARTIAL_ROUND_ROBIN">
+
               Partial Round Robin
+
             </option>
 
           </select>
 
         </div>
 
-
         <!-- Partial Round Robin Configuration -->
+
         @if (isPartialRoundRobin) {
+
           <div class="col-12">
+
             <label for="opponentsToSkip" class="form-label">
+
               Opponents to Skip per Team <span class="text-danger">*</span>
+
             </label>
 
             <select id="opponentsToSkip" class="form-select"
+
                     formControlName="opponentsToSkip"
+
                     [class.is-invalid]="tournamentTeamsLoaded && !validSkipOptions.includes(opponentsToSkip)">
+
               @if (validSkipOptions.length === 0) {
+
                 <option [ngValue]="0" disabled>-- No valid skip options --</option>
+
               }
+
               @for (skip of validSkipOptions; track skip) {
+
                 <option [ngValue]="skip">
+
                   Skip {{ skip }} {{ skip === 1 ? 'opponent' : 'opponents' }}
+
                 </option>
+
               }
+
             </select>
 
             @if (!f.tournamentId.value) {
+
               <div class="form-text">Select a tournament first.</div>
+
             } @else if (loadingTournamentTeams) {
+
               <div class="form-text">Waiting for active tournament teams...</div>
+
             } @else if (tournamentTeamsLoaded && validSkipOptions.length === 0) {
+
               <div class="invalid-feedback">
+
                 Partial Round Robin is not possible with {{ activeTeamCount }} active teams.
+
               </div>
+
             } @else if (tournamentTeamsLoaded && !validSkipOptions.includes(opponentsToSkip)) {
+
               <div class="invalid-feedback">Please select a valid skip option.</div>
+
             } @else {
+
               <div class="form-text">Each team skips the same number of opponents. Skipped pairings are mutual.</div>
+
             }
+
           </div>
+
         }
 
         <!-- League Match Summary -->
+
         @if (tournamentTeamsLoaded) {
+
           <div class="col-12">
+
             <div class="border rounded p-3 bg-light">
+
               <h6 class="mb-3"><i class="bi bi-bar-chart me-2"></i>League Match Summary</h6>
+
               <div class="row g-3">
+
                 <div class="col-6 col-lg-3">
+
                   <div class="text-muted small">Active Teams</div>
+
                   <div class="fs-4 fw-semibold">{{ activeTeamCount }}</div>
+
                 </div>
+
                 <div class="col-6 col-lg-3">
+
                   <div class="text-muted small">Opponents Skipped per Team</div>
+
                   <div class="fs-4 fw-semibold">{{ isPartialRoundRobin && matchesPerTeam === null ? '—' : opponentsToSkip }}</div>
+
                 </div>
+
                 <div class="col-6 col-lg-3">
+
                   <div class="text-muted small">Matches per Team</div>
+
                   <div class="fs-4 fw-semibold">{{ matchesPerTeam ?? '—' }}</div>
+
                 </div>
+
                 <div class="col-6 col-lg-3">
+
                   <div class="text-muted small">Total League Matches</div>
+
                   <div class="fs-4 fw-semibold">{{ totalLeagueMatches ?? '—' }}</div>
+
                 </div>
+
               </div>
+
               @if (matchesPerTeam !== null) {
+
                 <div class="small text-success mt-3">
+
                   <i class="bi bi-check-circle me-1"></i>Valid league pairing configuration
+
                 </div>
+
               } @else {
+
                 <div class="small text-warning mt-3">No valid league match calculation for the current configuration.</div>
+
               }
+
               <div class="form-text">Preview only. Calendar capacity and fairness rules are checked during fixture generation.</div>
+
             </div>
+
           </div>
+
         }
-
-
-        <!-- Playoff Format -->
-        <div class="col-md-6">
-
-          <label class="form-label">
-            Playoff Format <span class="text-danger">*</span>
-          </label>
-
-          <select
-            class="form-select"
-            formControlName="playoffFormat">
-
-            <option value="NONE">None</option>
-            <option value="TOP_2_FINAL">Top 2 Final</option>
-            <option value="TOP_4_PLAYOFF">Top 4 Playoff</option>
-
-          </select>
-
-          <small class="text-muted">
-            Playoff fixture generation is not yet implemented.
-          </small>
-
-        </div>
-
-
-        <!-- Qualifying Team Count -->
-        <div class="col-md-6">
-
-          <label class="form-label">
-            Qualifying Team Count
-          </label>
-
-          <input
-            type="number"
-            min="0"
-            class="form-control"
-            formControlName="qualifyingTeamCount"
-            [class.is-invalid]="f.qualifyingTeamCount.touched && f.qualifyingTeamCount.invalid">
-
-          @if (f.qualifyingTeamCount.touched && f.qualifyingTeamCount.invalid) {
-            <div class="invalid-feedback">
-              Qualifying Team Count cannot be negative.
-            </div>
-          }
-
-        </div>
 
       </div>
 
+      <!-- =====================================
+           PLAYOFF CONFIGURATION
+      ====================================== -->
+      <h5 class="mb-3">
+        <i class="bi bi-trophy me-2"></i>
+        Playoff Configuration
+      </h5>
+
+      <div class="playoff-configuration mb-4">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label for="playoffFormat" class="form-label">
+              Playoff Format <span class="text-danger">*</span>
+            </label>
+            <select id="playoffFormat" class="form-select"
+                    formControlName="playoffFormat"
+                    [class.is-invalid]="tournamentTeamsLoaded && !!playoffConfigurationError">
+              @for (option of playoffFormats; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            <div class="form-text">Choose how teams qualify for the knockout stage.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="qualifyingTeamCount" class="form-label">Qualifying Team Count</label>
+            <input id="qualifyingTeamCount" type="number" class="form-control"
+                   formControlName="qualifyingTeamCount" readonly>
+            <div class="form-text">Automatically determined by the selected playoff format.</div>
+          </div>
+        </div>
+
+        @if (playoffConfigurationError) {
+          <div class="alert alert-warning mt-3 mb-0" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ playoffConfigurationError }}
+          </div>
+        }
+
+        <div class="playoff-summary border rounded bg-light p-3 mt-4">
+          <h6 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Tournament Match Summary</h6>
+          <div class="row g-3">
+            <div class="col-6 col-lg-3">
+              <div class="text-muted small">Qualifying Teams</div>
+              <div class="fs-4 fw-semibold">{{ qualifyingTeamCount }}</div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="text-muted small">League Matches</div>
+              <div class="fs-4 fw-semibold">{{ totalLeagueMatches ?? '—' }}</div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="text-muted small">Playoff Matches</div>
+              <div class="fs-4 fw-semibold">{{ totalPlayoffMatches }}</div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="text-muted small">Total Matches</div>
+              <div class="fs-4 fw-semibold">{{ totalMatches ?? '—' }}</div>
+            </div>
+          </div>
+          <div class="form-text">Preview only. Calendar capacity, rest periods and daily match limits are validated during generation.</div>
+        </div>
+
+        @if (playoffFormat === 'NONE') {
+          <div class="text-muted small mt-3"><i class="bi bi-info-circle me-2"></i>Only league matches will be generated.</div>
+        } @else if (playoffPreview.length > 0) {
+          <div class="playoff-preview mt-4">
+            <h6 class="mb-3"><i class="bi bi-diagram-3 me-2"></i>Playoff Structure Preview</h6>
+            <div class="row g-3">
+              @for (fixture of playoffPreview; track fixture.matchNumber) {
+                <div class="col-12 col-lg-6">
+                  <div class="playoff-match-card border rounded p-3 h-100"
+                       [class.playoff-final]="fixture.matchStage === 'FINAL'">
+                    <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                      <span class="fw-semibold">
+                        <i class="bi me-2" [ngClass]="fixture.matchStage === 'FINAL' ? 'bi-trophy' : 'bi-diagram-2'"></i>
+                        {{ fixture.stageLabel }}
+                      </span>
+                      <span class="small text-muted">Match {{ fixture.matchNumber }}</span>
+                    </div>
+                    <div class="row align-items-center text-center g-2">
+                      <div class="col-5">
+                        <i class="bi bi-shield fs-3 d-block mb-1"></i>
+                        <span class="fw-semibold">{{ fixture.homeTeamSource }}</span>
+                      </div>
+                      <div class="col-2 text-muted small fw-bold">VS</div>
+                      <div class="col-5">
+                        <i class="bi bi-shield fs-3 d-block mb-1"></i>
+                        <span class="fw-semibold">{{ fixture.awayTeamSource }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="form-text mt-3">Team identities depend on league standings and playoff results. All playoff matches are scheduled after the league stage.</div>
+          </div>
+        } @else {
+          <div class="text-muted small mt-3">Complete a valid league and playoff configuration to view the playoff structure.</div>
+        }
+      </div>
 
       <!-- =====================================
+
            MATCH DATES AND TIMINGS
+
       ====================================== -->
 
       <h5 class="mb-3">
+
         <i class="bi bi-calendar-event me-2"></i>
+
         Match Dates & Timings
+
       </h5>
 
       <div class="row g-4 mb-4">
 
         <!-- Start Date -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Start Date <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="date"
+
             class="form-control"
+
             formControlName="startDate"
+
             [class.is-invalid]="f.startDate.touched && f.startDate.invalid">
 
           @if (f.startDate.touched && f.startDate.invalid) {
+
             <div class="invalid-feedback">
+
               Start Date is required.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- End Date -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             End Date <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="date"
+
             class="form-control"
+
             formControlName="endDate"
+
             [class.is-invalid]="
+
               (f.endDate.touched && f.endDate.invalid) ||
+
               (scheduleForm.hasError('invalidDateRange') &&
+
                (f.startDate.touched || f.endDate.touched))
+
             ">
 
           @if (f.endDate.touched && f.endDate.invalid) {
+
             <div class="invalid-feedback">
+
               End Date is required.
+
             </div>
+
           }
 
           @if (
+
             scheduleForm.hasError('invalidDateRange') &&
+
             (f.startDate.touched || f.endDate.touched)
+
           ) {
+
             <div class="text-danger small mt-1">
+
               End Date cannot be earlier than Start Date.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Daily Start Time -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Daily Start Time <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="time"
+
             class="form-control"
+
             formControlName="dailyStartTime"
+
             [class.is-invalid]="f.dailyStartTime.touched && f.dailyStartTime.invalid">
 
           @if (f.dailyStartTime.touched && f.dailyStartTime.invalid) {
+
             <div class="invalid-feedback">
+
               Daily Start Time is required.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Daily End Time -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Daily End Time <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="time"
+
             class="form-control"
+
             formControlName="dailyEndTime"
+
             [class.is-invalid]="
+
               (f.dailyEndTime.touched && f.dailyEndTime.invalid) ||
+
               (scheduleForm.hasError('invalidTimeRange') &&
+
                (f.dailyStartTime.touched || f.dailyEndTime.touched))
+
             ">
 
           @if (f.dailyEndTime.touched && f.dailyEndTime.invalid) {
+
             <div class="invalid-feedback">
+
               Daily End Time is required.
+
             </div>
+
           }
 
           @if (
+
             scheduleForm.hasError('invalidTimeRange') &&
+
             (f.dailyStartTime.touched || f.dailyEndTime.touched)
+
           ) {
+
             <div class="text-danger small mt-1">
+
               Daily End Time must be later than Daily Start Time.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Match Duration -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Match Duration (Minutes) <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="number"
+
             min="1"
+
             class="form-control"
+
             formControlName="matchDurationMinutes"
+
             [class.is-invalid]="f.matchDurationMinutes.touched && f.matchDurationMinutes.invalid">
 
           @if (f.matchDurationMinutes.touched && f.matchDurationMinutes.invalid) {
+
             <div class="invalid-feedback">
+
               Match Duration must be at least 1 minute.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Break Between Matches -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Break Between Matches (Minutes)
+
           </label>
 
           <input
+
             type="number"
+
             min="0"
+
             class="form-control"
+
             formControlName="breakBetweenMatchesMinutes"
+
             [class.is-invalid]="f.breakBetweenMatchesMinutes.touched && f.breakBetweenMatchesMinutes.invalid">
 
           @if (f.breakBetweenMatchesMinutes.touched && f.breakBetweenMatchesMinutes.invalid) {
+
             <div class="invalid-feedback">
+
               Break Between Matches cannot be negative.
+
             </div>
+
           }
 
         </div>
 
       </div>
 
-
       <!-- =====================================
+
            CONDITIONAL PLAYING DAYS
+
       ====================================== -->
 
       @if (
+
         schedulingType === 'WEEKLY' ||
+
         schedulingType === 'WEEKEND'
+
       ) {
 
         <div class="mb-4">
 
           <h5 class="mb-3">
+
             <i class="bi bi-calendar-week me-2"></i>
+
             Select Playing Weekdays
+
           </h5>
 
           <p class="text-muted">
+
             Select the weekdays on which matches can be scheduled.
+
           </p>
 
           <div class="row g-3">
@@ -546,9 +850,13 @@
             @for (day of weekdays; track day.value) {
 
               @if (
+
                 schedulingType === 'WEEKLY' ||
+
                 day.value === 'SATURDAY' ||
+
                 day.value === 'SUNDAY'
+
               ) {
 
                 <div class="col-md-3 col-sm-6">
@@ -556,14 +864,21 @@
                   <div class="form-check">
 
                     <input
+
                       type="checkbox"
+
                       class="form-check-input"
+
                       [id]="'weekday-' + day.value"
+
                       [checked]="isWeekdaySelected(day.value)"
+
                       (change)="toggleWeekday(day.value, $any($event.target).checked)">
 
                     <label
+
                       class="form-check-label"
+
                       [for]="'weekday-' + day.value">
 
                       {{ day.label }}
@@ -584,40 +899,54 @@
 
       }
 
-
       <!-- =====================================
+
            SELECTED PLAYING DATES
+
       ====================================== -->
 
       @if (
+
         schedulingType === 'TWO_DAY' ||
+
         schedulingType === 'THREE_DAY' ||
+
         schedulingType === 'CUSTOM'
+
       ) {
 
         <div class="mb-4">
 
           <h5 class="mb-3">
+
             <i class="bi bi-calendar-check me-2"></i>
+
             Selected Playing Dates
+
           </h5>
 
           @if (schedulingType === 'TWO_DAY') {
 
             <p class="text-muted">
+
               Select exactly 2 playing dates.
+
             </p>
 
           } @else if (schedulingType === 'THREE_DAY') {
 
             <p class="text-muted">
+
               Select exactly 3 playing dates.
+
             </p>
 
           } @else {
 
             <p class="text-muted">
+
               Select one or more playing dates.
+
             </p>
 
           }
@@ -627,15 +956,23 @@
             <div class="col-md-6">
 
               <label class="form-label">
+
                 Playing Date
+
               </label>
 
               <input
+
                 type="date"
+
                 class="form-control"
+
                 [value]="selectedDateInput"
+
                 [min]="f.startDate.value || ''"
+
                 [max]="f.endDate.value || ''"
+
                 (change)="selectedDateInput = $any($event.target).value">
 
             </div>
@@ -643,11 +980,15 @@
             <div class="col-md-3">
 
               <button
+
                 type="button"
+
                 class="btn btn-outline-primary"
+
                 (click)="addSelectedDate()">
 
                 <i class="bi bi-plus-circle me-2"></i>
+
                 Add Date
 
               </button>
@@ -656,14 +997,16 @@
 
           </div>
 
-
           <!-- Selected Dates List -->
+
           @if (selectedDates.length > 0) {
 
             <div class="mt-3">
 
               <label class="form-label fw-semibold">
+
                 Selected Dates ({{ selectedDates.length }})
+
               </label>
 
               <div class="d-flex flex-wrap gap-2">
@@ -675,9 +1018,13 @@
                     {{ date }}
 
                     <button
+
                       type="button"
+
                       class="btn btn-sm p-0 text-white border-0"
+
                       [attr.aria-label]="'Remove playing date ' + date"
+
                       (click)="removeSelectedDate(date)">
 
                       <i class="bi bi-x-lg"></i>
@@ -698,21 +1045,28 @@
 
       }
 
-
       <!-- =====================================
+
            EXCLUDED DATES
+
       ====================================== -->
 
       <div class="mb-4">
 
         <h5 class="mb-3">
+
           <i class="bi bi-calendar-x me-2"></i>
+
           Excluded Dates
+
         </h5>
 
         <p class="text-muted">
+
           Optional: Exclude holidays, unavailable ground dates,
+
           or other non-playing days.
+
         </p>
 
         <div class="row g-3 align-items-end">
@@ -720,15 +1074,23 @@
           <div class="col-md-6">
 
             <label class="form-label">
+
               Excluded Date
+
             </label>
 
             <input
+
               type="date"
+
               class="form-control"
+
               [value]="excludedDateInput"
+
               [min]="f.startDate.value || ''"
+
               [max]="f.endDate.value || ''"
+
               (change)="excludedDateInput = $any($event.target).value">
 
           </div>
@@ -736,11 +1098,15 @@
           <div class="col-md-3">
 
             <button
+
               type="button"
+
               class="btn btn-outline-danger"
+
               (click)="addExcludedDate()">
 
               <i class="bi bi-plus-circle me-2"></i>
+
               Exclude Date
 
             </button>
@@ -749,14 +1115,16 @@
 
         </div>
 
-
         <!-- Excluded Dates List -->
+
         @if (excludedDates.length > 0) {
 
           <div class="mt-3">
 
             <label class="form-label fw-semibold">
+
               Excluded Dates ({{ excludedDates.length }})
+
             </label>
 
             <div class="d-flex flex-wrap gap-2">
@@ -768,9 +1136,13 @@
                   {{ date }}
 
                   <button
+
                     type="button"
+
                     class="btn btn-sm p-0 text-white border-0"
+
                     [attr.aria-label]="'Remove excluded date ' + date"
+
                     (click)="removeExcludedDate(date)">
 
                     <i class="bi bi-x-lg"></i>
@@ -789,145 +1161,210 @@
 
       </div>
 
-
       <!-- =====================================
+
            FAIRNESS CONFIGURATION
+
       ====================================== -->
 
       <h5 class="mb-3">
+
         <i class="bi bi-shield-check me-2"></i>
+
         Fairness Configuration
+
       </h5>
 
       <div class="row g-4 mb-4">
 
         <!-- Minimum Rest -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Minimum Rest (Minutes)
+
           </label>
 
           <input
+
             type="number"
+
             min="0"
+
             class="form-control"
+
             formControlName="minimumRestMinutes"
+
             [class.is-invalid]="f.minimumRestMinutes.touched && f.minimumRestMinutes.invalid">
 
           @if (f.minimumRestMinutes.touched && f.minimumRestMinutes.invalid) {
+
             <div class="invalid-feedback">
+
               Minimum Rest cannot be negative.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Minimum Matches Between Appearances -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Minimum Matches Between Appearances
+
           </label>
 
           <input
+
             type="number"
+
             min="1"
+
             class="form-control"
+
             formControlName="minimumMatchesBetweenAppearances"
+
             [class.is-invalid]="f.minimumMatchesBetweenAppearances.touched && f.minimumMatchesBetweenAppearances.invalid">
 
           @if (
+
             f.minimumMatchesBetweenAppearances.touched &&
+
             f.minimumMatchesBetweenAppearances.invalid
+
           ) {
+
             <div class="invalid-feedback">
+
               Value must be at least 1.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Maximum Matches Per Team Per Day -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Maximum Matches Per Team Per Day
+
             <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="number"
+
             min="1"
+
             class="form-control"
+
             formControlName="maxMatchesPerTeamPerDay"
+
             [class.is-invalid]="f.maxMatchesPerTeamPerDay.touched && f.maxMatchesPerTeamPerDay.invalid">
 
           @if (f.maxMatchesPerTeamPerDay.touched && f.maxMatchesPerTeamPerDay.invalid) {
+
             <div class="invalid-feedback">
+
               Value must be at least 1.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Number of Grounds -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Number of Grounds
+
             <span class="text-danger">*</span>
+
           </label>
 
           <input
+
             type="number"
+
             min="1"
+
             max="20"
+
             class="form-control"
+
             formControlName="numberOfGrounds"
+
             [class.is-invalid]="f.numberOfGrounds.touched && f.numberOfGrounds.invalid">
 
           @if (f.numberOfGrounds.touched && f.numberOfGrounds.invalid) {
+
             <div class="invalid-feedback">
+
               Number of Grounds must be between 1 and 20.
+
             </div>
+
           }
 
         </div>
 
-
         <!-- Random Seed -->
+
         <div class="col-md-6">
 
           <label class="form-label">
+
             Random Seed
+
           </label>
 
           <input
+
             type="number"
+
             class="form-control"
+
             formControlName="randomSeed">
 
           <small class="text-muted">
+
             Use the same seed to reproduce team draws.
+
           </small>
 
         </div>
 
       </div>
 
-
       <!-- =====================================
+
            FORM ACTIONS
+
       ====================================== -->
 
       <div class="d-flex justify-content-end gap-2 mt-4">
 
         <a
+
           routerLink="/match-schedules"
+
           class="btn btn-outline-secondary">
 
           Cancel
@@ -935,18 +1372,27 @@
         </a>
 
         <button
+
             type="submit"
+
             class="btn btn-primary"
+
             [disabled]="saving || loadingTournaments ||
+
                (isPartialRoundRobin && (loadingTournamentTeams || !tournamentTeamsLoaded ||
-                !validSkipOptions.includes(opponentsToSkip)))">
+
+                !validSkipOptions.includes(opponentsToSkip))) || !!playoffConfigurationError">
 
             @if (saving) {
 
                 <span
+
                 class="spinner-border spinner-border-sm me-2"
+
                 role="status"
+
                 aria-hidden="true">
+
                 </span>
 
                 Saving Schedule...
@@ -954,6 +1400,7 @@
             } @else {
 
                 <i class="bi bi-check-circle me-2"></i>
+
                 Create Match Schedule
 
             }

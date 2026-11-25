@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { TournamentService } from '../../../core/services/tournament';
 import { Tournament } from '../../../core/models/tournament/tournament.model';
+import { SecureImage } from '../../../shared/components/secure-image/secure-image';
 
 // =====================================
 // Tournament Lifecycle Actions
@@ -17,7 +18,10 @@ type TournamentAction =
 @Component({
   selector: 'app-tournament-details',
   standalone: true,
-  imports: [RouterLink],
+  imports: [
+  RouterLink,
+  SecureImage
+],
   templateUrl: './tournament-details.html',
   styleUrl: './tournament-details.scss'
 })
