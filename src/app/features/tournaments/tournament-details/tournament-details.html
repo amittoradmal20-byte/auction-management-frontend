@@ -109,18 +109,42 @@
 
       <div class="content-card">
 
-        <!-- Tournament Title and Status -->
+        <!-- ===================================== -->
+        <!-- Tournament Title, Logo and Status     -->
+        <!-- ===================================== -->
+
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
 
-          <div>
+          <!-- Tournament Logo and Information -->
+          <div class="d-flex align-items-center flex-wrap gap-4">
 
-            <h3 class="mb-2">
-              {{ tournament.name }}
-            </h3>
+            <!-- Tournament Logo -->
+            <div class="flex-shrink-0">
 
-            <p class="text-muted mb-0">
-              {{ tournament.description || 'No description available' }}
-            </p>
+              <app-secure-image
+                [imagePath]="tournament.logoUrl"
+                [alt]="tournament.name + ' Logo'"
+                [width]="150"
+                [height]="150"
+                placeholderIcon="bi-trophy"
+                placeholderText="No logo"
+                objectFit="contain">
+              </app-secure-image>
+
+            </div>
+
+            <!-- Tournament Name and Description -->
+            <div>
+
+              <h3 class="mb-2">
+                {{ tournament.name }}
+              </h3>
+
+              <p class="text-muted mb-0">
+                {{ tournament.description || 'No description available' }}
+              </p>
+
+            </div>
 
           </div>
 
@@ -146,7 +170,10 @@
 
         <hr class="mb-4">
 
-        <!-- Tournament Registration Actions -->
+        <!-- ===================================== -->
+        <!-- Tournament Registration Actions       -->
+        <!-- ===================================== -->
+
         <div class="mb-4">
 
           <h5 class="mb-3">
@@ -285,7 +312,10 @@
 
         <hr class="mb-4">
 
-        <!-- Tournament Information -->
+        <!-- ===================================== -->
+        <!-- Tournament Information                -->
+        <!-- ===================================== -->
+
         <div class="row g-4">
 
           <!-- Tournament ID -->

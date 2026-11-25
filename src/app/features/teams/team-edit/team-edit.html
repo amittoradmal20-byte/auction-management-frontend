@@ -1,45 +1,114 @@
 
 <div class="teams-container">
 
-  <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- ===================================== -->
+  <!-- Page Header                           -->
+  <!-- ===================================== -->
+
+  <div class="page-header d-flex justify-content-between
+              align-items-center flex-wrap gap-3 mb-4">
 
     <div>
+
       <h2>Edit Team</h2>
+
       <p class="text-muted mb-0">
         Update existing cricket team information.
       </p>
+
     </div>
 
-    <a
-      [routerLink]="['/teams', teamId]"
-      class="btn btn-outline-secondary">
+    @if (!isBusy && !isFormLocked) {
 
-      <i class="bi bi-arrow-left me-2"></i>
-      Back to Team Details
+      <a
+        [routerLink]="teamId ? ['/teams', teamId] : ['/teams']"
+        class="btn btn-outline-secondary">
 
-    </a>
+        <i class="bi bi-arrow-left me-2"></i>
+
+        {{ teamId ? 'Back to Team Details' : 'Back to Teams' }}
+
+      </a>
+
+    }
 
   </div>
 
-  <!-- Loading State -->
+  <!-- ===================================== -->
+  <!-- Loading State                         -->
+  <!-- ===================================== -->
+
   @if (isLoading) {
 
-    <div class="text-center py-5">
+    <div class="content-card text-center py-5">
 
-      <div class="spinner-border text-primary" role="status">
+      <div
+        class="spinner-border text-primary"
+        role="status">
+
+        <span class="visually-hidden">
+          Loading...
+        </span>
+
       </div>
 
-      <p class="text-muted mt-3">
+      <p class="text-muted mt-3 mb-0">
         Loading team information...
       </p>
 
     </div>
 
-  }
+  } @else if (!isTeamLoaded) {
 
-  <!-- Edit Team Form -->
-  @if (!isLoading && teamId) {
+    <!-- ===================================== -->
+    <!-- Team Loading Error                    -->
+    <!-- ===================================== -->
+
+    <div class="content-card">
+
+      <div class="alert alert-danger" role="alert">
+
+        <i class="bi bi-exclamation-circle me-2"></i>
+
+        {{ errorMessage || 'Unable to load team information.' }}
+
+      </div>
+
+      <div class="d-flex justify-content-end flex-wrap gap-2">
+
+        <a
+          routerLink="/teams"
+          class="btn btn-outline-secondary">
+
+          <i class="bi bi-arrow-left me-2"></i>
+          Back to Teams
+
+        </a>
+
+        @if (teamId) {
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="loadTeamDetails()"
+            [disabled]="isBusy">
+
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Retry
+
+          </button>
+
+        }
+
+      </div>
+
+    </div>
+
+  } @else {
+
+    <!-- ===================================== -->
+    <!-- Edit Team Form                        -->
+    <!-- ===================================== -->
 
     <div class="content-card">
 
@@ -47,196 +116,452 @@
         [formGroup]="teamForm"
         (ngSubmit)="updateTeam()">
 
+        <!-- Success Message -->
+
+        @if (successMessage) {
+
+          <div class="alert alert-success" role="status">
+
+            <i class="bi bi-check-circle me-2"></i>
+
+            {{ successMessage }}
+
+          </div>
+
+        }
+
         <!-- API Error Message -->
+
         @if (errorMessage) {
 
           <div class="alert alert-danger" role="alert">
 
             <i class="bi bi-exclamation-circle me-2"></i>
+
             {{ errorMessage }}
 
           </div>
 
         }
 
-        <div class="row g-4">
+        <!-- ===================================== -->
+        <!-- Partial Success Warning               -->
+        <!-- ===================================== -->
 
-          <!-- Team Name -->
-          <div class="col-md-6">
+        @if (isLogoUploadFailed) {
 
-            <label for="teamName" class="form-label">
-              Team Name
-              <span class="text-danger">*</span>
-            </label>
+          <div class="alert alert-warning" role="alert">
 
-            <input
-              id="teamName"
-              type="text"
-              class="form-control"
-              formControlName="name"
-              placeholder="Enter team name"
-              maxlength="100"
-              [class.is-invalid]="
-                teamForm.controls.name.invalid &&
+            <div class="d-flex align-items-start gap-3">
+
+              <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+
+              <div>
+
+                <strong>
+                  Team updated, but logo upload failed.
+                </strong>
+
+                <p class="mb-0 mt-2">
+
+                  Your team information has been saved successfully.
+                  You can retry uploading the selected logo,
+                  choose another image, or continue without
+                  uploading the new logo.
+
+                  You do not need to update the team again.
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+        <!-- ===================================== -->
+        <!-- Team Information Section              -->
+        <!-- ===================================== -->
+
+        <div class="form-section">
+
+          <div class="section-header mb-4">
+
+            <div class="d-flex align-items-center gap-2">
+
+              <i class="bi bi-people section-icon"></i>
+
+              <h5 class="mb-0">
+                Team Information
+              </h5>
+
+            </div>
+
+            <p class="text-muted small mt-2 mb-0">
+              Update the basic information for your cricket team.
+            </p>
+
+          </div>
+
+          <div class="row g-4">
+
+            <!-- ===================================== -->
+            <!-- Team Name                             -->
+            <!-- ===================================== -->
+
+            <div class="col-md-6">
+
+              <label for="teamName" class="form-label">
+
+                Team Name
+                <span class="text-danger">*</span>
+
+              </label>
+
+              <input
+                id="teamName"
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Enter team name"
+                maxlength="100"
+                [class.is-invalid]="
+                  teamForm.controls.name.invalid &&
+                  teamForm.controls.name.touched
+                ">
+
+              @if (
+                teamForm.controls.name.hasError('required') &&
                 teamForm.controls.name.touched
-              ">
+              ) {
 
-            @if (
-              teamForm.controls.name.hasError('required') &&
-              teamForm.controls.name.touched
-            ) {
+                <div class="invalid-feedback">
+                  Team name is required.
+                </div>
 
-              <div class="invalid-feedback">
-                Team name is required.
+              } @else if (
+                teamForm.controls.name.hasError('maxlength') &&
+                teamForm.controls.name.touched
+              ) {
+
+                <div class="invalid-feedback">
+                  Team name must not exceed 100 characters.
+                </div>
+
+              }
+
+              <div class="form-text">
+                Example: GM Super Kings
               </div>
 
-            }
+            </div>
 
-            @if (
-              teamForm.controls.name.hasError('maxlength') &&
-              teamForm.controls.name.touched
-            ) {
+            <!-- ===================================== -->
+            <!-- Short Name                            -->
+            <!-- ===================================== -->
 
-              <div class="invalid-feedback">
-                Team name cannot exceed 100 characters.
-              </div>
+            <div class="col-md-6">
 
-            }
+              <label for="shortName" class="form-label">
 
-          </div>
+                Short Name
+                <span class="text-danger">*</span>
 
-          <!-- Short Name -->
-          <div class="col-md-6">
+              </label>
 
-            <label for="shortName" class="form-label">
-              Short Name
-              <span class="text-danger">*</span>
-            </label>
+              <input
+                id="shortName"
+                type="text"
+                class="form-control"
+                formControlName="shortName"
+                placeholder="Enter team short name"
+                maxlength="20"
+                [class.is-invalid]="
+                  teamForm.controls.shortName.invalid &&
+                  teamForm.controls.shortName.touched
+                ">
 
-            <input
-              id="shortName"
-              type="text"
-              class="form-control"
-              formControlName="shortName"
-              placeholder="Enter short name"
-              maxlength="20"
-              [class.is-invalid]="
-                teamForm.controls.shortName.invalid &&
+              @if (
+                teamForm.controls.shortName.hasError('required') &&
                 teamForm.controls.shortName.touched
-              ">
+              ) {
 
-            @if (
-              teamForm.controls.shortName.hasError('required') &&
-              teamForm.controls.shortName.touched
-            ) {
+                <div class="invalid-feedback">
+                  Short name is required.
+                </div>
 
-              <div class="invalid-feedback">
-                Short name is required.
+              } @else if (
+                teamForm.controls.shortName.hasError('maxlength') &&
+                teamForm.controls.shortName.touched
+              ) {
+
+                <div class="invalid-feedback">
+                  Short name must not exceed 20 characters.
+                </div>
+
+              }
+
+              <div class="form-text">
+                Example: GMSK
               </div>
 
-            }
-
-            @if (
-              teamForm.controls.shortName.hasError('maxlength') &&
-              teamForm.controls.shortName.touched
-            ) {
-
-              <div class="invalid-feedback">
-                Short name cannot exceed 20 characters.
-              </div>
-
-            }
-
-          </div>
-
-          <!-- Logo URL -->
-          <div class="col-12">
-
-            <label for="logoUrl" class="form-label">
-              Team Logo URL
-              <span class="text-muted">(Optional)</span>
-            </label>
-
-            <input
-              id="logoUrl"
-              type="url"
-              class="form-control"
-              formControlName="logoUrl"
-              placeholder="https://example.com/team-logo.png"
-              maxlength="500"
-              [class.is-invalid]="
-                teamForm.controls.logoUrl.invalid &&
-                teamForm.controls.logoUrl.touched
-              ">
-
-            @if (
-              teamForm.controls.logoUrl.hasError('maxlength') &&
-              teamForm.controls.logoUrl.touched
-            ) {
-
-              <div class="invalid-feedback">
-                Logo URL cannot exceed 500 characters.
-              </div>
-
-            }
-
-            <div class="form-text">
-              Enter a publicly accessible image URL for the team logo.
             </div>
 
           </div>
 
         </div>
 
-        <!-- Form Actions -->
-        <div class="d-flex justify-content-end gap-3 mt-4">
+        <hr class="section-divider my-4">
 
-          <a
-            [routerLink]="['/teams', teamId]"
-            class="btn btn-outline-secondary">
+        <!-- ===================================== -->
+        <!-- Team Branding Section                 -->
+        <!-- ===================================== -->
 
-            <i class="bi bi-x-circle me-2"></i>
-            Cancel
+        <div class="form-section">
 
-          </a>
+          <div class="section-header mb-4">
 
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="isSubmitting || isLoading">
+            <div class="d-flex align-items-center gap-2">
 
-            @if (isSubmitting) {
+              <i class="bi bi-shield section-icon"></i>
+
+              <h5 class="mb-0">
+                Team Branding
+              </h5>
+
+            </div>
+
+            <p class="text-muted small mt-2 mb-0">
+
+              Manage your existing team logo or upload a new image.
+              The logo can be displayed in team details,
+              match schedules and tournament reports.
+
+            </p>
+
+          </div>
+
+          <!-- ===================================== -->
+          <!-- Reusable Logo Upload Component        -->
+          <!-- ===================================== -->
+
+          <app-logo-upload
+            label="Team Logo"
+            [existingImagePath]="existingLogoPath"
+            placeholderIcon="bi-shield"
+            placeholderText="No logo"
+            [previewWidth]="150"
+            [previewHeight]="150"
+            [disabled]="isBusy"
+            (fileSelected)="onLogoSelected($event)"
+            (validationStateChange)="onLogoValidationChange($event)"
+            (removeExistingLogo)="removeExistingLogo()">
+          </app-logo-upload>
+
+          <!-- Existing Logo Removal Information -->
+
+          @if (
+            existingLogoPath &&
+            !selectedLogoFile &&
+            !isFormLocked
+          ) {
+
+            <div class="form-text mt-3">
+
+              <i class="bi bi-info-circle me-1"></i>
+
+              Removing the existing logo takes effect immediately
+              after confirmation. Selecting a replacement logo
+              takes effect when you update the team.
+
+            </div>
+
+          }
+
+          @if (isFormLocked && isLogoUploadFailed) {
+
+            <div class="form-text mt-3">
+
+              <i class="bi bi-info-circle me-1"></i>
+
+              Team information is already saved.
+              Logo removal is unavailable during upload recovery.
+
+            </div>
+
+          }
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- Logo Removal Progress                 -->
+        <!-- ===================================== -->
+
+        @if (isRemovingLogo) {
+
+          <div class="alert alert-info mt-4" role="status">
+
+            <div class="d-flex align-items-center gap-3">
 
               <span
-                class="spinner-border spinner-border-sm me-2"
+                class="spinner-border spinner-border-sm"
                 aria-hidden="true">
               </span>
 
-              Updating Team...
+              <div>
 
-            } @else {
+                <strong>Removing Team Logo...</strong>
 
-              <i class="bi bi-check-circle me-2"></i>
-              Update Team
+                <div class="small mt-1">
+                  Please wait while we remove the existing logo.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+        <!-- ===================================== -->
+        <!-- Logo Upload Progress                  -->
+        <!-- ===================================== -->
+
+        @if (isUploadingLogo) {
+
+          <div class="alert alert-info mt-4" role="status">
+
+            <div class="d-flex align-items-center gap-3">
+
+              <span
+                class="spinner-border spinner-border-sm"
+                aria-hidden="true">
+              </span>
+
+              <div>
+
+                <strong>Uploading Team Logo...</strong>
+
+                <div class="small mt-1">
+
+                  Your team information has been saved.
+                  Please wait while we upload the selected logo.
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+        <!-- ===================================== -->
+        <!-- Form Actions                          -->
+        <!-- ===================================== -->
+
+        <hr class="section-divider my-4">
+
+        <div class="form-actions d-flex justify-content-end
+                    align-items-center flex-wrap gap-2">
+
+          <!-- Failed Logo Upload Actions -->
+
+          @if (isLogoUploadFailed) {
+
+            <!-- Continue Without New Logo -->
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="continueWithoutLogo()"
+              [disabled]="isBusy">
+
+              <i class="bi bi-arrow-right-circle me-2"></i>
+
+              Continue Without New Logo
+
+            </button>
+
+            <!-- Retry Logo Upload -->
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="retryLogoUpload()"
+              [disabled]="!canRetryLogoUpload">
+
+              @if (isUploadingLogo) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+
+                Uploading Logo...
+
+              } @else {
+
+                <i class="bi bi-arrow-clockwise me-2"></i>
+
+                Retry Logo Upload
+
+              }
+
+            </button>
+
+          } @else {
+
+            <!-- Normal Form Actions -->
+
+            @if (!isBusy && !isFormLocked) {
+
+              <a
+                [routerLink]="['/teams', teamId]"
+                class="btn btn-outline-secondary">
+
+                <i class="bi bi-x-circle me-2"></i>
+
+                Cancel
+
+              </a>
 
             }
 
-          </button>
+            <!-- Update Team Button -->
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!canSubmit">
+
+              @if (isSubmitting || isUploadingLogo) {
+
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+
+              } @else {
+
+                <i class="bi bi-check-circle me-2"></i>
+
+              }
+
+              {{ submitButtonLabel }}
+
+            </button>
+
+          }
 
         </div>
 
       </form>
 
-    </div>
-
-  }
-
-  <!-- Error When Team ID Is Missing -->
-  @if (!isLoading && !teamId && errorMessage) {
-
-    <div class="alert alert-danger" role="alert">
-      <i class="bi bi-exclamation-circle me-2"></i>
-      {{ errorMessage }}
     </div>
 
   }

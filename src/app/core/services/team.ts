@@ -7,14 +7,19 @@ import { Team } from '../models/team/team.model';
 import { TeamCreateRequest } from '../models/team/team-create-request.model';
 import { TeamUpdateRequest } from '../models/team/team-update-request.model';
 
+import { API_CONFIG } from '../config/api.config';
+import { ImageService } from './image';
+
 @Injectable({
   providedIn: 'root'
 })
 export class TeamService {
 
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8080/api/v1/teams';
+  private readonly imageService = inject(ImageService);
+
+  private readonly apiUrl = `${API_CONFIG.BASE_URL}/teams`;
 
   // =====================================
   // Get All Teams
@@ -25,6 +30,7 @@ export class TeamService {
     return this.http.get<Team[]>(
       this.apiUrl
     );
+
   }
 
   // =====================================
@@ -36,6 +42,7 @@ export class TeamService {
     return this.http.get<Team>(
       `${this.apiUrl}/${id}`
     );
+
   }
 
   // =====================================
@@ -48,6 +55,7 @@ export class TeamService {
       this.apiUrl,
       request
     );
+
   }
 
   // =====================================
@@ -63,6 +71,7 @@ export class TeamService {
       `${this.apiUrl}/${id}`,
       request
     );
+
   }
 
   // =====================================
@@ -74,6 +83,37 @@ export class TeamService {
     return this.http.delete<void>(
       `${this.apiUrl}/${id}`
     );
+
+  }
+
+  // =====================================
+  // Upload / Replace Team Logo
+  // =====================================
+
+  uploadLogo(
+    teamId: string,
+    file: File
+  ): Observable<Team> {
+
+    return this.imageService.uploadLogo<Team>(
+      'teams',
+      teamId,
+      file
+    );
+
+  }
+
+  // =====================================
+  // Remove Team Logo
+  // =====================================
+
+  deleteLogo(teamId: string): Observable<Team> {
+
+    return this.imageService.deleteLogo<Team>(
+      'teams',
+      teamId
+    );
+
   }
 
 }

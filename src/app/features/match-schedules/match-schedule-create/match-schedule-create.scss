@@ -1,0 +1,371 @@
+:host {
+  display: block;
+  --schedule-primary: #4f46e5;
+  --schedule-heading: #0f172a;
+  --schedule-muted: #64748b;
+  --schedule-border: #e2e8f0;
+}
+
+.match-schedules-container {
+  padding: 28px;
+  max-width: 1440px;
+  margin: 0 auto;
+  color: #334155;
+
+  > .d-flex:first-child {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  h2 {
+    color: var(--schedule-heading);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    margin-bottom: 6px;
+  }
+}
+
+.content-card {
+  background: #fff;
+  border: 1px solid var(--schedule-border);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+
+  h5 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--schedule-heading);
+    font-size: 1.08rem;
+    font-weight: 700;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--schedule-border);
+
+    > .bi {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+      border-radius: 11px;
+      background: #eef2ff;
+      color: var(--schedule-primary);
+      margin-right: 0 !important;
+    }
+  }
+
+  form > .row.mb-4 { margin-bottom: 32px !important; }
+}
+
+.form-label {
+  font-size: .875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+  min-height: 46px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  color: #1e293b;
+  font-size: .9rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .03);
+  transition: border-color .18s ease, box-shadow .18s ease;
+
+  &:hover:not(:disabled):not(.is-invalid) { border-color: #94a3b8; }
+  &:focus:not(.is-invalid) {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, .11);
+  }
+  &:disabled { background-color: #f1f5f9; }
+  &.is-invalid { border-color: #dc2626; }
+}
+
+.form-control::placeholder { color: #64748b; }
+.form-text, small.text-muted { font-size: .8rem; line-height: 1.5; }
+.invalid-feedback { font-size: .78rem; font-weight: 500; }
+
+// League summary: targets the existing Bootstrap wrapper in the HTML.
+.content-card .col-12 > .border.rounded.p-3.bg-light {
+  background: linear-gradient(135deg, #f8fafc, #eef2ff) !important;
+  border: 1px solid #dbe3f4 !important;
+  border-radius: 16px !important;
+  padding: 22px !important;
+
+  h6 {
+    color: #1e293b;
+    font-size: 1rem;
+    font-weight: 700;
+    .bi { color: var(--schedule-primary); }
+  }
+
+  > .row {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+
+    > div {
+      --stat-color: #2563eb;
+      --stat-bg: #eff6ff;
+      width: auto;
+      max-width: none;
+      min-width: 0;
+      margin: 0;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid var(--schedule-border);
+      border-top: 3px solid var(--stat-color);
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, .04);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      &:nth-child(2) { --stat-color: #b45309; --stat-bg: #fffbeb; }
+      &:nth-child(3) { --stat-color: #0e7490; --stat-bg: #ecfeff; }
+      &:nth-child(4) { --stat-color: #047857; --stat-bg: #ecfdf5; }
+
+      .text-muted { font-weight: 600; line-height: 1.4; }
+      .fs-4 {
+        align-self: flex-start;
+        margin-top: auto;
+        padding: 4px 12px;
+        border-radius: 9px;
+        background: var(--stat-bg);
+        color: var(--stat-color);
+        font-size: 1.85rem !important;
+        font-weight: 750 !important;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.3;
+      }
+    }
+  }
+
+  > .text-success, > .text-warning {
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  > .form-text { margin-top: 8px; }
+}
+
+.alert {
+  border-radius: 12px;
+  font-size: .875rem;
+  line-height: 1.6;
+}
+
+.form-check-input {
+  cursor: pointer;
+  &:checked { background-color: var(--schedule-primary); border-color: var(--schedule-primary); }
+  &:focus { box-shadow: 0 0 0 3px rgba(79, 70, 229, .14); }
+}
+.form-check-label { cursor: pointer; }
+.badge { padding: 9px 12px; border-radius: 8px; font-weight: 500; }
+
+.btn {
+  min-height: 42px;
+  border-radius: 10px;
+  font-size: .875rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  transition: background-color .18s ease, box-shadow .18s ease;
+  &:focus-visible { outline: 3px solid #818cf8; outline-offset: 3px; }
+  &.btn-sm { min-height: auto; }
+}
+.btn-primary {
+  --bs-btn-bg: #4f46e5;
+  --bs-btn-border-color: #4f46e5;
+  --bs-btn-hover-bg: #4338ca;
+  --bs-btn-hover-border-color: #4338ca;
+  --bs-btn-active-bg: #3730a3;
+  --bs-btn-active-border-color: #3730a3;
+  --bs-btn-disabled-bg: #6366a0;
+  --bs-btn-disabled-border-color: #6366a0;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, .2);
+  &:disabled { box-shadow: none; }
+}
+.btn-outline-primary {
+  --bs-btn-color: #4338ca;
+  --bs-btn-border-color: #a5b4fc;
+  --bs-btn-hover-bg: #4338ca;
+  --bs-btn-hover-border-color: #4338ca;
+}
+.content-card form > .d-flex.justify-content-end {
+  border-top: 1px solid var(--schedule-border);
+  padding-top: 22px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 991.98px) {
+  .match-schedules-container { padding: 20px; }
+  .content-card { padding: 24px; }
+  .content-card .col-12 > .border.rounded.p-3.bg-light > .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 575.98px) {
+  .match-schedules-container { padding: 12px; }
+  .content-card { padding: 16px; border-radius: 14px; }
+  .content-card .col-12 > .border.rounded.p-3.bg-light {
+    padding: 14px !important;
+    > .row { gap: 8px; > div { padding: 12px; } }
+  }
+  .content-card form > .d-flex.justify-content-end > .btn { flex: 1 1 100%; }
+}
+@media (max-width: 360px) {
+  .content-card .col-12 > .border.rounded.p-3.bg-light > .row { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .form-control, .form-select, .btn { transition: none; }
+}
+
+// =====================================
+// PLAYOFF CONFIGURATION
+// =====================================
+.playoff-configuration {
+  padding: 24px;
+  border: 1px solid #dbe3f4;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #fff, #f8fafc);
+
+  #qualifyingTeamCount[readonly] {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    color: #3730a3;
+    font-weight: 700;
+    cursor: default;
+  }
+
+  h6 {
+    color: var(--schedule-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    > .bi { color: var(--schedule-primary); }
+  }
+}
+
+// Tournament match statistics
+.playoff-summary {
+  background: linear-gradient(135deg, #f8fafc, #eef2ff) !important;
+  border: 1px solid #dbe3f4 !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+
+  > .row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+
+    > div {
+      --playoff-stat-color: #4f46e5;
+      --playoff-stat-bg: #eef2ff;
+      width: auto;
+      max-width: none;
+      min-width: 0;
+      margin: 0;
+      padding: 16px;
+      border: 1px solid var(--schedule-border);
+      border-top: 3px solid var(--playoff-stat-color);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, .05);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      &:nth-child(2) { --playoff-stat-color: #2563eb; --playoff-stat-bg: #eff6ff; }
+      &:nth-child(3) { --playoff-stat-color: #047857; --playoff-stat-bg: #ecfdf5; }
+      .text-muted { font-weight: 600; line-height: 1.4; }
+      .fs-4 {
+        align-self: flex-start;
+        margin-top: auto;
+        padding: 4px 12px;
+        border-radius: 9px;
+        background: var(--playoff-stat-bg);
+        color: var(--playoff-stat-color);
+        font-size: 1.85rem !important;
+        font-weight: 750 !important;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.3;
+      }
+      &:last-child {
+        --playoff-stat-color: #f4c65e;
+        --playoff-stat-bg: rgba(244, 198, 94, .12);
+        background: #14243c;
+        border-color: #14243c;
+        border-top-color: #f4c65e;
+        .text-muted { color: #e2e8f0 !important; }
+      }
+    }
+  }
+  > .form-text { margin-top: 12px; }
+}
+
+// Playoff fixture preview
+.playoff-preview {
+  > .form-text { line-height: 1.6; }
+}
+
+.playoff-match-card {
+  background: #fff;
+  border: 1px solid #dbe3f4 !important;
+  border-radius: 14px !important;
+  padding: 18px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .05);
+  color: #334155;
+
+  > .d-flex {
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    > .fw-semibold { color: #1e293b; }
+    .bi { color: var(--schedule-primary); }
+    > .small { background: #f1f5f9; border-radius: 6px; padding: 4px 8px; }
+  }
+
+  > .row {
+    > .col-5 {
+      min-width: 0;
+      .bi { color: #64748b; }
+      .fw-semibold { display: block; font-size: .85rem; overflow-wrap: anywhere; }
+    }
+    > .col-2 { color: #64748b !important; font-size: .75rem; }
+  }
+
+  &.playoff-final {
+    background: linear-gradient(145deg, #fff, #fffbeb);
+    border-color: #d4ad59 !important;
+    border-top: 3px solid #b58a30 !important;
+    > .d-flex {
+      border-bottom-color: #ead8ac;
+      > .fw-semibold, .bi { color: #854d0e; }
+      > .small { background: #fef3c7; color: #854d0e !important; }
+    }
+    > .row > .col-5 .bi { color: #a16207; }
+  }
+}
+
+@media (max-width: 991.98px) {
+  .playoff-summary > .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 575.98px) {
+  .playoff-configuration { padding: 14px; }
+  .playoff-summary {
+    padding: 12px !important;
+    > .row { gap: 8px; > div { padding: 10px; .fs-4 { font-size: 1.5rem !important; } } }
+  }
+  .playoff-match-card { padding: 12px !important; }
+}
+@media (max-width: 360px) {
+  .playoff-summary > .row { grid-template-columns: 1fr; }
+}

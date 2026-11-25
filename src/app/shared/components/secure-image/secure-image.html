@@ -1,0 +1,119 @@
+
+<div
+  class="secure-image-container"
+  [style.width.px]="width"
+  [style.height.px]="height"
+  [attr.aria-busy]="loading">
+
+  <!-- ===================================== -->
+  <!-- Loading State                         -->
+  <!-- ===================================== -->
+
+  @if (loading) {
+
+    <div class="image-loading">
+
+      <div
+        class="spinner-border spinner-border-sm text-primary"
+        role="status">
+
+        <span class="visually-hidden">
+          Loading image...
+        </span>
+
+      </div>
+
+    </div>
+
+  }
+
+  <!-- ===================================== -->
+  <!-- Image Display                         -->
+  <!-- ===================================== -->
+
+  @else if (imageUrl && !hasError) {
+
+    <img
+      class="secure-image"
+      [src]="imageUrl"
+      [alt]="alt"
+      [style.object-fit]="objectFit"
+      (error)="onImageError()"
+      draggable="false"
+    />
+
+  }
+
+  <!-- ===================================== -->
+  <!-- Error State                           -->
+  <!-- ===================================== -->
+
+  @else if (hasError) {
+
+    <div
+      class="image-placeholder image-error"
+      title="Unable to load image">
+
+      <i
+        class="bi bi-image"
+        aria-hidden="true">
+      </i>
+
+      @if (width >= 100 && height >= 100) {
+
+        <span class="placeholder-text">
+          Image unavailable
+        </span>
+
+      }
+
+      <button
+        type="button"
+        class="image-retry-button"
+        (click)="retryImage()"
+        aria-label="Retry loading image"
+        title="Retry loading image">
+
+        <i
+          class="bi bi-arrow-clockwise"
+          aria-hidden="true">
+        </i>
+
+      </button>
+
+    </div>
+
+  }
+
+  <!-- ===================================== -->
+  <!-- Default Placeholder                   -->
+  <!-- ===================================== -->
+
+  @else {
+
+    <div
+      class="image-placeholder"
+      [attr.title]="placeholderText">
+
+      <i
+        [class]="'bi ' + placeholderIcon"
+        aria-hidden="true">
+      </i>
+
+      @if (
+        placeholderText &&
+        width >= 100 &&
+        height >= 100
+      ) {
+
+        <span class="placeholder-text">
+          {{ placeholderText }}
+        </span>
+
+      }
+
+    </div>
+
+  }
+
+</div>

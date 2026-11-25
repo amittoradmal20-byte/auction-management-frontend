@@ -1,98 +1,171 @@
 
 import { Component, OnInit, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 
+import { SecureImage } from '../../shared/components/secure-image/secure-image';
+
 import { TournamentService } from '../../core/services/tournament';
+
 import { Tournament } from '../../core/models/tournament/tournament.model';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-tournaments',
   standalone: true,
-  imports: [PageHeaderComponent, RouterLink],
+  imports: [
+    PageHeaderComponent,
+    RouterLink,
+    SecureImage
+  ],
   templateUrl: './tournaments.html',
   styleUrl: './tournaments.scss'
 })
 export class Tournaments implements OnInit {
 
-  private tournamentService = inject(TournamentService);
+  private readonly tournamentService = inject(TournamentService);
+
+  // =====================================
+  // Tournament List State
+  // =====================================
+
   tournaments: Tournament[] = [];
+
   selectedTournamentId = '';
+
   showDeleteConfirmation = false;
+
   isDeleting = false;
+
   isLoading = false;
+
   errorMessage = '';
 
+  // =====================================
+  // Component Initialization
+  // =====================================
+
   ngOnInit(): void {
+
     this.loadTournaments();
+
   }
+
+  // =====================================
+  // Load All Tournaments
+  // =====================================
 
   loadTournaments(): void {
 
     this.isLoading = true;
+
     this.errorMessage = '';
 
     this.tournamentService.getAllTournaments().subscribe({
 
       next: (response) => {
+
         this.tournaments = response;
+
         this.isLoading = false;
+
       },
 
       error: (error) => {
-        console.error('Error loading tournaments:', error);
 
-        this.errorMessage = 'Unable to load tournaments. Please try again.';
+        console.error(
+          'Error loading tournaments:',
+          error
+        );
+
+        this.errorMessage =
+          'Unable to load tournaments. Please try again.';
+
         this.isLoading = false;
+
       }
 
     });
+
   }
 
-confirmDelete(tournamentId: string): void {
-  this.selectedTournamentId = tournamentId;
-  this.showDeleteConfirmation = true;
-}
+  // =====================================
+  // Open Delete Confirmation
+  // =====================================
 
-deleteTournament(): void {
+  confirmDelete(tournamentId: string): void {
 
-  if (!this.selectedTournamentId || this.isDeleting) {
-    return;
+    this.selectedTournamentId = tournamentId;
+
+    this.showDeleteConfirmation = true;
+
   }
 
-  this.isDeleting = true;
-  this.errorMessage = '';
+  // =====================================
+  // Delete Tournament
+  // =====================================
 
-  this.tournamentService.deleteTournament(
-    this.selectedTournamentId
-  ).subscribe({
+  deleteTournament(): void {
 
-    next: () => {
-      this.isDeleting = false;
-      this.showDeleteConfirmation = false;
-      this.selectedTournamentId = '';
-      this.loadTournaments();
-    },
+    if (!this.selectedTournamentId || this.isDeleting) {
 
-    error: (error) => {
-      console.error('Error deleting tournament:', error);
+      return;
 
-      this.errorMessage =
-        error.error?.message ??
-        'Unable to delete tournament. Please try again.';
-
-      this.isDeleting = false;
-      this.showDeleteConfirmation = false;
-      this.selectedTournamentId = '';
     }
 
-  });
+    this.isDeleting = true;
 
-}
+    this.errorMessage = '';
 
-cancelDelete(): void {
-  this.showDeleteConfirmation = false;
-  this.selectedTournamentId = '';
-}
+    this.tournamentService.deleteTournament(
+      this.selectedTournamentId
+    ).subscribe({
+
+      next: () => {
+
+        this.isDeleting = false;
+
+        this.showDeleteConfirmation = false;
+
+        this.selectedTournamentId = '';
+
+        this.loadTournaments();
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error deleting tournament:',
+          error
+        );
+
+        this.errorMessage =
+          error.error?.message ??
+          'Unable to delete tournament. Please try again.';
+
+        this.isDeleting = false;
+
+        this.showDeleteConfirmation = false;
+
+        this.selectedTournamentId = '';
+
+      }
+
+    });
+
+  }
+
+  // =====================================
+  // Cancel Delete Confirmation
+  // =====================================
+
+  cancelDelete(): void {
+
+    this.showDeleteConfirmation = false;
+
+    this.selectedTournamentId = '';
+
+  }
 
 }

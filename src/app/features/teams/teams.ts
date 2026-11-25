@@ -1,22 +1,47 @@
 
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  inject
+} from '@angular/core';
+
+import { RouterLink } from '@angular/router';
+
+import { finalize } from 'rxjs';
 
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 
+import { SecureImage } from '../../shared/components/secure-image/secure-image';
+
 import { TeamService } from '../../core/services/team';
+
 import { Team } from '../../core/models/team/team.model';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [PageHeaderComponent, RouterLink],
+  imports: [
+    PageHeaderComponent,
+    RouterLink,
+    SecureImage
+  ],
   templateUrl: './teams.html',
   styleUrl: './teams.scss'
 })
 export class Teams implements OnInit {
 
-  private teamService = inject(TeamService);
+  // =====================================
+  // Dependencies
+  // =====================================
+
+  private readonly teamService = inject(TeamService);
+
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  // =====================================
+  // Component State
+  // =====================================
 
   teams: Team[] = [];
 
@@ -24,8 +49,14 @@ export class Teams implements OnInit {
 
   errorMessage = '';
 
+  // =====================================
+  // Component Initialization
+  // =====================================
+
   ngOnInit(): void {
+
     this.loadTeams();
+
   }
 
   // =====================================
@@ -34,27 +65,55 @@ export class Teams implements OnInit {
 
   loadTeams(): void {
 
+    // Prevent duplicate API requests
+
+    if (this.isLoading) {
+
+      return;
+
+    }
+
     this.isLoading = true;
+
     this.errorMessage = '';
 
-    this.teamService.getAllTeams().subscribe({
-      next: (response) => {
+    this.teamService.getAllTeams()
+      .pipe(
 
-        this.teams = response;
-        this.isLoading = false;
+        finalize(() => {
 
-      },
-      error: (error) => {
+          this.isLoading = false;
 
-        console.error('Error loading teams:', error);
+          this.cdr.markForCheck();
 
-        this.errorMessage =
-          'Unable to load teams. Please try again.';
+        })
 
-        this.isLoading = false;
+      )
+      .subscribe({
 
-      }
-    });
+        next: (response: Team[]) => {
+
+          this.teams = response;
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading teams:',
+            error
+          );
+
+          this.teams = [];
+
+          this.errorMessage =
+            error.error?.message ??
+            'Unable to load teams. Please try again.';
+
+        }
+
+      });
+
   }
 
 }

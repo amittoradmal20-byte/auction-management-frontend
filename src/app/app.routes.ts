@@ -57,6 +57,14 @@ import { AuctionEdit } from './features/auctions/auction-edit/auction-edit';
 
 import { authGuard } from './core/guards/auth-guard';
 
+// =====================================
+// Match Schedules
+// =====================================
+
+import { MatchSchedules } from './features/match-schedules/match-schedules';
+import { MatchScheduleCreate } from './features/match-schedules/match-schedule-create/match-schedule-create';
+import { MatchScheduleDetails } from './features/match-schedules/match-schedule-details/match-schedule-details';
+
 export const routes: Routes = [
 
   // =====================================
@@ -92,6 +100,22 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent
+      },
+
+      // =====================================
+      // Match Schedule Routes
+      // =====================================
+      {
+        path: 'match-schedules',
+        component: MatchSchedules
+      },
+      {
+        path: 'match-schedules/create',
+        component: MatchScheduleCreate
+      },
+      {
+        path: 'match-schedules/:id',
+        component: MatchScheduleDetails
       },
 
       // =====================================

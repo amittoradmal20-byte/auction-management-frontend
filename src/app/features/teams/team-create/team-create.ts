@@ -1,6 +1,14 @@
 
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import {
+  Component,
+  ChangeDetectorRef,
+  inject
+} from '@angular/core';
+
+import {
+  Router,
+  RouterLink
+} from '@angular/router';
 
 import {
   FormBuilder,
@@ -8,27 +16,44 @@ import {
   Validators
 } from '@angular/forms';
 
+import {
+  of,
+  switchMap,
+  finalize
+} from 'rxjs';
+
 import { TeamService } from '../../../core/services/team';
 
+import { Team } from '../../../core/models/team/team.model';
+
 import { TeamCreateRequest } from '../../../core/models/team/team-create-request.model';
+
+import { LogoUpload } from '../../../shared/components/logo-upload/logo-upload';
 
 @Component({
   selector: 'app-team-create',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
+    LogoUpload
   ],
   templateUrl: './team-create.html',
   styleUrl: './team-create.scss'
 })
 export class TeamCreate {
 
-  private fb = inject(FormBuilder);
+  // =====================================
+  // Dependencies
+  // =====================================
 
-  private teamService = inject(TeamService);
+  private readonly fb = inject(FormBuilder);
 
-  private router = inject(Router);
+  private readonly teamService = inject(TeamService);
+
+  private readonly router = inject(Router);
+
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // =====================================
   // Component State
@@ -37,6 +62,26 @@ export class TeamCreate {
   isSubmitting = false;
 
   errorMessage = '';
+
+  successMessage = '';
+
+  // =====================================
+  // Logo Upload State
+  // =====================================
+
+  selectedLogoFile: File | null = null;
+
+  isLogoValid = true;
+
+  isUploadingLogo = false;
+
+  isLogoUploadFailed = false;
+
+  // =====================================
+  // Saved Team State
+  // =====================================
+
+  savedTeam: Team | null = null;
 
   // =====================================
   // Create Team Form
@@ -58,16 +103,83 @@ export class TeamCreate {
         Validators.required,
         Validators.maxLength(20)
       ]
-    ],
-
-    logoUrl: [
-      '',
-      [
-        Validators.maxLength(500)
-      ]
     ]
 
   });
+
+  // =====================================
+  // Computed Component State
+  // =====================================
+
+  get isBusy(): boolean {
+
+    return this.isSubmitting ||
+           this.isUploadingLogo;
+
+  }
+
+  get isFormLocked(): boolean {
+
+    return this.savedTeam !== null;
+
+  }
+
+  get canSubmit(): boolean {
+
+    return this.teamForm.valid &&
+           this.isLogoValid &&
+           !this.isBusy &&
+           !this.isFormLocked;
+
+  }
+
+  get canRetryLogoUpload(): boolean {
+
+    return this.savedTeam !== null &&
+           this.isLogoUploadFailed &&
+           this.selectedLogoFile !== null &&
+           this.isLogoValid &&
+           !this.isBusy;
+
+  }
+
+  get submitButtonLabel(): string {
+
+    if (this.isUploadingLogo) {
+
+      return 'Uploading Logo...';
+
+    }
+
+    if (this.isSubmitting) {
+
+      return 'Creating Team...';
+
+    }
+
+    return 'Create Team';
+
+  }
+
+  // =====================================
+  // Handle Logo Selection
+  // =====================================
+
+  onLogoSelected(file: File | null): void {
+
+    this.selectedLogoFile = file;
+
+  }
+
+  // =====================================
+  // Handle Logo Validation
+  // =====================================
+
+  onLogoValidationChange(isValid: boolean): void {
+
+    this.isLogoValid = isValid;
+
+  }
 
   // =====================================
   // Create Team
@@ -75,16 +187,17 @@ export class TeamCreate {
 
   createTeam(): void {
 
-    if (this.teamForm.invalid || this.isSubmitting) {
+    if (!this.canSubmit) {
 
       this.teamForm.markAllAsTouched();
 
       return;
+
     }
 
-    this.isSubmitting = true;
-
     this.errorMessage = '';
+
+    this.successMessage = '';
 
     const formValue = this.teamForm.getRawValue();
 
@@ -92,46 +205,269 @@ export class TeamCreate {
 
       name: formValue.name.trim(),
 
-      shortName: formValue.shortName.trim(),
-
-      logoUrl: formValue.logoUrl.trim() || null
+      shortName: formValue.shortName.trim()
 
     };
 
     // Validate trimmed required values
+
     if (!request.name || !request.shortName) {
 
       this.errorMessage =
         'Team name and short name are required.';
 
-      this.isSubmitting = false;
-
       return;
+
     }
 
-    this.teamService.createTeam(request).subscribe({
+    // Capture selected logo before submission
 
-      next: () => {
+    const logoFile = this.selectedLogoFile;
+
+    this.isSubmitting = true;
+
+    this.isLogoUploadFailed = false;
+
+    this.savedTeam = null;
+
+    // Prevent changes during submission
+
+    this.teamForm.disable();
+
+    this.teamService.createTeam(request)
+      .pipe(
+
+        // =====================================
+        // Step 1: Create Team
+        // Step 2: Upload Logo
+        // =====================================
+
+        switchMap((response: Team) => {
+
+          this.savedTeam = response;
+
+          // Logo is optional
+
+          if (!logoFile) {
+
+            return of(response);
+
+          }
+
+          this.isUploadingLogo = true;
+
+          this.cdr.markForCheck();
+
+          return this.teamService.uploadLogo(
+            response.id,
+            logoFile
+          );
+
+        }),
+
+        // =====================================
+        // Reset Submission State
+        // =====================================
+
+        finalize(() => {
+
+          this.isSubmitting = false;
+
+          this.isUploadingLogo = false;
+
+          // Enable form only if team creation failed
+
+          if (!this.savedTeam) {
+
+            this.teamForm.enable();
+
+          }
+
+          this.cdr.markForCheck();
+
+        })
+
+      )
+      .subscribe({
+
+        next: (response: Team) => {
+
+          this.handleSubmissionSuccess(response);
+
+        },
+
+        error: (error) => {
+
+          this.handleSubmissionError(error);
+
+        }
+
+      });
+
+  }
+
+  // =====================================
+  // Handle Successful Submission
+  // =====================================
+
+  private handleSubmissionSuccess(
+    response: Team
+  ): void {
+
+    this.savedTeam = response;
+
+    this.selectedLogoFile = null;
+
+    this.isLogoUploadFailed = false;
+
+    this.errorMessage = '';
+
+    this.successMessage =
+      'Team created successfully.';
+
+    this.navigateToTeamDetails(response.id);
+
+  }
+
+  // =====================================
+  // Handle Submission Error
+  // =====================================
+
+  private handleSubmissionError(error: any): void {
+
+    console.error(
+      'Error creating team or uploading logo:',
+      error
+    );
+
+    // Team created successfully but logo upload failed
+
+    if (this.savedTeam) {
+
+      this.isLogoUploadFailed = true;
+
+      this.successMessage =
+        'Team created successfully.';
+
+      const logoError =
+        error.error?.message ??
+        'Unable to upload the selected team logo.';
+
+      this.errorMessage =
+        `${logoError} Please retry the logo upload.`;
+
+      return;
+
+    }
+
+    // Team creation failed
+
+    this.errorMessage =
+      error.error?.message ??
+      'Unable to create team. Please try again.';
+
+  }
+
+  // =====================================
+  // Retry Failed Logo Upload
+  // =====================================
+
+  retryLogoUpload(): void {
+
+    if (!this.canRetryLogoUpload) {
+
+      return;
+
+    }
+
+    const teamId = this.savedTeam!.id;
+
+    const logoFile = this.selectedLogoFile!;
+
+    this.isSubmitting = true;
+
+    this.isUploadingLogo = true;
+
+    this.errorMessage = '';
+
+    this.teamService.uploadLogo(
+      teamId,
+      logoFile
+    )
+    .pipe(
+
+      finalize(() => {
 
         this.isSubmitting = false;
 
-        this.router.navigate(['/teams']);
+        this.isUploadingLogo = false;
+
+        this.cdr.markForCheck();
+
+      })
+
+    )
+    .subscribe({
+
+      next: (response: Team) => {
+
+        this.handleSubmissionSuccess(response);
 
       },
 
       error: (error) => {
 
-        console.error('Error creating team:', error);
-
-        this.errorMessage =
-          error.error?.message ||
-          'Unable to create team. Please try again.';
-
-        this.isSubmitting = false;
+        this.handleSubmissionError(error);
 
       }
 
     });
+
+  }
+
+  // =====================================
+  // Continue Without Logo
+  // =====================================
+
+  continueWithoutLogo(): void {
+
+    if (
+      !this.savedTeam ||
+      !this.isLogoUploadFailed ||
+      this.isBusy
+    ) {
+
+      return;
+
+    }
+
+    const confirmed = window.confirm(
+
+      'The team information has already been saved.\n\n' +
+
+      'The selected logo has not been uploaded.\n\n' +
+
+      'Do you want to continue without uploading the logo?'
+
+    );
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+    this.navigateToTeamDetails(this.savedTeam.id);
+
+  }
+
+  // =====================================
+  // Navigate to Team Details
+  // =====================================
+
+  private navigateToTeamDetails(teamId: string): void {
+
+    this.router.navigate(['/teams', teamId]);
 
   }
 

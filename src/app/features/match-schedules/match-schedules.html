@@ -1,0 +1,383 @@
+
+<div class="match-schedules-container">
+
+  <!-- =====================================
+       1. PAGE HEADER
+  ====================================== -->
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Match Schedules</h2>
+
+      <p class="text-muted mb-0">
+        Manage tournament match schedules and fixtures.
+      </p>
+    </div>
+
+    <!-- Create Match Schedule -->
+    <a
+      routerLink="/match-schedules/create"
+      class="btn btn-primary">
+
+      <i class="bi bi-plus-circle me-2"></i>
+      Create Match Schedule
+
+    </a>
+
+  </div>
+
+
+  <!-- =====================================
+       2. TOURNAMENT SELECTION
+  ====================================== -->
+
+  <div class="content-card mb-4">
+
+    <div class="row align-items-end">
+
+      <div class="col-md-6">
+
+        <label
+          for="tournamentSelect"
+          class="form-label fw-semibold">
+
+          Select Tournament
+
+        </label>
+
+        <select
+          id="tournamentSelect"
+          class="form-select"
+          [value]="selectedTournamentId"
+          (change)="onTournamentChange($any($event.target).value)"
+          [disabled]="loadingTournaments || tournaments.length === 0">
+
+          <option value="">
+            -- Select Tournament --
+          </option>
+
+          @for (tournament of tournaments; track tournament.id) {
+
+            <option [value]="tournament.id">
+              {{ tournament.name }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+      <div class="col-md-6">
+
+        <!-- Loading Tournaments -->
+        @if (loadingTournaments) {
+
+          <div class="text-muted mt-3">
+
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status">
+            </span>
+
+            Loading tournaments...
+
+          </div>
+
+        }
+
+
+        <!-- Tournament Error -->
+        @if (tournamentErrorMessage) {
+
+          <div class="alert alert-danger mb-0 mt-3">
+
+            <i class="bi bi-exclamation-triangle me-2"></i>
+
+            {{ tournamentErrorMessage }}
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger ms-2"
+              (click)="loadTournaments()">
+
+              Retry
+
+            </button>
+
+          </div>
+
+        }
+
+
+        <!-- No Tournaments -->
+        @if (
+          !loadingTournaments &&
+          !tournamentErrorMessage &&
+          tournaments.length === 0
+        ) {
+
+          <p class="text-muted mb-0 mt-3">
+            No tournaments available.
+          </p>
+
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================
+       3. MATCH SCHEDULES LIST
+  ====================================== -->
+
+  <div class="content-card">
+
+    <!-- Section Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+      <h5 class="mb-0">
+        All Match Schedules
+      </h5>
+
+      <!-- Refresh Button -->
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="loadSchedules()"
+        [disabled]="loading || !selectedTournamentId">
+
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Refresh
+
+      </button>
+
+    </div>
+
+
+    <!-- =====================================
+         4. LOADING STATE
+    ====================================== -->
+
+    @if (loading) {
+
+      <div class="text-center py-5">
+
+        <div
+          class="spinner-border text-primary"
+          role="status">
+        </div>
+
+        <p class="text-muted mt-3">
+          Loading match schedules...
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- =====================================
+         5. ERROR STATE
+    ====================================== -->
+
+    @else if (errorMessage) {
+
+      <div class="alert alert-danger">
+
+        <i class="bi bi-exclamation-triangle me-2"></i>
+
+        {{ errorMessage }}
+
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger ms-3"
+          (click)="loadSchedules()">
+
+          Retry
+
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- =====================================
+         6. EMPTY STATE
+    ====================================== -->
+
+    @else if (schedules.length === 0) {
+
+      <div class="text-center py-5">
+
+        <i class="bi bi-calendar-x fs-1 text-muted"></i>
+
+        <h5 class="mt-3">
+          No Match Schedules Found
+        </h5>
+
+        <p class="text-muted">
+
+          @if (selectedTournamentId) {
+
+            No match schedules have been created
+            for this tournament.
+
+          } @else {
+
+            Please select a tournament
+            to view match schedules.
+
+          }
+
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- =====================================
+         7. SCHEDULES TABLE
+    ====================================== -->
+
+    @else {
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead>
+
+            <tr>
+              <th>Schedule Name</th>
+              <th>Tournament</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>League Format</th>
+              <th>Teams</th>
+              <th>Matches</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (schedule of schedules; track schedule.id) {
+
+              <tr>
+
+                <!-- Schedule Name -->
+                <td class="fw-semibold">
+
+                  {{ schedule.name }}
+
+                </td>
+
+
+                <!-- Tournament Name -->
+                <td>
+
+                  {{ getTournamentName(schedule.tournamentId) }}
+
+                </td>
+
+
+                <!-- Start Date -->
+                <td>
+
+                  {{ schedule.startDate | date:'dd MMM yyyy' }}
+
+                </td>
+
+
+                <!-- End Date -->
+                <td>
+
+                  {{ schedule.endDate | date:'dd MMM yyyy' }}
+
+                </td>
+
+
+                <!-- League Format -->
+                <td>
+
+                  {{ schedule.leagueFormat.replaceAll('_', ' ') }}
+
+                </td>
+
+
+                <!-- Total Teams -->
+                <td>
+
+                  {{ schedule.totalTeams ?? '-' }}
+
+                </td>
+
+
+                <!-- Total Matches -->
+                <td>
+
+                  {{ schedule.totalMatches ?? '-' }}
+
+                </td>
+
+
+                <!-- Schedule Status -->
+                <td>
+
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'bg-secondary': schedule.status === 'DRAFT',
+                      'bg-primary': schedule.status === 'PUBLISHED',
+                      'bg-warning text-dark': schedule.status === 'IN_PROGRESS',
+                      'bg-success': schedule.status === 'COMPLETED',
+                      'bg-danger': schedule.status === 'CANCELLED'
+                    }">
+
+                    {{ schedule.status.replaceAll('_', ' ') }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- Actions -->
+                <td class="text-end">
+
+                  <a
+                    [routerLink]="['/match-schedules', schedule.id]"
+                    class="btn btn-sm btn-outline-primary">
+
+                    <i class="bi bi-eye me-1"></i>
+                    View
+
+                    </a>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

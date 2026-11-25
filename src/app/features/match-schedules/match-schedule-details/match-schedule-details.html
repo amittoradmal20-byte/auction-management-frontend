@@ -1,0 +1,506 @@
+
+<div class="match-schedules-container">
+
+  <!-- =====================================
+       PAGE HEADER
+  ====================================== -->
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h2>Match Schedule Details</h2>
+
+      <p class="text-muted mb-0">
+        View team draws and generated match fixtures.
+      </p>
+    </div>
+
+    <a
+      routerLink="/match-schedules"
+      [queryParams]="schedule ? { tournamentId: schedule.tournamentId } : {}"
+      class="btn btn-outline-secondary">
+
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Match Schedules
+    </a>
+
+  </div>
+
+  <!-- =====================================
+       SUCCESS AND ERROR MESSAGES
+  ====================================== -->
+
+  @if (generationSuccessMessage) {
+    <div class="alert alert-success">
+      <i class="bi bi-check-circle me-2"></i>
+      {{ generationSuccessMessage }}
+    </div>
+  }
+
+  @if (generationErrorMessage) {
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ generationErrorMessage }}
+    </div>
+  }
+
+  <!-- =====================================
+       LOADING
+  ====================================== -->
+
+  @if (loading) {
+
+    <div class="content-card text-center py-5">
+      <div
+        class="spinner-border text-primary"
+        role="status">
+      </div>
+
+      <p class="text-muted mt-3 mb-0">
+        Loading Match Schedule...
+      </p>
+    </div>
+
+  } @else if (errorMessage) {
+
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+
+      @if (scheduleId) {
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger ms-3"
+          (click)="loadSchedule(scheduleId)">
+          Retry
+        </button>
+      }
+    </div>
+
+  } @else if (schedule; as item) {
+
+    <!-- =====================================
+         SCHEDULE INFORMATION
+    ====================================== -->
+
+    <div class="content-card schedule-hero mb-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h5 class="mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          Schedule Information
+        </h5>
+
+        <span
+          class="badge"
+          [ngClass]="{
+            'bg-secondary': item.status === 'DRAFT',
+            'bg-primary': item.status === 'PUBLISHED',
+            'bg-warning text-dark': item.status === 'IN_PROGRESS',
+            'bg-success': item.status === 'COMPLETED',
+            'bg-danger': item.status === 'CANCELLED'
+          }">
+
+          {{ item.status.replaceAll('_', ' ') }}
+        </span>
+
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-md-6">
+          <label class="text-muted small">Schedule Name</label>
+          <div class="fw-semibold">{{ item.name }}</div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Tournament</label>
+          <div class="fw-semibold">
+            @if (loadingTournament) {
+              Loading...
+            } @else {
+              {{ tournamentName || 'N/A' }}
+            }
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Scheduling Type</label>
+          <div class="fw-semibold">
+            {{ item.schedulingType.replaceAll('_', ' ') }}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">League Format</label>
+          <div class="fw-semibold">
+            {{ item.leagueFormat.replaceAll('_', ' ') }}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">Playoff Format</label>
+          <div class="fw-semibold">{{ playoffFormatLabel }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Qualifying Teams</label>
+          <div class="fw-semibold">{{ qualifyingTeamCount }}</div>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Start Date</label>
+          <div class="fw-semibold">
+            {{ item.startDate | date:'dd MMM yyyy' }}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="text-muted small">End Date</label>
+          <div class="fw-semibold">
+            {{ item.endDate | date:'dd MMM yyyy' }}
+          </div>
+        </div>
+
+      </div>
+      @if (item.leagueFormat === 'PARTIAL_ROUND_ROBIN') {
+        <div class="mt-3 hero-note">Opponents skipped per team: <strong>{{ item.opponentsToSkip }}</strong></div>
+      }
+    </div>
+
+    <!-- =====================================
+         MATCH SUMMARY
+    ====================================== -->
+
+    <div class="content-card match-summary mb-4">
+
+      <h5 class="mb-3">
+        <i class="bi bi-bar-chart me-2"></i>
+        Match Summary
+      </h5>
+
+      <div class="row g-3">
+
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3">
+            <i class="bi bi-people stat-icon"></i><p class="text-muted mb-1">Total Teams</p>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalTeams ?? 0) : totalTeams }}</h3>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3">
+            <i class="bi bi-calendar-check stat-icon"></i><p class="text-muted mb-1">League Matches</p>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalLeagueMatches ?? 0) : totalLeagueMatches }}</h3>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3">
+            <i class="bi bi-trophy stat-icon"></i><p class="text-muted mb-1">Playoff Matches</p>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalPlayoffMatches ?? 0) : totalPlayoffMatches }}</h3>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3">
+            <i class="bi bi-layers stat-icon"></i><p class="text-muted mb-1">Total Matches</p>
+            <h3 class="mb-0">{{ loadingFixtures || fixtureErrorMessage ? (item.totalMatches ?? 0) : totalMatches }}</h3>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    @if (hasMissingPlayoffFixtures) {
+      <div class="alert alert-warning" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ playoffConfigurationWarning }}
+        Existing fixtures are preserved. Regeneration is not available on this page yet.
+      </div>
+    }
+
+    <!-- =====================================
+         TEAM DRAWS
+    ====================================== -->
+
+    <div class="content-card mb-4">
+
+      <h5 class="mb-3">
+        <i class="bi bi-people me-2"></i>
+        Team Draws
+      </h5>
+
+      @if (loadingFixtures) {
+
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="text-muted mt-2">Loading team draws...</p>
+        </div>
+
+      } @else if (fixtureErrorMessage) {
+
+        <div class="alert alert-danger">
+          {{ fixtureErrorMessage }}
+        </div>
+
+      } @else if (teamDraws.length === 0) {
+
+        <p class="text-muted mb-0">
+          Team draws have not been generated yet.
+        </p>
+
+      } @else {
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+
+            <thead>
+              <tr>
+                <th>Random Number</th>
+                <th>Team Name</th>
+                <th>Short Name</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (draw of teamDraws; track draw.id) {
+                <tr>
+                  <td class="fw-semibold">
+                    {{ draw.randomNumber }}
+                  </td>
+                  <td>{{ draw.teamName }}</td>
+                  <td>{{ draw.teamShortName || '-' }}</td>
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+
+      }
+
+    </div>
+
+    @if (!loadingFixtures && !fixtureErrorMessage && leagueFixtures.length > 0 && teamDraws.length > 0) {
+      <div class="content-card mb-4">
+        <h5><i class="bi bi-bar-chart me-2"></i>Team-wise League Match Distribution</h5>
+        @if (equalLeagueMatches) { <p class="text-success small">All teams have equal league match counts.</p> }
+        <div class="table-responsive"><table class="table align-middle">
+          <thead><tr><th>Team</th>@for (day of fixtureDates; track day) { <th>{{ day | date:'dd MMM' }}</th> }<th>Total</th></tr></thead>
+          <tbody>@for (team of teamDistribution; track team.id) { <tr><td>{{ team.name }}</td>@for (count of team.daily; track $index) { <td>{{ count }}</td> }<td class="fw-bold">{{ team.total }}</td></tr> }</tbody>
+        </table></div>
+      </div>
+      @if (item.leagueFormat === 'PARTIAL_ROUND_ROBIN') {
+        <div class="content-card mb-4">
+          <h5><i class="bi bi-person-dash me-2"></i>Skipped Match Pairings</h5>
+          <p class="text-muted small">{{ skippedPairings.length }} pairings absent from generated league fixtures.</p>
+          <div class="row g-3">@for (pair of skippedPairings; track pair.id) {
+            <div class="col-md-6"><div class="skipped-pair"><span>{{ pair.home }}</span><i class="bi bi-slash-circle"></i><span>{{ pair.away }}</span></div></div>
+          }</div>
+        </div>
+      }
+    }
+
+    <!-- =====================================
+         MATCH FIXTURES
+    ====================================== -->
+
+    <div class="content-card">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h5 class="mb-0">
+          <i class="bi bi-calendar-check me-2"></i>
+          Match Fixtures
+        </h5>
+
+        @if ((item.totalMatches ?? 0) === 0 && item.status === 'DRAFT') {
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="generating || loadingFixtures"
+            (click)="generateFixtures()">
+
+            @if (generating) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Generating...
+            } @else {
+              <i class="bi bi-arrow-repeat me-2"></i>
+              Generate Fixtures
+            }
+
+          </button>
+
+        }
+
+      </div>
+
+      @if (loadingFixtures) {
+
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="text-muted mt-2">
+            Loading match fixtures...
+          </p>
+        </div>
+
+      } @else if (fixtureErrorMessage) {
+
+        <div class="alert alert-danger">
+
+          {{ fixtureErrorMessage }}
+
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger ms-2"
+            (click)="loadGeneratedData(scheduleId)">
+            Retry
+          </button>
+
+        </div>
+
+      } @else if (fixtures.length === 0) {
+
+        <div class="text-center py-4">
+
+          <i class="bi bi-calendar-x fs-1 text-muted"></i>
+
+          <p class="text-muted mt-3 mb-0">
+            Match fixtures have not been generated yet.
+          </p>
+
+        </div>
+
+      } @else {
+
+        <div class="fixture-toolbar">
+          <div class="btn-group flex-wrap" role="group" aria-label="Filter by date">
+            <button type="button" class="btn btn-outline-primary" [class.active]="selectedDate === 'ALL'" (click)="selectedDate = 'ALL'">All ({{ fixtures.length }})</button>
+            @for (day of fixtureDates; track day) {
+              <button type="button" class="btn btn-outline-primary" [class.active]="selectedDate === day" (click)="selectedDate = day">{{ day | date:'dd MMM' }} ({{ countForDate(day) }})</button>
+            }
+            @if (hasUndatedFixtures) { <button type="button" class="btn btn-outline-primary" [class.active]="selectedDate === 'TBD'" (click)="selectedDate = 'TBD'">TBD</button> }
+          </div>
+          <div class="btn-group" role="group" aria-label="Fixture view">
+            <button type="button" class="btn btn-outline-primary" [class.active]="viewMode === 'table'" (click)="viewMode = 'table'"><i class="bi bi-table me-1"></i>Table</button>
+            <button type="button" class="btn btn-outline-primary" [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'"><i class="bi bi-grid me-1"></i>Cards</button>
+          </div>
+        </div>
+        @for (section of [
+          { title: 'League Fixtures', matches: filteredLeagueFixtures, playoff: false },
+          { title: 'Playoff Fixtures', matches: filteredPlayoffFixtures, playoff: true }
+        ]; track section.title) {
+          @if (section.matches.length > 0) {
+            <section class="fixture-section mb-4" [class.playoff-section]="section.playoff">
+              <h6 class="fixture-section-title mb-3">
+                <i class="bi me-2" [ngClass]="section.playoff ? 'bi-trophy' : 'bi-calendar-check'"></i>
+                {{ section.title }} ({{ section.matches.length }})
+              </h6>
+              @if (viewMode === 'table') {
+              <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                  <thead>
+                    <tr>
+                      <th>Match</th>
+                      <th>Stage</th>
+                      <th>Home Team</th>
+                      <th>Away Team</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Ground</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    @for (fixture of section.matches; track fixture.id) {
+
+                      <tr [class.playoff-row]="isPlayoffMatch(fixture)" [class.final-row]="isFinalMatch(fixture)">
+
+                        <td class="fw-semibold">
+                          #{{ fixture.matchNumber }}
+                        </td>
+
+                        <td>
+                          <span class="stage-badge" [ngClass]="getMatchStageClass(fixture.matchStage)">{{ getMatchStageLabel(fixture.matchStage) }}</span>
+                        </td>
+
+                        <td [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">
+                          {{ getHomeTeamDisplayName(fixture) }}
+                        </td>
+
+                        <td [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">
+                          {{ getAwayTeamDisplayName(fixture) }}
+                        </td>
+
+                        <td>
+                          @if (fixture.matchDate) {
+                            {{ fixture.matchDate | date:'dd MMM yyyy' }}
+                          } @else {
+                            TBD
+                          }
+                        </td>
+
+                        <td>
+                          {{ formatTime(fixture.startTime) }}
+                          -
+                          {{ formatTime(fixture.endTime) }}
+                        </td>
+
+                        <td>
+                          {{ fixture.groundNumber ?? '-' }}
+                        </td>
+
+                        <td>
+                          <span class="badge bg-secondary">
+                            {{ fixture.status || 'N/A' }}
+                          </span>
+                        </td>
+
+                      </tr>
+
+                    }
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+              } @else {
+                <div class="row g-3 mb-3">
+                  @for (fixture of section.matches; track fixture.id) {
+                    <div class="col-xl-4 col-md-6">
+                      <article class="fixture-card" [class.playoff-card]="isPlayoffMatch(fixture)" [class.final-card]="isFinalMatch(fixture)">
+                        <div class="d-flex justify-content-between small fw-semibold"><span> MATCH #{{ fixture.matchNumber }}</span><span><span class="stage-badge" [ngClass]="getMatchStageClass(fixture.matchStage)">{{ getMatchStageLabel(fixture.matchStage) }}</span></span></div>
+                        <div class="fixture-teams">
+                          <div><i class="bi bi-shield-fill"></i><strong [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">{{ getHomeTeamDisplayName(fixture) }}</strong></div>
+                          <span class="vs">VS</span>
+                          <div><i class="bi bi-shield-fill"></i><strong [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">{{ getAwayTeamDisplayName(fixture) }}</strong></div>
+                        </div>
+                        <div class="fixture-meta"><span><i class="bi bi-calendar3"></i> {{ fixture.matchDate ? (fixture.matchDate | date:'dd MMM yyyy') : 'TBD' }}</span><span><i class="bi bi-clock"></i> {{ formatTime(fixture.startTime) }} – {{ formatTime(fixture.endTime) }}</span><span>Ground {{ fixture.groundNumber ?? '-' }}</span><span class="badge bg-secondary">{{ fixture.status || 'N/A' }}</span></div>
+                      </article>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          }
+        }
+        @if (filteredFixtures.length === 0) {
+          <p class="text-muted">No fixtures for the selected date.</p>
+        }
+        <p class="text-muted small mb-0">
+          Showing {{ filteredFixtures.length }} of {{ fixtures.length }} generated fixtures.
+        </p>
+
+      }
+
+    </div>
+
+  }
+
+</div>

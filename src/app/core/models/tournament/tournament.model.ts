@@ -3,6 +3,7 @@ export interface Tournament {
   id: string;
   name: string;
   description: string;
+  logoUrl: string | null;
   startDate: string;
   endDate: string;
   status: TournamentStatus;
