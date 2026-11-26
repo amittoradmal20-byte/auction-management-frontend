@@ -539,3 +539,122 @@ h5 i { color: #4f46e5; }
   }
 
 }
+
+
+// =====================================
+// Step 9.11.7 — Tournament and team logos
+// =====================================
+
+.content-card.tournament-branding {
+  background: linear-gradient(125deg, #0b1428, #172554 65%, #1e3a5f);
+  border: 1px solid #b89642;
+  color: #f8fafc;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .16);
+
+  app-secure-image {
+    flex: 0 0 auto;
+    line-height: 0;
+  }
+
+  .tournament-branding-text {
+    flex: 1 1 220px;
+    min-width: 0;
+
+    h3 {
+      color: #f4d77b;
+      font-weight: 800;
+      letter-spacing: .015em;
+      overflow-wrap: anywhere;
+    }
+
+    .text-muted { color: #e2e8f0 !important; }
+  }
+}
+
+.fixture-table-team {
+  min-width: 160px;
+  font-weight: 600;
+  line-height: 1.4;
+
+  app-secure-image { flex: 0 0 auto; line-height: 0; }
+  span { min-width: 0; overflow-wrap: anywhere; }
+}
+
+// Keep the existing light playoff cards and special final styling.
+.fixture-card:not(.playoff-card):not(.final-card) {
+  background: linear-gradient(145deg, #0b1428, #172554);
+  color: #f8fafc;
+  border-color: #344766;
+  border-top: 3px solid #b89642;
+
+  > div:first-child { color: #f4d77b; }
+  .team-placeholder { color: #cbd5e1 !important; }
+  .fixture-meta {
+    color: #e2e8f0;
+    border-top-color: rgba(255, 255, 255, .18);
+    i { color: #f4d77b; }
+  }
+  .badge.bg-secondary { background: #475569 !important; }
+  &:hover { border-color: #d4af37; }
+}
+
+.fixture-card .fixture-teams {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 24px 0;
+
+  > .fixture-card-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    text-align: center;
+
+    app-secure-image { flex: 0 0 auto; line-height: 0; }
+    strong { max-width: 100%; line-height: 1.4; overflow-wrap: anywhere; }
+  }
+
+  > .vs {
+    display: grid;
+    place-items: center;
+    align-self: start;
+    margin-top: 26px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #b89642;
+    border-radius: 50%;
+    background: #fef3c7;
+    color: #78350f;
+    font-weight: 800;
+  }
+}
+
+.fixture-card.final-card .fixture-teams > .vs {
+  background: rgba(212, 175, 55, .15);
+  color: #f4d77b;
+}
+
+// A card can be narrow even on desktop because of the sidebar and grid.
+// Stack teams when the actual card width cannot accommodate both 90px logos.
+.fixture-card { container-type: inline-size; }
+@container (max-width: 245px) {
+  .fixture-card .fixture-teams {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 12px;
+    > .vs { margin-top: 0; }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .content-card.tournament-branding {
+    > .d-flex { justify-content: center; text-align: center; }
+    .tournament-branding-text { flex-basis: 100%; }
+    h3 { font-size: 1.2rem; }
+  }
+  .fixture-table-team { min-width: 145px; }
+  .fixture-card .fixture-teams { padding: 18px 0; }
+}

@@ -63,6 +63,7 @@ export interface MatchScheduleResponse {
   id: string;
   tournamentId: string;
   tournamentName: string | null;
+  tournamentLogoUrl: string | null;
   name: string;
   status: MatchScheduleStatus;
 

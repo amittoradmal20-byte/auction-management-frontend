@@ -82,6 +82,25 @@
          SCHEDULE INFORMATION
     ====================================== -->
 
+    <!-- Tournament branding -->
+    <div class="content-card tournament-branding mb-4">
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <app-secure-image
+          [imagePath]="tournamentLogoUrl"
+          [alt]="tournamentName + ' Logo'"
+          [width]="120"
+          [height]="120"
+          placeholderIcon="bi-trophy"
+          placeholderText=""
+          objectFit="contain">
+        </app-secure-image>
+        <div class="tournament-branding-text">
+          <h3 class="mb-1">{{ tournamentName || 'N/A' }}</h3>
+          <p class="mb-0 text-muted">Match Schedule</p>
+        </div>
+      </div>
+    </div>
+
     <div class="content-card schedule-hero mb-4">
 
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -115,13 +134,7 @@
 
         <div class="col-md-6">
           <label class="text-muted small">Tournament</label>
-          <div class="fw-semibold">
-            @if (loadingTournament) {
-              Loading...
-            } @else {
-              {{ tournamentName || 'N/A' }}
-            }
-          </div>
+          <div class="fw-semibold">{{ tournamentName || 'N/A' }}</div>
         </div>
 
         <div class="col-md-6">
@@ -429,11 +442,33 @@
                         </td>
 
                         <td [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">
-                          {{ getHomeTeamDisplayName(fixture) }}
+                          <div class="fixture-table-team d-flex align-items-center gap-2">
+                            <app-secure-image
+                              [imagePath]="fixture.homeTeamLogoUrl"
+                              [alt]="getHomeTeamDisplayName(fixture)"
+                              [width]="44"
+                              [height]="44"
+                              placeholderIcon="bi-shield"
+                              placeholderText=""
+                              objectFit="contain">
+                            </app-secure-image>
+                            <span>{{ getHomeTeamDisplayName(fixture) }}</span>
+                          </div>
                         </td>
 
                         <td [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">
-                          {{ getAwayTeamDisplayName(fixture) }}
+                          <div class="fixture-table-team d-flex align-items-center gap-2">
+                            <app-secure-image
+                              [imagePath]="fixture.awayTeamLogoUrl"
+                              [alt]="getAwayTeamDisplayName(fixture)"
+                              [width]="44"
+                              [height]="44"
+                              placeholderIcon="bi-shield"
+                              placeholderText=""
+                              objectFit="contain">
+                            </app-secure-image>
+                            <span>{{ getAwayTeamDisplayName(fixture) }}</span>
+                          </div>
                         </td>
 
                         <td>
@@ -477,9 +512,31 @@
                       <article class="fixture-card" [class.playoff-card]="isPlayoffMatch(fixture)" [class.final-card]="isFinalMatch(fixture)">
                         <div class="d-flex justify-content-between small fw-semibold"><span> MATCH #{{ fixture.matchNumber }}</span><span><span class="stage-badge" [ngClass]="getMatchStageClass(fixture.matchStage)">{{ getMatchStageLabel(fixture.matchStage) }}</span></span></div>
                         <div class="fixture-teams">
-                          <div><i class="bi bi-shield-fill"></i><strong [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">{{ getHomeTeamDisplayName(fixture) }}</strong></div>
+                          <div class="fixture-card-team">
+                            <app-secure-image
+                              [imagePath]="fixture.homeTeamLogoUrl"
+                              [alt]="getHomeTeamDisplayName(fixture)"
+                              [width]="90"
+                              [height]="90"
+                              placeholderIcon="bi-shield"
+                              placeholderText=""
+                              objectFit="contain">
+                            </app-secure-image>
+                            <strong [class.team-placeholder]="isHomeTeamPlaceholder(fixture)">{{ getHomeTeamDisplayName(fixture) }}</strong>
+                          </div>
                           <span class="vs">VS</span>
-                          <div><i class="bi bi-shield-fill"></i><strong [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">{{ getAwayTeamDisplayName(fixture) }}</strong></div>
+                          <div class="fixture-card-team">
+                            <app-secure-image
+                              [imagePath]="fixture.awayTeamLogoUrl"
+                              [alt]="getAwayTeamDisplayName(fixture)"
+                              [width]="90"
+                              [height]="90"
+                              placeholderIcon="bi-shield"
+                              placeholderText=""
+                              objectFit="contain">
+                            </app-secure-image>
+                            <strong [class.team-placeholder]="isAwayTeamPlaceholder(fixture)">{{ getAwayTeamDisplayName(fixture) }}</strong>
+                          </div>
                         </div>
                         <div class="fixture-meta"><span><i class="bi bi-calendar3"></i> {{ fixture.matchDate ? (fixture.matchDate | date:'dd MMM yyyy') : 'TBD' }}</span><span><i class="bi bi-clock"></i> {{ formatTime(fixture.startTime) }} – {{ formatTime(fixture.endTime) }}</span><span>Ground {{ fixture.groundNumber ?? '-' }}</span><span class="badge bg-secondary">{{ fixture.status || 'N/A' }}</span></div>
                       </article>
