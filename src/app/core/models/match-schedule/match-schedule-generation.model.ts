@@ -36,12 +36,14 @@ export interface MatchScheduleFixtureResponse {
   homeTournamentTeamId: string | null;
   homeTeamName: string | null;
   homeTeamShortName: string | null;
+  homeTeamLogoUrl: string | null;
   homeTeamSource: string | null;
 
   // Away team information
   awayTournamentTeamId: string | null;
   awayTeamName: string | null;
   awayTeamShortName: string | null;
+  awayTeamLogoUrl: string | null;
   awayTeamSource: string | null;
 
   // Match scheduling information

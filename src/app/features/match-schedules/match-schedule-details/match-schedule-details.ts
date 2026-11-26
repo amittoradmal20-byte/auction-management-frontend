@@ -1,4 +1,3 @@
-
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -18,12 +17,12 @@ import {
   MatchScheduleTeamDrawResponse
 } from '../../../core/models/match-schedule/match-schedule-generation.model';
 
-import { TournamentService } from '../../../core/services/tournament';
+import { SecureImage } from '../../../shared/components/secure-image/secure-image';
 
 @Component({
   selector: 'app-match-schedule-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SecureImage],
   templateUrl: './match-schedule-details.html',
   styleUrl: './match-schedule-details.scss'
 })
@@ -38,9 +37,6 @@ export class MatchScheduleDetails implements OnInit {
   private readonly matchScheduleService =
     inject(MatchScheduleService);
 
-  private readonly tournamentService =
-    inject(TournamentService);
-
   // =====================================
   // 2. COMPONENT STATE
   // =====================================
@@ -50,6 +46,10 @@ export class MatchScheduleDetails implements OnInit {
   schedule: MatchScheduleResponse | null = null;
 
   tournamentName = '';
+
+  get tournamentLogoUrl(): string | null {
+    return this.schedule?.tournamentLogoUrl ?? null;
+  }
 
   teamDraws: MatchScheduleTeamDrawResponse[] = [];
 
@@ -618,9 +618,7 @@ export class MatchScheduleDetails implements OnInit {
 
           this.loading = false;
 
-          this.loadTournamentName(
-            response.tournamentId
-          );
+          this.tournamentName = response.tournamentName?.trim() || 'N/A';
 
           this.loadGeneratedData(scheduleId);
 
@@ -645,56 +643,7 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   // =====================================
-  // 14. LOAD TOURNAMENT NAME
-  // =====================================
-
-  loadTournamentName(tournamentId: string): void {
-
-    if (!tournamentId) {
-
-      this.tournamentName = 'N/A';
-
-      return;
-
-    }
-
-    this.loadingTournament = true;
-
-    this.tournamentService
-      .getAllTournaments()
-      .subscribe({
-
-        next: tournaments => {
-
-          this.tournamentName =
-
-            tournaments.find(
-              item => item.id === tournamentId
-            )?.name ?? 'N/A';
-
-          this.loadingTournament = false;
-
-        },
-
-        error: error => {
-
-          console.error(
-            'Failed to load tournament:',
-            error
-          );
-
-          this.tournamentName = 'N/A';
-
-          this.loadingTournament = false;
-
-        }
-
-      });
-
-  }
-
-  // =====================================
-  // 15. LOAD GENERATED DATA
+  // 14. LOAD GENERATED DATA
   // =====================================
 
   loadGeneratedData(scheduleId: string): void {
@@ -756,7 +705,7 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   // =====================================
-  // 16. GENERATE FIXTURES
+  // 15. GENERATE FIXTURES
   // =====================================
 
   generateFixtures(): void {
@@ -824,7 +773,7 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   // =====================================
-  // 17. FORMAT TIME
+  // 16. FORMAT TIME
   // =====================================
 
   formatTime(time: string | null): string {
