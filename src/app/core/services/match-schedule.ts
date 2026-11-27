@@ -1,6 +1,12 @@
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+
+import {
+  HttpClient,
+  HttpParams,
+  HttpResponse
+} from '@angular/common/http';
+
 import { Observable } from 'rxjs';
 
 import {
@@ -104,6 +110,44 @@ export class MatchScheduleService {
 
     return this.http.get<MatchScheduleFixtureResponse[]>(
       `${this.apiUrl}/${scheduleId}/fixtures`
+    );
+  }
+
+  // =====================================
+  // 7. DOWNLOAD MATCH SCHEDULE PDF
+  // =====================================
+
+  downloadSchedulePdf(
+    scheduleId: string,
+    tournamentTeamId?: string,
+    matchDate?: string
+  ): Observable<HttpResponse<Blob>> {
+
+    let params = new HttpParams();
+
+    // Optional tournament team filter
+    if (tournamentTeamId?.trim()) {
+      params = params.set(
+        'tournamentTeamId',
+        tournamentTeamId.trim()
+      );
+    }
+
+    // Optional match date filter
+    if (matchDate?.trim()) {
+      params = params.set(
+        'matchDate',
+        matchDate.trim()
+      );
+    }
+
+    return this.http.get(
+      `${this.apiUrl}/${scheduleId}/pdf`,
+      {
+        params,
+        responseType: 'blob',
+        observe: 'response'
+      }
     );
   }
 }

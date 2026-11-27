@@ -1,8 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, finalize } from 'rxjs';
+import { PdfDownloadUtil } from '../../../shared/utils/pdf-download.util';
 
 import { MatchScheduleService } from '../../../core/services/match-schedule';
 
@@ -22,7 +24,7 @@ import { SecureImage } from '../../../shared/components/secure-image/secure-imag
 @Component({
   selector: 'app-match-schedule-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, SecureImage],
+  imports: [CommonModule, FormsModule, RouterLink, SecureImage],
   templateUrl: './match-schedule-details.html',
   styleUrl: './match-schedule-details.scss'
 })
@@ -62,6 +64,14 @@ export class MatchScheduleDetails implements OnInit {
   loadingFixtures = false;
 
   generating = false;
+
+  downloadingPdf = false;
+
+  pdfErrorMessage = '';
+
+  pdfTeamId = 'ALL';
+
+  pdfMatchDate = 'ALL';
 
   errorMessage = '';
 
@@ -657,6 +667,7 @@ export class MatchScheduleDetails implements OnInit {
     this.fixtures = [];
 
     this.selectedDate = 'ALL';
+    this.resetPdfFilters();
 
     forkJoin({
 
@@ -773,7 +784,91 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   // =====================================
-  // 16. FORMAT TIME
+  // 16. DOWNLOAD COMPLETE SCHEDULE PDF
+  // =====================================
+
+  get pdfReportLabel(): string {
+    if (this.pdfTeamId !== 'ALL') {
+      return this.pdfMatchDate !== 'ALL'
+        ? 'Team and Date-wise Schedule' : 'Team-wise Schedule';
+    }
+    return this.pdfMatchDate !== 'ALL'
+      ? 'Date-wise Schedule' : 'Complete Tournament Schedule';
+  }
+
+  resetPdfFilters(): void {
+    this.pdfTeamId = 'ALL';
+    this.pdfMatchDate = 'ALL';
+    this.pdfErrorMessage = '';
+  }
+
+  get canDownloadPdf(): boolean {
+    return !!this.schedule &&
+      !this.loading &&
+      !this.loadingFixtures &&
+      !this.generating &&
+      !this.downloadingPdf &&
+      !this.errorMessage &&
+      !this.fixtureErrorMessage &&
+      this.fixtures.length > 0;
+  }
+
+  downloadSchedulePdf(): void {
+
+    if (!this.schedule || !this.canDownloadPdf) {
+      return;
+    }
+
+    const scheduleId = this.schedule.id;
+    const teamId = this.pdfTeamId === 'ALL' ? undefined : this.pdfTeamId;
+    const matchDate = this.pdfMatchDate === 'ALL' ? undefined : this.pdfMatchDate;
+    const team = this.teamDraws.find(draw => draw.tournamentTeamId === teamId);
+
+    if ((teamId && !team) || (matchDate && !this.fixtureDates.includes(matchDate))) {
+      this.pdfErrorMessage = 'Please select a valid team and match date.';
+      return;
+    }
+
+    const fallbackFileName = [
+      this.schedule.name || 'match-schedule',
+      'schedule',
+      team?.teamName,
+      matchDate
+    ].filter(Boolean).join('-') + '.pdf';
+
+    this.downloadingPdf = true;
+    this.pdfErrorMessage = '';
+
+    this.matchScheduleService.downloadSchedulePdf(scheduleId, teamId, matchDate)
+      .pipe(finalize(() => this.downloadingPdf = false))
+      .subscribe({
+        next: response => {
+          try {
+            PdfDownloadUtil.download(response, fallbackFileName);
+          } catch (error) {
+            this.pdfErrorMessage = error instanceof Error
+              ? error.message
+              : 'Unable to download the match schedule PDF.';
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.pdfErrorMessage = 'Unable to download the match schedule PDF. Please try again.';
+          if (error.error instanceof Blob) {
+            void error.error.text().then(text => {
+              const body = JSON.parse(text);
+              if (typeof body?.message === 'string' && body.message.trim()) {
+                this.pdfErrorMessage = body.message;
+              }
+            }).catch(() => { /* Retain the fallback message. */ });
+          } else if (typeof error.error?.message === 'string') {
+            this.pdfErrorMessage = error.error.message;
+          }
+        }
+      });
+  }
+
+  // =====================================
+  // 17. FORMAT TIME
   // =====================================
 
   formatTime(time: string | null): string {

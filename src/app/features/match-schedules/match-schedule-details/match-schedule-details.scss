@@ -658,3 +658,43 @@ h5 i { color: #4f46e5; }
   .fixture-table-team { min-width: 145px; }
   .fixture-card .fixture-teams { padding: 18px 0; }
 }
+
+// Step 9.12.9.1 — Complete schedule PDF download
+.btn-download-pdf {
+  background: linear-gradient(135deg, #f4d77b, #d4af37);
+  color: #0b1428;
+  border: 1px solid #d4af37;
+  padding: 10px 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  &:hover:not(:disabled) {
+    background: #f4d77b;
+    color: #0b1428;
+    border-color: #f4d77b;
+  }
+  &:disabled { opacity: .65; color: #0b1428; }
+}
+@media (max-width: 575.98px) {
+  .btn-download-pdf { width: 100%; }
+}
+
+
+// Step 9.12.9.2 — PDF export filters
+.pdf-export-panel {
+  background: linear-gradient(125deg, #0b1428, #172554);
+  color: #f8fafc;
+  border-color: #b89642;
+  h5, h5 i, .form-label { color: #f4d77b; }
+  .text-muted { color: #cbd5e1 !important; }
+  .form-select { border-color: #b89642; }
+  .pdf-report-preview {
+    background: #172554;
+    border: 1px solid #344766;
+    border-radius: 10px;
+    padding: 12px 16px;
+    small { color: #cbd5e1; }
+    .fw-semibold { color: #f4d77b; }
+  }
+  .pdf-reset { color: #f4d77b; border-color: #b89642; }
+  .pdf-reset:hover:not(:disabled) { background: #f4d77b; color: #0b1428; }
+}

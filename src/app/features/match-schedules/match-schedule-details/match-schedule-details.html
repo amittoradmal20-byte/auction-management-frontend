@@ -98,8 +98,74 @@
           <h3 class="mb-1">{{ tournamentName || 'N/A' }}</h3>
           <p class="mb-0 text-muted">Match Schedule</p>
         </div>
+
       </div>
     </div>
+
+    <div class="content-card pdf-export-panel mb-4">
+      <h5><i class="bi bi-file-earmark-pdf me-2"></i>Download Match Schedule</h5>
+      <p class="text-muted small">Customize your tournament PDF report.</p>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="pdf-team" class="form-label">Select Team</label>
+          <select id="pdf-team" class="form-select" 
+            [(ngModel)]="pdfTeamId"
+            [disabled]="downloadingPdf || loadingFixtures || generating || !!fixtureErrorMessage">
+            <option value="ALL">All Teams</option>
+            @for (draw of teamDraws; track draw.tournamentTeamId) {
+              <option [value]="draw.tournamentTeamId">{{ draw.teamName }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="pdf-date" class="form-label">Select Match Date</label>
+          <select id="pdf-date" class="form-select" 
+            [(ngModel)]="pdfMatchDate"
+            [disabled]="downloadingPdf || loadingFixtures || generating || !!fixtureErrorMessage">
+            <option value="ALL">All Dates</option>
+            @for (day of fixtureDates; track day) {
+              <option [value]="day">{{ day | date:'dd MMM yyyy' }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      @if (!loadingFixtures && !generating && !fixtureErrorMessage && fixtures.length === 0) {
+        <div class="alert alert-warning mt-3 mb-0" role="status">
+          <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+          Generate match fixtures before downloading the schedule PDF.
+        </div>
+      }
+      <div class="pdf-report-preview mt-3" aria-live="polite">
+        <small>Selected report</small>
+        <div class="fw-semibold">{{ pdfReportLabel }}</div>
+      </div>
+      <div class="d-flex flex-wrap justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-outline-secondary pdf-reset"
+          [disabled]="downloadingPdf || loadingFixtures || generating"
+          (click)="resetPdfFilters()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+        </button>
+        <button type="button" class="btn btn-download-pdf"
+          [disabled]="!canDownloadPdf"
+          [attr.aria-busy]="downloadingPdf"
+          (click)="downloadSchedulePdf()">
+          @if (downloadingPdf) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Downloading PDF...
+          } @else {
+            <i class="bi bi-file-earmark-pdf me-2" aria-hidden="true"></i>
+            Download PDF
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (pdfErrorMessage) {
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+        {{ pdfErrorMessage }}
+      </div>
+    }
 
     <div class="content-card schedule-hero mb-4">
 
