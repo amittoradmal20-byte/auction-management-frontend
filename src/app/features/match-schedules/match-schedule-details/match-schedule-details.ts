@@ -1,8 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, finalize } from 'rxjs';
+import { PdfFileUtil } from '../../../shared/utils/pdf-file.util';
+import { PdfShareUtil } from '../../../shared/utils/pdf-share.util';
+import { PdfDownloadUtil } from '../../../shared/utils/pdf-download.util';
 
 import { MatchScheduleService } from '../../../core/services/match-schedule';
 
@@ -22,7 +26,7 @@ import { SecureImage } from '../../../shared/components/secure-image/secure-imag
 @Component({
   selector: 'app-match-schedule-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, SecureImage],
+  imports: [CommonModule, FormsModule, RouterLink, SecureImage],
   templateUrl: './match-schedule-details.html',
   styleUrl: './match-schedule-details.scss'
 })
@@ -62,6 +66,45 @@ export class MatchScheduleDetails implements OnInit {
   loadingFixtures = false;
 
   generating = false;
+
+  downloadingPdf = false;
+
+  preparingPdf = false;
+  sharingPdf = false;
+  preparedPdf: File | null = null;
+  shareErrorMessage = '';
+  shareInfoMessage = '';
+  private shareRevision = 0;
+
+  get pdfShareBusy(): boolean {
+    return this.preparingPdf || this.sharingPdf;
+  }
+
+  get canSharePreparedPdf(): boolean {
+    return !!this.preparedPdf && !this.pdfShareBusy &&
+      !this.downloadingPdf && PdfShareUtil.canShareFile(this.preparedPdf);
+  }
+
+  pdfErrorMessage = '';
+
+  private selectedPdfTeamId = 'ALL';
+  private selectedPdfMatchDate = 'ALL';
+
+  get pdfTeamId(): string { return this.selectedPdfTeamId; }
+  set pdfTeamId(value: string) {
+    if (value !== this.selectedPdfTeamId) {
+      this.selectedPdfTeamId = value;
+      this.clearPreparedPdf();
+    }
+  }
+
+  get pdfMatchDate(): string { return this.selectedPdfMatchDate; }
+  set pdfMatchDate(value: string) {
+    if (value !== this.selectedPdfMatchDate) {
+      this.selectedPdfMatchDate = value;
+      this.clearPreparedPdf();
+    }
+  }
 
   errorMessage = '';
 
@@ -604,6 +647,7 @@ export class MatchScheduleDetails implements OnInit {
       return;
     }
 
+    this.clearPreparedPdf();
     this.loading = true;
 
     this.errorMessage = '';
@@ -657,6 +701,7 @@ export class MatchScheduleDetails implements OnInit {
     this.fixtures = [];
 
     this.selectedDate = 'ALL';
+    this.resetPdfFilters();
 
     forkJoin({
 
@@ -773,7 +818,183 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   // =====================================
-  // 16. FORMAT TIME
+  // 16. DOWNLOAD COMPLETE SCHEDULE PDF
+  // =====================================
+
+  get pdfReportLabel(): string {
+    if (this.pdfTeamId !== 'ALL') {
+      return this.pdfMatchDate !== 'ALL'
+        ? 'Team and Date-wise Schedule' : 'Team-wise Schedule';
+    }
+    return this.pdfMatchDate !== 'ALL'
+      ? 'Date-wise Schedule' : 'Complete Tournament Schedule';
+  }
+
+  resetPdfFilters(): void {
+    this.clearPreparedPdf();
+    this.pdfTeamId = 'ALL';
+    this.pdfMatchDate = 'ALL';
+    this.pdfErrorMessage = '';
+  }
+
+  get canDownloadPdf(): boolean {
+    return !!this.schedule &&
+      !this.loading &&
+      !this.loadingFixtures &&
+      !this.generating &&
+      !this.downloadingPdf &&
+      !this.pdfShareBusy &&
+      !this.preparedPdf &&
+      !this.errorMessage &&
+      !this.fixtureErrorMessage &&
+      this.fixtures.length > 0;
+  }
+
+  downloadSchedulePdf(): void {
+
+    if (!this.schedule || !this.canDownloadPdf) {
+      return;
+    }
+
+    const scheduleId = this.schedule.id;
+    const teamId = this.pdfTeamId === 'ALL' ? undefined : this.pdfTeamId;
+    const matchDate = this.pdfMatchDate === 'ALL' ? undefined : this.pdfMatchDate;
+    const team = this.teamDraws.find(draw => draw.tournamentTeamId === teamId);
+
+    if ((teamId && !team) || (matchDate && !this.fixtureDates.includes(matchDate))) {
+      this.pdfErrorMessage = 'Please select a valid team and match date.';
+      return;
+    }
+
+    const fallbackFileName = [
+      this.schedule.name || 'match-schedule',
+      'schedule',
+      team?.teamName,
+      matchDate
+    ].filter(Boolean).join('-') + '.pdf';
+
+    this.downloadingPdf = true;
+    this.pdfErrorMessage = '';
+
+    this.matchScheduleService.downloadSchedulePdf(scheduleId, teamId, matchDate)
+      .pipe(finalize(() => this.downloadingPdf = false))
+      .subscribe({
+        next: response => {
+          try {
+            PdfDownloadUtil.download(response, fallbackFileName);
+          } catch (error) {
+            this.pdfErrorMessage = error instanceof Error
+              ? error.message
+              : 'Unable to download the match schedule PDF.';
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.pdfErrorMessage = 'Unable to download the match schedule PDF. Please try again.';
+          if (error.error instanceof Blob) {
+            void error.error.text().then(text => {
+              const body = JSON.parse(text);
+              if (typeof body?.message === 'string' && body.message.trim()) {
+                this.pdfErrorMessage = body.message;
+              }
+            }).catch(() => { /* Retain the fallback message. */ });
+          } else if (typeof error.error?.message === 'string') {
+            this.pdfErrorMessage = error.error.message;
+          }
+        }
+      });
+  }
+
+  // =====================================
+  // 17. PREPARE AND SHARE SCHEDULE PDF
+  // =====================================
+
+  clearPreparedPdf(): void {
+    this.shareRevision++;
+    this.preparedPdf = null;
+    this.shareErrorMessage = '';
+    this.shareInfoMessage = '';
+  }
+
+  prepareSchedulePdf(): void {
+    if (!this.schedule || !this.canDownloadPdf) return;
+
+    const scheduleId = this.schedule.id;
+    const teamId = this.pdfTeamId === 'ALL' ? undefined : this.pdfTeamId;
+    const matchDate = this.pdfMatchDate === 'ALL' ? undefined : this.pdfMatchDate;
+    const team = this.teamDraws.find(draw => draw.tournamentTeamId === teamId);
+
+    this.clearPreparedPdf();
+    if ((teamId && !team) || (matchDate && !this.fixtureDates.includes(matchDate))) {
+      this.shareErrorMessage = 'Please select a valid team and match date.';
+      return;
+    }
+
+    const fallbackFileName = [this.schedule.name || 'match-schedule',
+      'schedule', team?.teamName, matchDate].filter(Boolean).join('-') + '.pdf';
+    const revision = this.shareRevision;
+    this.preparingPdf = true;
+
+    this.matchScheduleService.downloadSchedulePdf(scheduleId, teamId, matchDate)
+      .pipe(finalize(() => this.preparingPdf = false))
+      .subscribe({
+        next: response => {
+          if (revision !== this.shareRevision) return;
+          try {
+            this.preparedPdf = PdfFileUtil.createFile(response, fallbackFileName);
+            if (!PdfShareUtil.canShareFile(this.preparedPdf)) {
+              this.shareInfoMessage = 'Direct file sharing is unavailable. Download the PDF and attach it manually.';
+            }
+          } catch (error) {
+            this.shareErrorMessage = error instanceof Error ? error.message : 'Unable to prepare PDF.';
+          }
+        },
+        error: () => {
+          if (revision === this.shareRevision) {
+            this.shareErrorMessage = 'Unable to prepare the match schedule PDF. Please try again.';
+          }
+        }
+      });
+  }
+
+  async sharePreparedPdf(): Promise<void> {
+    const file = this.preparedPdf;
+    if (!file || !this.canSharePreparedPdf) return;
+    const revision = this.shareRevision;
+    this.sharingPdf = true;
+    this.shareErrorMessage = '';
+    this.shareInfoMessage = '';
+    try {
+      // Call directly from the Share Now click, before any asynchronous work.
+      const result = await PdfShareUtil.shareFile(file, 'Match Schedule',
+        'Please find the attached cricket match schedule.');
+      if (revision !== this.shareRevision) return;
+      if (result === 'SHARED') {
+        this.clearPreparedPdf();
+        this.shareInfoMessage = 'PDF handed to the device sharing service.';
+      } else if (result === 'UNSUPPORTED') {
+        this.shareInfoMessage = 'Direct file sharing is unavailable. Please download the PDF.';
+      }
+    } catch {
+      if (revision === this.shareRevision) {
+        this.shareErrorMessage = 'Unable to share the PDF. Try again or download it instead.';
+      }
+    } finally {
+      this.sharingPdf = false;
+    }
+  }
+
+  downloadPreparedPdf(): void {
+    if (!this.preparedPdf || this.pdfShareBusy || this.downloadingPdf) return;
+    try {
+      PdfDownloadUtil.downloadFile(this.preparedPdf);
+      this.shareErrorMessage = '';
+    } catch (error) {
+      this.shareErrorMessage = error instanceof Error ? error.message : 'Unable to download PDF.';
+    }
+  }
+
+  // =====================================
+  // 18. FORMAT TIME
   // =====================================
 
   formatTime(time: string | null): string {
