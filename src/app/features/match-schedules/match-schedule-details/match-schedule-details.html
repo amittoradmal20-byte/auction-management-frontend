@@ -103,14 +103,14 @@
     </div>
 
     <div class="content-card pdf-export-panel mb-4">
-      <h5><i class="bi bi-file-earmark-pdf me-2"></i>Download Match Schedule</h5>
-      <p class="text-muted small">Customize your tournament PDF report.</p>
+      <h5><i class="bi bi-file-earmark-pdf me-2"></i>Download or Share Match Schedule</h5>
+      <p class="text-muted small">Customize, download or share your tournament PDF report.</p>
       <div class="row g-3">
         <div class="col-md-6">
           <label for="pdf-team" class="form-label">Select Team</label>
           <select id="pdf-team" class="form-select" 
             [(ngModel)]="pdfTeamId"
-            [disabled]="downloadingPdf || loadingFixtures || generating || !!fixtureErrorMessage">
+            [disabled]="downloadingPdf || pdfShareBusy || loadingFixtures || generating || !!fixtureErrorMessage">
             <option value="ALL">All Teams</option>
             @for (draw of teamDraws; track draw.tournamentTeamId) {
               <option [value]="draw.tournamentTeamId">{{ draw.teamName }}</option>
@@ -121,7 +121,7 @@
           <label for="pdf-date" class="form-label">Select Match Date</label>
           <select id="pdf-date" class="form-select" 
             [(ngModel)]="pdfMatchDate"
-            [disabled]="downloadingPdf || loadingFixtures || generating || !!fixtureErrorMessage">
+            [disabled]="downloadingPdf || pdfShareBusy || loadingFixtures || generating || !!fixtureErrorMessage">
             <option value="ALL">All Dates</option>
             @for (day of fixtureDates; track day) {
               <option [value]="day">{{ day | date:'dd MMM yyyy' }}</option>
@@ -132,16 +132,16 @@
       @if (!loadingFixtures && !generating && !fixtureErrorMessage && fixtures.length === 0) {
         <div class="alert alert-warning mt-3 mb-0" role="status">
           <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
-          Generate match fixtures before downloading the schedule PDF.
+          Generate match fixtures before downloading or sharing the schedule PDF.
         </div>
       }
       <div class="pdf-report-preview mt-3" aria-live="polite">
         <small>Selected report</small>
         <div class="fw-semibold">{{ pdfReportLabel }}</div>
       </div>
-      <div class="d-flex flex-wrap justify-content-end gap-2 mt-3">
+      <div class="pdf-export-actions d-flex flex-wrap justify-content-end gap-2 mt-3">
         <button type="button" class="btn btn-outline-secondary pdf-reset"
-          [disabled]="downloadingPdf || loadingFixtures || generating"
+          [disabled]="downloadingPdf || pdfShareBusy || loadingFixtures || generating"
           (click)="resetPdfFilters()">
           <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
         </button>
@@ -157,7 +157,81 @@
             Download PDF
           }
         </button>
+        <button type="button" class="btn btn-success btn-share-pdf"
+          [disabled]="!canDownloadPdf"
+          [attr.aria-busy]="preparingPdf"
+          (click)="prepareSchedulePdf()">
+          @if (preparingPdf) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Preparing PDF...
+          } @else {
+            <i class="bi bi-share me-2" aria-hidden="true"></i>Share PDF
+          }
+        </button>
       </div>
+      @if (shareErrorMessage) {
+        <div class="pdf-share-message pdf-share-error mt-3" role="alert">
+          <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+          <span>{{ shareErrorMessage }}</span>
+        </div>
+      }
+      @if (shareInfoMessage) {
+        <div class="pdf-share-message mt-3" role="status"
+          [class.pdf-share-warning]="!!preparedPdf"
+          [class.pdf-share-success]="!preparedPdf">
+          <i class="bi" [ngClass]="preparedPdf ? 'bi-info-circle' : 'bi-check-circle'" aria-hidden="true"></i>
+          <span>{{ shareInfoMessage }}</span>
+        </div>
+      }
+      @if (preparedPdf; as file) {
+        <section class="pdf-share-panel mt-3" aria-labelledby="pdf-share-heading">
+          <div class="pdf-share-header">
+            <span class="pdf-share-symbol"><i class="bi bi-share" aria-hidden="true"></i></span>
+            <div>
+              <h6 id="pdf-share-heading">Share Match Schedule</h6>
+              <p>Share your selected tournament report.</p>
+            </div>
+          </div>
+          <div class="pdf-share-file">
+            <div class="pdf-share-file-row">
+              <span class="pdf-file-symbol"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i></span>
+              <div class="pdf-file-details">
+                <div class="pdf-file-name">{{ file.name }}</div>
+                <small>PDF Document · {{ file.size / 1024 | number:'1.0-1' }} KB</small>
+                <div class="pdf-file-ready"><i class="bi bi-check-circle me-1" aria-hidden="true"></i>PDF prepared</div>
+              </div>
+            </div>
+            <div class="pdf-share-report">
+              <small>Selected report</small>
+              <strong>{{ pdfReportLabel }}</strong>
+            </div>
+          </div>
+          @if (sharingPdf) {
+            <p class="pdf-share-hint" role="status">Waiting for the device sharing service...</p>
+          } @else if (canSharePreparedPdf) {
+            <p class="pdf-share-hint">Choose an available application from your device's sharing menu.</p>
+            <div class="pdf-share-destinations" aria-label="Examples of possible sharing destinations">
+              <span><i class="bi bi-whatsapp" aria-hidden="true"></i>WhatsApp</span>
+              <span><i class="bi bi-telegram" aria-hidden="true"></i>Telegram</span>
+              <span><i class="bi bi-envelope" aria-hidden="true"></i>Email</span>
+            </div>
+            <small class="pdf-share-hint">Available applications depend on your device.</small>
+          } @else {
+            <p class="pdf-share-hint">Use Download to save the prepared PDF and attach it manually.</p>
+          }
+          <div class="pdf-share-actions">
+            <button type="button" class="btn btn-outline-secondary pdf-reset" [disabled]="pdfShareBusy" (click)="clearPreparedPdf()"><i class="bi bi-x-lg me-2" aria-hidden="true"></i>Close</button>
+            <button type="button" class="btn btn-download-pdf" [disabled]="pdfShareBusy" (click)="downloadPreparedPdf()"><i class="bi bi-download me-2" aria-hidden="true"></i>Download</button>
+            <button type="button" class="btn btn-success btn-share-pdf" [disabled]="!canSharePreparedPdf" [attr.aria-busy]="sharingPdf" (click)="sharePreparedPdf()">
+              @if (sharingPdf) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Sharing...
+              } @else {
+                <i class="bi bi-share me-2" aria-hidden="true"></i>Share Now
+              }
+            </button>
+          </div>
+        </section>
+      }
     </div>
 
     @if (pdfErrorMessage) {
@@ -397,7 +471,7 @@
           <button
             type="button"
             class="btn btn-primary"
-            [disabled]="generating || loadingFixtures"
+            [disabled]="generating || loadingFixtures || downloadingPdf || pdfShareBusy || !!preparedPdf"
             (click)="generateFixtures()">
 
             @if (generating) {

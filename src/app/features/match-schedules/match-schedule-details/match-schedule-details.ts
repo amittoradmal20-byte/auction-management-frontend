@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
+import { PdfFileUtil } from '../../../shared/utils/pdf-file.util';
+import { PdfShareUtil } from '../../../shared/utils/pdf-share.util';
 import { PdfDownloadUtil } from '../../../shared/utils/pdf-download.util';
 
 import { MatchScheduleService } from '../../../core/services/match-schedule';
@@ -67,11 +69,42 @@ export class MatchScheduleDetails implements OnInit {
 
   downloadingPdf = false;
 
+  preparingPdf = false;
+  sharingPdf = false;
+  preparedPdf: File | null = null;
+  shareErrorMessage = '';
+  shareInfoMessage = '';
+  private shareRevision = 0;
+
+  get pdfShareBusy(): boolean {
+    return this.preparingPdf || this.sharingPdf;
+  }
+
+  get canSharePreparedPdf(): boolean {
+    return !!this.preparedPdf && !this.pdfShareBusy &&
+      !this.downloadingPdf && PdfShareUtil.canShareFile(this.preparedPdf);
+  }
+
   pdfErrorMessage = '';
 
-  pdfTeamId = 'ALL';
+  private selectedPdfTeamId = 'ALL';
+  private selectedPdfMatchDate = 'ALL';
 
-  pdfMatchDate = 'ALL';
+  get pdfTeamId(): string { return this.selectedPdfTeamId; }
+  set pdfTeamId(value: string) {
+    if (value !== this.selectedPdfTeamId) {
+      this.selectedPdfTeamId = value;
+      this.clearPreparedPdf();
+    }
+  }
+
+  get pdfMatchDate(): string { return this.selectedPdfMatchDate; }
+  set pdfMatchDate(value: string) {
+    if (value !== this.selectedPdfMatchDate) {
+      this.selectedPdfMatchDate = value;
+      this.clearPreparedPdf();
+    }
+  }
 
   errorMessage = '';
 
@@ -614,6 +647,7 @@ export class MatchScheduleDetails implements OnInit {
       return;
     }
 
+    this.clearPreparedPdf();
     this.loading = true;
 
     this.errorMessage = '';
@@ -797,6 +831,7 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   resetPdfFilters(): void {
+    this.clearPreparedPdf();
     this.pdfTeamId = 'ALL';
     this.pdfMatchDate = 'ALL';
     this.pdfErrorMessage = '';
@@ -808,6 +843,8 @@ export class MatchScheduleDetails implements OnInit {
       !this.loadingFixtures &&
       !this.generating &&
       !this.downloadingPdf &&
+      !this.pdfShareBusy &&
+      !this.preparedPdf &&
       !this.errorMessage &&
       !this.fixtureErrorMessage &&
       this.fixtures.length > 0;
@@ -868,7 +905,96 @@ export class MatchScheduleDetails implements OnInit {
   }
 
   // =====================================
-  // 17. FORMAT TIME
+  // 17. PREPARE AND SHARE SCHEDULE PDF
+  // =====================================
+
+  clearPreparedPdf(): void {
+    this.shareRevision++;
+    this.preparedPdf = null;
+    this.shareErrorMessage = '';
+    this.shareInfoMessage = '';
+  }
+
+  prepareSchedulePdf(): void {
+    if (!this.schedule || !this.canDownloadPdf) return;
+
+    const scheduleId = this.schedule.id;
+    const teamId = this.pdfTeamId === 'ALL' ? undefined : this.pdfTeamId;
+    const matchDate = this.pdfMatchDate === 'ALL' ? undefined : this.pdfMatchDate;
+    const team = this.teamDraws.find(draw => draw.tournamentTeamId === teamId);
+
+    this.clearPreparedPdf();
+    if ((teamId && !team) || (matchDate && !this.fixtureDates.includes(matchDate))) {
+      this.shareErrorMessage = 'Please select a valid team and match date.';
+      return;
+    }
+
+    const fallbackFileName = [this.schedule.name || 'match-schedule',
+      'schedule', team?.teamName, matchDate].filter(Boolean).join('-') + '.pdf';
+    const revision = this.shareRevision;
+    this.preparingPdf = true;
+
+    this.matchScheduleService.downloadSchedulePdf(scheduleId, teamId, matchDate)
+      .pipe(finalize(() => this.preparingPdf = false))
+      .subscribe({
+        next: response => {
+          if (revision !== this.shareRevision) return;
+          try {
+            this.preparedPdf = PdfFileUtil.createFile(response, fallbackFileName);
+            if (!PdfShareUtil.canShareFile(this.preparedPdf)) {
+              this.shareInfoMessage = 'Direct file sharing is unavailable. Download the PDF and attach it manually.';
+            }
+          } catch (error) {
+            this.shareErrorMessage = error instanceof Error ? error.message : 'Unable to prepare PDF.';
+          }
+        },
+        error: () => {
+          if (revision === this.shareRevision) {
+            this.shareErrorMessage = 'Unable to prepare the match schedule PDF. Please try again.';
+          }
+        }
+      });
+  }
+
+  async sharePreparedPdf(): Promise<void> {
+    const file = this.preparedPdf;
+    if (!file || !this.canSharePreparedPdf) return;
+    const revision = this.shareRevision;
+    this.sharingPdf = true;
+    this.shareErrorMessage = '';
+    this.shareInfoMessage = '';
+    try {
+      // Call directly from the Share Now click, before any asynchronous work.
+      const result = await PdfShareUtil.shareFile(file, 'Match Schedule',
+        'Please find the attached cricket match schedule.');
+      if (revision !== this.shareRevision) return;
+      if (result === 'SHARED') {
+        this.clearPreparedPdf();
+        this.shareInfoMessage = 'PDF handed to the device sharing service.';
+      } else if (result === 'UNSUPPORTED') {
+        this.shareInfoMessage = 'Direct file sharing is unavailable. Please download the PDF.';
+      }
+    } catch {
+      if (revision === this.shareRevision) {
+        this.shareErrorMessage = 'Unable to share the PDF. Try again or download it instead.';
+      }
+    } finally {
+      this.sharingPdf = false;
+    }
+  }
+
+  downloadPreparedPdf(): void {
+    if (!this.preparedPdf || this.pdfShareBusy || this.downloadingPdf) return;
+    try {
+      PdfDownloadUtil.downloadFile(this.preparedPdf);
+      this.shareErrorMessage = '';
+    } catch (error) {
+      this.shareErrorMessage = error instanceof Error ? error.message : 'Unable to download PDF.';
+    }
+  }
+
+  // =====================================
+  // 18. FORMAT TIME
   // =====================================
 
   formatTime(time: string | null): string {
